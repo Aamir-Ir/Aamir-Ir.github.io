@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Portfolio</title>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
+      color: white;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 2px solid red;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    nav {
+      margin-top: 1rem;
+    }
+    nav a {
+      color: red;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    .project {
+      background-color: #1a1a1a;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid red;
+    }
+    .project h2 {
+      color: red;
+    }
+    .project img, .project video {
+      max-width: 100%;
+      margin-top: 1rem;
+    }
+    .download {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: red;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #1a1a1a;
+      border-top: 2px solid red;
+      color: #aaa;
+    }
+    pre {
+      background: #2d2d2d;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Name</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section id="about">
+      <h2>About Me</h2>
+      <p>Write something interesting about yourself here. Your skills, interests, and why you love creating cool stuff.</p>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+
+      <div class="project">
+        <h2>Project Title</h2>
+        <p>Description of the project. What it does, why it matters, your role, etc.</p>
+
+        <pre><code class="language-javascript">// Sample JavaScript code
+function greet(name) {
+  return `Hello, ${name}`;
+}</code></pre>
+
+        <img src="assets/sample-image.jpg" alt="Screenshot of project" />
+
+        <video controls>
+          <source src="assets/sample-video.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <a class="download" href="downloads/project.zip" download>Download</a>
+      </div>
+
+    </section>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <p>Email: your.email@example.com</p>
+      <p>GitHub: <a href="https://github.com/yourusername" style="color: red;">@yourusername</a></p>
+    </section>
+  </div>
+
+  <footer>
+    &copy; 2025 Your Name. All rights reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+</body>
+</html>
