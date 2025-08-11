@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects - Your Portfolio</title>
+  <!-- Prism.js CSS for syntax highlighting -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0d0d0d;
+      color: white;
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 2px solid red;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    nav a {
+      color: red;
+      margin: 0 1rem;
+      text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .nav-bar {
+      display: flex;
+      gap: 1rem;
+      background: #1a1a1a;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+    .nav-bar button {
+      background: none;
+      color: red;
+      border: 1px solid red;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .nav-bar button.active {
+      background: red;
+      color: white;
+    }
+    .project-detail {
+      background-color: #1a1a1a;
+      padding: 1.5rem;
+      border-left: 4px solid red;
+    }
+    .project-detail img,
+    .project-detail video {
+      max-width: 100%;
+      margin-top: 1rem;
+      border: 2px solid red;
+      border-radius: 4px;
+    }
+    .download {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: red;
+      color: white;
+      text-decoration: none;
+      border-radius: 3px;
+    }
+    .links {
+      margin-top: 1rem;
+    }
+    .links a {
+      display: inline-block;
+      margin-right: 1rem;
+      color: red;
+      text-decoration: none;
+      border: 1px solid red;
+      padding: 0.3rem 0.6rem;
+      border-radius: 3px;
+      transition: background-color 0.3s;
+    }
+    .links a:hover {
+      background-color: red;
+      color: white;
+    }
+    pre[class*="language-"] {
+      margin-top: 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Your Name</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html" style="text-decoration: underline;">Projects</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="nav-bar" id="category-nav"></div>
+  <div class="nav-bar" id="project-nav"></div>
+
+  <div class="project-detail" id="project-detail">
+    <h2>Select a project</h2>
+    <p>Click on a project above to see details here.</p>
+  </div>
+</div>
+
+<!-- Prism.js -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
+
+<script>
+  const projectsData = {
+    "Full-Stack": [
+      {
+        id: "websitebuilder",
+        name: "Website Builder",
+        summary: "A full-stack web app to build websites dynamically.",
+        image: "assets/website-builder.png",
+        video: "",
+        download: "",
+        links: [
+          { label: "GitHub Repo", url: "https://github.com/yourusername/website-builder" },
+          { label: "Live Demo", url: "https://yourwebsite.com/website-builder" }
+        ],
+        code: `function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+console.log(greet('World'));`
+      },
+      {
+        id: "ecommerceplatform",
+        name: "E-commerce Platform",
+        summary: "An online store with payment gateway integration.",
+        image: "",
+        video: "assets/ecommerce-demo.mp4",
+        download: "",
+        links: [
+          { label: "GitHub Repo", url: "https://github.com/yourusername/ecommerce-platform" }
+        ],
+        code: null
+      }
+    ],
+    "Embedded": [
+      {
+        id: "iotsensor",
+        name: "IoT Sensor",
+        summary: "Temperature and humidity sensor with cloud upload.",
+        image: "assets/iot-sensor.jpg",
+        video: "",
+        download: "assets/iot-sensor-firmware.zip",
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      }
+    ],
+    "Other": [
+      {
+        id: "gameprototype",
+        name: "Game Prototype",
+        summary: "2D multiplayer game demo built with HTML5 Canvas.",
+        image: "",
+        video: "assets/game-demo.mp4",
+        download: "",
+        links: [
+          { label: "YouTube Video", url: "https://youtu.be/yourgamevideo" }
+        ],
+        code: null
+      }
+    ]
+  };
+
+  const categoryNav = document.getElementById('category-nav');
+  const projectNav = document.getElementById('project-nav');
+  const projectDetail = document.getElementById('project-detail');
+
+  let activeCategoryBtn = null;
+  let activeProjectBtn = null;
+
+  function clearActive(buttons) {
+    buttons.forEach(btn => btn.classList.remove('active'));
+  }
+
+  function renderCategories() {
+    Object.keys(projectsData).forEach((category, index) => {
+      const btn = document.createElement('button');
+      btn.textContent = category;
+      btn.onclick = () => selectCategory(category, btn);
+      categoryNav.appendChild(btn);
+    });
+  }
+
+  function renderProjects(category) {
+    projectNav.innerHTML = '';
+    clearActive([...projectNav.children]);
+    projectsData[category].forEach((project) => {
+      const btn = document.createElement('button');
+      btn.textContent = project.name;
+      btn.onclick = () => selectProject(project, btn);
+      btn.dataset.projectId = project.id;
+      projectNav.appendChild(btn);
+    });
+  }
+
+  function selectCategory(category, btn) {
+    if (activeCategoryBtn) activeCategoryBtn.classList.remove('active');
+    btn.classList.add('active');
+    activeCategoryBtn = btn;
+    renderProjects(category);
+  }
+
+  function selectProject(project, btn) {
+    if (activeProjectBtn) activeProjectBtn.classList.remove('active');
+    btn.classList.add('active');
+    activeProjectBtn = btn;
+
+    projectDetail.innerHTML = `
+      <h2>${project.name}</h2>
+      <p>${project.summary}</p>
+      <div class="project-media">
+        ${project.image ? `<img src="${project.image}" alt="${project.name} Image">` : ''}
+        ${project.video ? `<video controls src="${project.video}"></video>` : ''}
+      </div>
+      ${project.links && project.links.length > 0 ? `<div class="links">${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>` : ''}
+      ${project.download ? `<a href="${project.download}" class="download" download>Download</a>` : ''}
+      ${project.code ? `<pre class="language-javascript"><code>${escapeHtml(project.code)}</code></pre>` : ''}
+    `;
+
+    // After injecting code block, highlight it
+    if (project.code) Prism.highlightAll();
+  }
+
+  // Escape HTML special chars in code strings
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#039;");
+  }
+
+  // Find and select category and project by project id (hash)
+  function selectById(projectId) {
+    for (const category in projectsData) {
+      const project = projectsData[category].find(p => p.id === projectId);
+      if (project) {
+        // Select category button
+        const categoryButtons = categoryNav.querySelectorAll('button');
+        categoryButtons.forEach(btn => {
+          if (btn.textContent === category) selectCategory(category, btn);
+        });
+
+        // Wait a tiny moment for projects to render, then select project button
+        setTimeout(() => {
+          const projectButtons = projectNav.querySelectorAll('button');
+          projectButtons.forEach(btn => {
+            if (btn.dataset.projectId === projectId) selectProject(project, btn);
+          });
+        }, 10);
+
+        return true;
+      }
+    }
+    return false;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCategories();
+
+    // Check for hash in URL
+    const hash = window.location.hash.slice(1).toLowerCase();
+    if (hash && !selectById(hash)) {
+      // If hash doesn't match any project, select first category/project by default
+      const firstCategory = Object.keys(projectsData)[0];
+      selectCategory(firstCategory, categoryNav.querySelector('button'));
+      const firstProject = projectsData[firstCategory][0];
+      const firstProjectBtn = projectNav.querySelector('button');
+      selectProject(firstProject, firstProjectBtn);
+    } else if (!hash) {
+      // No hash, default select first category/project
+      const firstCategory = Object.keys(projectsData)[0];
+      selectCategory(firstCategory, categoryNav.querySelector('button'));
+      const firstProject = projectsData[firstCategory][0];
+      const firstProjectBtn = projectNav.querySelector('button');
+      selectProject(firstProject, firstProjectBtn);
+    }
+  });
+</script>
+
+</body>
+</html>

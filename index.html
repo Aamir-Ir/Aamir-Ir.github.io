@@ -11,7 +11,6 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: #0d0d0d;
       color: white;
-      line-height: 1.6;
     }
     header {
       background-color: #1a1a1a;
@@ -23,9 +22,6 @@
       margin: 0;
       font-size: 2.5rem;
     }
-    nav {
-      margin-top: 1rem;
-    }
     nav a {
       color: red;
       margin: 0 1rem;
@@ -33,96 +29,119 @@
     }
     .container {
       padding: 2rem;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
-    .project {
+    .project-summary {
       background-color: #1a1a1a;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
       border-left: 4px solid red;
     }
-    .project h2 {
+    .project-links a {
+      margin-right: 1rem;
       color: red;
-    }
-    .project img, .project video {
-      max-width: 100%;
-      margin-top: 1rem;
-    }
-    .download {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: red;
-      color: white;
       text-decoration: none;
-      border-radius: 5px;
+      font-weight: bold;
     }
-    footer {
-      text-align: center;
-      padding: 2rem;
-      background: #1a1a1a;
-      border-top: 2px solid red;
-      color: #aaa;
+    .project-links a:hover {
+      text-decoration: underline;
     }
-    pre {
-      background: #2d2d2d;
-      padding: 1rem;
-      overflow-x: auto;
+    /* Splash screen styles */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0d0d0d;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #splash-screen img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 3px solid red;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
-  <header>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <img src="assets/your-photo.jpg" alt="Your Photo" />
+    <h1>Your Name</h1>
+  </div>
+
+  <header style="display:none;">
     <h1>Your Name</h1>
     <nav>
-      <a href="#about">About</a>
-      <a href="#projects">Projects</a>
-      <a href="#contact">Contact</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#projects">Projects</a>
+      <a href="projects.html">Full Projects Page</a>
+      <a href="index.html#contact">Contact</a>
     </nav>
   </header>
 
-  <div class="container">
+  <div class="container" style="display:none;">
     <section id="about">
       <h2>About Me</h2>
-      <p>Write something interesting about yourself here. Your skills, interests, and why you love creating cool stuff.</p>
+      <p>Write something interesting about yourself here.</p>
     </section>
 
     <section id="projects">
-      <h2>Projects</h2>
-
-      <div class="project">
-        <h2>Project Title</h2>
-        <p>Description of the project. What it does, why it matters, your role, etc.</p>
-
-        <pre><code class="language-javascript">// Sample JavaScript code
-function greet(name) {
-  return `Hello, ${name}`;
-}</code></pre>
-
-        <img src="assets/sample-image.jpg" alt="Screenshot of project" />
-
-        <video controls>
-          <source src="assets/sample-video.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-
-        <a class="download" href="downloads/project.zip" download>Download</a>
+      <h2>Project Summaries</h2>
+      <div class="project-summary">
+        <h3>Website Builder</h3>
+        <p>Short summary of Website Builder...</p>
+        <div class="project-links">
+          <a href="projects.html#websitebuilder" aria-label="View details of Website Builder">View Details</a>
+          <a href="https://github.com/yourusername/website-builder" target="_blank" rel="noopener" aria-label="GitHub repository of Website Builder">GitHub</a>
+        </div>
       </div>
-
+      <div class="project-summary">
+        <h3>E-commerce Platform</h3>
+        <p>Short summary of E-commerce Platform...</p>
+        <div class="project-links">
+          <a href="projects.html#ecommerceplatform" aria-label="View details of E-commerce Platform">View Details</a>
+          <a href="https://github.com/yourusername/ecommerce-platform" target="_blank" rel="noopener" aria-label="GitHub repository of E-commerce Platform">GitHub</a>
+        </div>
+      </div>
     </section>
 
     <section id="contact">
       <h2>Contact</h2>
       <p>Email: your.email@example.com</p>
-      <p>GitHub: <a href="https://github.com/yourusername" style="color: red;">@yourusername</a></p>
     </section>
   </div>
 
-  <footer>
-    &copy; 2025 Your Name. All rights reserved.
+  <footer style="display:none;">
+    &copy; 2025 Your Name
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+  <script>
+    window.addEventListener('load', () => {
+      // Show splash only on first visit
+      if (!localStorage.getItem('visited')) {
+        setTimeout(() => {
+          document.getElementById('splash-screen').style.display = 'none';
+          document.querySelector('header').style.display = 'block';
+          document.querySelector('.container').style.display = 'block';
+          document.querySelector('footer').style.display = 'block';
+          localStorage.setItem('visited', 'true');
+        }, 2000); // splash shows for 2 seconds
+      } else {
+        // Hide splash instantly and show content
+        document.getElementById('splash-screen').style.display = 'none';
+        document.querySelector('header').style.display = 'block';
+        document.querySelector('.container').style.display = 'block';
+        document.querySelector('footer').style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>
