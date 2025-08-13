@@ -47,7 +47,52 @@
     .project-links a:hover {
       text-decoration: underline;
     }
-    
+    .category-nav {
+  margin-bottom: 15px;
+}
+
+.category-nav button {
+  margin: 5px;
+  padding: 8px 12px;
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.category-nav button:hover {
+  background: rgb(255, 0, 0);
+}
+
+.project-category {
+  margin-top: 40px;
+}
+
+.project-summary {
+  background: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.skills-used {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#projects {
+  color: black; /* Or your preferred dark text color */
+}
+
+.project-summary h3,
+.project-summary p,
+.project-summary a {
+  color: black;
+}
+
 
     .skills-grid {
       display: grid;
@@ -183,30 +228,119 @@
     </section>
 
     <section id="projects">
-      <h2>Project Summaries</h2>
-      <a href="index.html#Full-Stack">Full-Stack</a><br><br>
-      
-      <section id="Full-Stack">
-      <div class="project-summary">
-        <h3>Inventory Managment System Website</h3>
-        <p>Full-Stack website developed for the client to track all raw and packaging materials as well as handle service requests created by customers for the business. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
-        <p><b>Key Skills:</b> Python, JavaScript, HTML, CSS, Flask, SQL, Visual Studio Code, Microsoft SQL Server Managment Studio, SQL Server Express.</p>
-        <div class="project-links">
-          <a href="projects.html#websitebuilder" aria-label="View details of Website Builder">View Details</a>
-          <a href="https://github.com/Aamir-Ir/Inventory-Management-Application" target="_blank" rel="noopener" aria-label="GitHub repository of Inventory Managment System Website">GitHub</a>
-        </div>
+  <h2 style="color: rgb(255, 255, 255);">Project Summaries</h2>
+
+  <!-- Navigation Buttons -->
+  <div class="category-nav">
+    <button onclick="document.getElementById('fullstack').scrollIntoView({behavior: 'smooth'})">Full-Stack</button>
+    <button onclick="document.getElementById('embedded').scrollIntoView({behavior: 'smooth'})">Embedded</button>
+    <button onclick="document.getElementById('other').scrollIntoView({behavior: 'smooth'})">Other</button>
+  </div>
+
+  <!-- FULL STACK -->
+  <div id="fullstack" class="project-category">
+    <h3 style="color: rgb(255, 255, 255);">Full-Stack Projects</h3>
+    
+    <div class="project-summary">
+      <h4>Inventory Managment Application (Full-Stack Website for Client)</h4>
+      <p>Full-Stack website developed for the client to track all raw and packaging materials as well as handle service requests created by customers for the business. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features <b>(Agile Development)</b>. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
+      <p><b>Key Skills:</b> Python, JavaScript, HTML, CSS, Flask, SQL, Visual Studio Code, Microsoft SQL Server Managment Studio, SQL Server Express.</p>
+      <div class="skills-used">
+        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
+        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+        <img src="assets/CSS.png" alt="CSS" class="icon-small">
+        <img src="assets/Flask_logo.svg" alt="Flask" class="icon-small">
+        <img src="assets/SQL2.png" alt="SQL" class="icon-small">
+        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+        <img src="assets/SSMS.jpg" alt="SSMS" class="icon-small">
+        <img src="assets/SQL Server Exp.webp" alt="SQL Server Express" width="150" height="85">
       </div>
-      <div class="project-summary">
-        <h3>E-commerce Platform</h3>
-        <p>Short summary of E-commerce Platform...</p>
-        <div class="project-links">
-          <a href="projects.html#ecommerceplatform" aria-label="View details of E-commerce Platform">View Details</a>
-          <a href="https://github.com/yourusername/ecommerce-platform" target="_blank" rel="noopener" aria-label="GitHub repository of E-commerce Platform">GitHub</a>
-        </div>
+      <br>
+      <div class="project-links">
+        <a href="projects.html#websitebuilder">View Details</a>
+        <a href="https://github.com/Aamir-Ir/Inventory-Management-Application" target="_blank" rel="noopener">GitHub</a>
       </div>
-      <section id="Full-Stack">
-        
-    </section>
+    </div>
+
+    <div class="project-summary">
+      <h4>User Managment Application (Full-Stack Website for Client)</h4>
+      <p>Full-Stack website developed for the client to track all users in the company and what devices they hold along with what software they have access to inorder to complete their daily tasks. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features <b>(Agile Development)</b>. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
+      <p><b>Key Skills:</b> Python, JavaScript, HTML, CSS, Flask, SQL, Visual Studio Code, Microsoft SQL Server Managment Studio, SQL Server Express.</p>
+      <div class="skills-used">
+        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
+        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+        <img src="assets/CSS.png" alt="CSS" class="icon-small">
+        <img src="assets/Flask_logo.svg" alt="Flask" class="icon-small">
+        <img src="assets/SQL2.png" alt="SQL" class="icon-small">
+        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+        <img src="assets/SSMS.jpg" alt="SSMS" class="icon-small">
+        <img src="assets/SQL Server Exp.webp" alt="SQL Server Express" width="150" height="85">
+      </div>
+      <br>
+      <div class="project-links">
+        <a href="projects.html#ecommerceplatform">View Details</a>
+        <a href="https://github.com/Aamir-Ir/User_Management_Application" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+
+    <div class="project-summary">
+      <h4>Molecule-Visualization-Application</h4>
+      <p>Full-Stack website developed for fun by parsing chemical compounds from molecular data done by creating a library in C and invoking the funcitons with Python to create molecule objects, and stored the information in a SQL database using the SQLite library. Finally used SVG format to display on the frontend. All requirments were created by me from the start and I developed the key features <b>(Waterfall Software Development Life Cycle)</b>. In the end I gained an introduction to full-stack with this project and there is no need to continue to maintain this site as it is only for myself.</p>
+      <p><b>Key Skills:</b> C, Python, JavaScript, HTML, CSS, SQL, Visual Studio Code.</p>
+      <div class="skills-used">
+        <img src="assets/C_Programming_Language.svg.png" alt="C" class="icon-small">
+        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
+        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+        <img src="assets/CSS.png" alt="CSS" class="icon-small">
+        <img src="assets/SQL2.png" alt="SQL" class="icon-small">
+        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+      </div>
+      <br>
+      <div class="project-links">
+        <a href="projects.html#ecommerceplatform">View Details</a>
+        <a href="https://github.com/Aamir-Ir/Molecule-Visualization-Application" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMBEDDED -->
+  <div id="embedded" class="project-category">
+    <h3 style="color: rgb(255, 255, 255);">Embedded Projects</h3>
+    <div class="project-summary">
+      <h4>RISC-V Interpreter</h4>
+      <p>Short summary of RISC-V Interpreter...</p>
+      <div class="skills-used">
+        <img src="assets/C_Programming_Language.svg.png" alt="C" class="icon-small">
+        <img src="assets/riscv-logo.png" alt="RISC-V" class="icon-small">
+      </div>
+      <div class="project-links">
+        <a href="projects.html#riscv">View Details</a>
+        <a href="https://github.com/yourusername/riscv-interpreter" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTHER -->
+  <div id="other" class="project-category">
+    <h3 style="color: rgb(255, 255, 255);">Other Projects</h3>
+    <div class="project-summary">
+      <h4>Personal Portfolio</h4>
+      <p>Short summary of Personal Portfolio...</p>
+      <div class="skills-used">
+        <img src="assets/HTML_2.png" alt="HTML" class="icon-small">
+        <img src="assets/CSSS.png" alt="CSS" class="icon-small">
+      </div>
+      <div class="project-links">
+        <a href="projects.html#portfolio">View Details</a>
+        <a href="https://github.com/yourusername/portfolio" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     <section id="contact">
       <h2>Contact</h2>
