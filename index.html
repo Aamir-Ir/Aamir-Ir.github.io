@@ -47,6 +47,47 @@
     .project-links a:hover {
       text-decoration: underline;
     }
+    
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr); /* 5 per row */
+      gap: 20px;
+      text-align: center;
+    }
+
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .icon-small {
+      width: 75px;
+      height: 75px;
+      object-fit: contain; /* keeps icons proportional */
+    }
+
+    .icon-item span {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #fff; /* adjust to your theme */
+    }
+
+    /* Responsive: fewer per row on small screens */
+    @media (max-width: 768px) {
+      .skills-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .skills-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+
     /* Splash screen styles */
     #splash-screen {
       position: fixed;
@@ -73,12 +114,14 @@
 <body>
   <!-- Splash Screen -->
   <div id="splash-screen">
-    <img src="assets/your-photo.jpg" alt="Your Photo" />
-    <h1>Your Name</h1>
+    <img src="assets/Aamir_Pic.jpg" alt="Your Photo" />
+    <h1>Aamir Irfan</h1>
+    <h2>Loading ...</h2>
   </div>
 
   <header style="display:none;">
-    <h1>Your Name</h1>
+    <h1>Hey, I am Aamir Irfan 👋</h1>
+    <br>
     <nav>
       <a href="index.html#about">About</a>
       <a href="index.html#projects">Projects</a>
@@ -90,7 +133,53 @@
   <div class="container" style="display:none;">
     <section id="about">
       <h2>About Me</h2>
-      <p>Write something interesting about yourself here.</p>
+      <p>I am a skilled Software Developer and have previous developer experince in Full-Stack Engineering. I have a degree in Computer Engineering from the University of Guelph and I love to problem-solve, and bring to life interesting ideas. I am always finding new ways to take on challenges, adapt, and master skills along the way. This website showcases some of the best projects I have created and details the constructions process as well as the impact they have had in the community.</p>
+      
+      <h4>My Programming Skills:</h4>
+      <div class="skills-grid">
+        <div class="icon-item">
+          <img src="assets/C_Programming_Language.svg.png" alt="C" class="icon-small" />
+          <span>C</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/C++_Programming_Language.svg.png" alt="C++" class="icon-small" />
+          <span>C++</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small" />
+          <span>Python</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/Java.webp" alt="Java" class="icon-small" />
+          <span>Java</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small" />
+          <span>JavaScript</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/HTML_2.png" alt="HTML" class="icon-small" />
+          <span>HTML</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/CSS.png" alt="CSS" class="icon-small" />
+          <span>CSS</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/SQL2.png" alt="SQL" class="icon-small" />
+          <span>SQL</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/riscv-logo.png" alt="RISC-V" class="icon-small" />
+          <span>RISC-V Architecture</span>
+        </div>
+        <div class="icon-item">
+          <img src="assets/Arm_Assembly.svg" alt="ARM" class="icon-small" />
+          <span>ARM Architecture</span>
+        </div>
+      </div>
+
+
     </section>
 
     <section id="projects">
