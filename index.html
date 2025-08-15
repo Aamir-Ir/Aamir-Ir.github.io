@@ -96,7 +96,7 @@
 
     .skills-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* 5 per row */
+      grid-template-columns: repeat(6, 1fr); /* 5 per row */
       gap: 20px;
       text-align: center;
     }
@@ -157,13 +157,17 @@
   </style>
 </head>
 <body>
+  
   <!-- Splash Screen -->
+  
   <div id="splash-screen">
     <img src="assets/Aamir_Pic.jpg" alt="Your Photo" />
     <h1>Aamir Irfan</h1>
     <h2>Loading ...</h2>
   </div>
 
+  <!-- Header Including Introduction + Navigation Bar. -->
+  
   <header style="display:none;">
     <h1>Hey, I am Aamir Irfan 👋</h1>
     <br>
@@ -175,192 +179,347 @@
     </nav>
   </header>
 
+    <!-- About Me Section Detailing my interests + skills. -->
+
   <div class="container" style="display:none;">
     <section id="about">
       <h2>About Me</h2>
       <p>I am a skilled Software Developer and have previous developer experince in Full-Stack Engineering. I have a degree in Computer Engineering from the University of Guelph and I love to problem-solve, and bring to life interesting ideas. I am always finding new ways to take on challenges, adapt, and master skills along the way. This website showcases some of the best projects I have created and details the constructions process as well as the impact they have had in the community.</p>
       
-      <h4>My Programming Skills:</h4>
+      <h4>Programming Skills Utilized in my Projects:</h4>
+      
       <div class="skills-grid">
+        
         <div class="icon-item">
           <img src="assets/C_Programming_Language.svg.png" alt="C" class="icon-small" />
           <span>C</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/C++_Programming_Language.svg.png" alt="C++" class="icon-small" />
           <span>C++</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small" />
           <span>Python</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/Java.webp" alt="Java" class="icon-small" />
           <span>Java</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small" />
           <span>JavaScript</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/HTML_2.png" alt="HTML" class="icon-small" />
           <span>HTML</span>
         </div>
+        
         <div class="icon-item">
-          <img src="assets/CSS.png" alt="CSS" class="icon-small" />
+          <img src="assets/CSSS.png" alt="CSS" class="icon-small"/>
           <span>CSS</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/SQL2.png" alt="SQL" class="icon-small" />
           <span>SQL</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/riscv-logo.png" alt="RISC-V" class="icon-small" />
           <span>RISC-V Architecture</span>
         </div>
+        
         <div class="icon-item">
           <img src="assets/Arm_Assembly.svg" alt="ARM" class="icon-small" />
           <span>ARM Architecture</span>
         </div>
+
+        <div class="icon-item">
+          <img src="assets/VHDL.png" alt="VHDL" class="icon-small" />
+          <span>VHDL Programming</span>
+        </div>
+
+        <div class="icon-item">
+          <img src="assets/MATLAB.png" alt="MATLAB" class="icon-small" />
+          <span>MATLAB</span>
+        </div>
       </div>
-
-
     </section>
 
     <section id="projects">
-  <h2 style="color: rgb(255, 255, 255);">Project Summaries</h2>
+      <h2 style="color: rgb(255, 255, 255);">Project Summaries</h2>
+      
+        <!-- Navigation Buttons -->
+        <div class="category-nav">
+          <button onclick="document.getElementById('fullstack').scrollIntoView({behavior: 'smooth'})">Full-Stack</button>
+          <button onclick="document.getElementById('embedded').scrollIntoView({behavior: 'smooth'})">Embedded</button>
+          <button onclick="document.getElementById('other').scrollIntoView({behavior: 'smooth'})">Other</button>
+        </div>
 
-  <!-- Navigation Buttons -->
-  <div class="category-nav">
-    <button onclick="document.getElementById('fullstack').scrollIntoView({behavior: 'smooth'})">Full-Stack</button>
-    <button onclick="document.getElementById('embedded').scrollIntoView({behavior: 'smooth'})">Embedded</button>
-    <button onclick="document.getElementById('other').scrollIntoView({behavior: 'smooth'})">Other</button>
-  </div>
+      <!-- FULL STACK Projects showcased in List format.-->
+      <div id="fullstack" class="project-category">
+        <h3 style="color: rgb(255, 255, 255);">Full-Stack Projects</h3>
+        
+        <!-- 1st Project (FS1).-->
 
-  <!-- FULL STACK -->
-  <div id="fullstack" class="project-category">
-    <h3 style="color: rgb(255, 255, 255);">Full-Stack Projects</h3>
-    
-    <div class="project-summary">
-      <h4>Inventory Managment Application (Full-Stack Website for Client)</h4>
-      <p>Full-Stack website developed for the client to track all raw and packaging materials as well as handle service requests created by customers for the business. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features <b>(Agile Development)</b>. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
-      <p><b>Key Skills:</b> Python, JavaScript, HTML, CSS, Flask, SQL, Visual Studio Code, Microsoft SQL Server Managment Studio, SQL Server Express.</p>
-      <div class="skills-used">
-        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
-        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
-        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
-        <img src="assets/CSS.png" alt="CSS" class="icon-small">
-        <img src="assets/Flask_logo.svg" alt="Flask" class="icon-small">
-        <img src="assets/SQL2.png" alt="SQL" class="icon-small">
-        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
-        <img src="assets/SSMS.jpg" alt="SSMS" class="icon-small">
-        <img src="assets/SQL-Server-Exp.webp" alt="SQL Server Express" width="150" height="85">
-      </div>
-      <br>
-      <div class="project-links">
-        <a href="projects.html#websitebuilder">View Details</a>
-        <a href="https://github.com/Aamir-Ir/Inventory-Management-Application" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
+        <div class="project-summary">
+          <h4>Inventory Managment Application (Full-Stack Website for Client)</h4>
+          <p>Full-Stack website developed for the client to track all raw and packaging materials as well as handle service requests created by customers for the business. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features <b>(Agile Development)</b>. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
+          <p><b>Key Skills:</b> Python | JavaScript | HTML | CSS | Flask | SQL | Visual Studio Code | Microsoft SQL Server Managment Studio | SQL Server Express.</p>
+          <div class="skills-used">
+            <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
+            <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+            <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+            <img src="assets/CSS.png" alt="CSS" class="icon-small">
+            <img src="assets/Flask_logo.svg" alt="Flask" class="icon-small">
+            <img src="assets/SQL2.png" alt="SQL" class="icon-small">
+            <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+            <img src="assets/SSMS.jpg" alt="SSMS" class="icon-small">
+            <img src="assets/SQL-Server-Exp.webp" alt="SQL Server Express" width="150" height="85">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#websitebuilder">View Details</a>
+            <a href="https://github.com/Aamir-Ir/Inventory-Management-Application" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
 
-    <div class="project-summary">
-      <h4>User Managment Application (Full-Stack Website for Client)</h4>
-      <p>Full-Stack website developed for the client to track all users in the company and what devices they hold along with what software they have access to inorder to complete their daily tasks. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features <b>(Agile Development)</b>. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
-      <p><b>Key Skills:</b> Python, JavaScript, HTML, CSS, Flask, SQL, Visual Studio Code, Microsoft SQL Server Managment Studio, SQL Server Express.</p>
-      <div class="skills-used">
-        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
-        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
-        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
-        <img src="assets/CSS.png" alt="CSS" class="icon-small">
-        <img src="assets/Flask_logo.svg" alt="Flask" class="icon-small">
-        <img src="assets/SQL2.png" alt="SQL" class="icon-small">
-        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
-        <img src="assets/SSMS.jpg" alt="SSMS" class="icon-small">
-        <img src="assets/SQL-Server-Exp.webp" alt="SQL Server Express" width="150" height="85">
-      </div>
-      <br>
-      <div class="project-links">
-        <a href="projects.html#ecommerceplatform">View Details</a>
-        <a href="https://github.com/Aamir-Ir/User_Management_Application" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
+        <!-- 2nd Project (FS2).-->
 
-    <div class="project-summary">
-      <h4>Molecule Visualization Application (Full-Stack Website For Training)</h4>
-      <p>Full-Stack website developed for fun by parsing chemical compounds from molecular data done by creating a library in C and invoking the funcitons with Python to create molecule objects, and stored the information in a SQL database using the SQLite library. Finally used SVG format to display on the frontend. All requirments were created by me from the start and I developed the key features <b>(Waterfall Software Development Life Cycle)</b>. In the end I gained an introduction to full-stack with this project and there is no need to continue to maintain this site as it is only for myself.</p>
-      <p><b>Key Skills:</b> C, Python, JavaScript, HTML, CSS, SQL, Visual Studio Code.</p>
-      <div class="skills-used">
-        <img src="assets/C_Programming_Language.svg.png" alt="C" class="icon-small">
-        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
-        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
-        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
-        <img src="assets/CSS.png" alt="CSS" class="icon-small">
-        <img src="assets/SQL2.png" alt="SQL" class="icon-small">
-        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
-      </div>
-      <br>
-      <div class="project-links">
-        <a href="projects.html#ecommerceplatform">View Details</a>
-        <a href="https://github.com/Aamir-Ir/Molecule-Visualization-Application" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
+        <div class="project-summary">
+          <h4>User Managment Application (Full-Stack Website for Client)</h4>
+          <p>Full-Stack website developed for the client to track all users in the company and what devices they hold along with what software they have access to inorder to complete their daily tasks. After gaining an understanding of what the clients requirments were I had constantly held meetings to discuss my progress as I developed key features <b>(Agile Development)</b>. In the end a website was released on the local host server of the company where the IT manager is responsible for moniotoring the database and handle additional service support.</p>
+          <p><b>Key Skills:</b> Python | JavaScript | HTML | CSS | Flask | SQL | Visual Studio Code | Microsoft SQL Server Managment Studio | SQL Server Express.</p>
+          <div class="skills-used">
+            <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
+            <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+            <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+            <img src="assets/CSS.png" alt="CSS" class="icon-small">
+            <img src="assets/Flask_logo.svg" alt="Flask" class="icon-small">
+            <img src="assets/SQL2.png" alt="SQL" class="icon-small">
+            <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+            <img src="assets/SSMS.jpg" alt="SSMS" class="icon-small">
+            <img src="assets/SQL-Server-Exp.webp" alt="SQL Server Express" width="150" height="85">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#ecommerceplatform">View Details</a>
+            <a href="https://github.com/Aamir-Ir/User_Management_Application" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
 
-    <div class="project-summary">
-      <h4>Personal Portfolio Website</h4>
-      <p>Full-Stack website developed for myself to showcase the projects I have created with the tools I have used, along with a detailed construction process, and impact to the community.</p>
-      <p><b>Key Skills:</b> Python, JavaScript, HTML, CSS, Visual Studio Code.</p>
-      <div class="skills-used">
-        <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
-        <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
-        <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
-        <img src="assets/CSS.png" alt="CSS" class="icon-small">
-        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
-      </div>
-      <br>
-      <div class="project-links">
-        <a href="projects.html#ecommerceplatform">View Details</a>
-        <a href="https://github.com/Aamir-Ir/Aamir-Ir.github.io" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </div>
+        <!-- 3rd Project (FS3).-->
 
-  <!-- EMBEDDED -->
-  <div id="embedded" class="project-category">
-    <h3 style="color: rgb(255, 255, 255);">Embedded Projects</h3>
-    <div class="project-summary">
-      <h4>RISC-V Interpreter</h4>
-      <p>A basic RISC-V instruction set simulator programmed in Python. It can correctly execute a subset of RISC-V instructions such as ADD, SUB, LW, SW, BEQ, JAL. Simulates the functionailty of registers and memory simulation for a 5-staged single cycle processor.</p>
-      <p><b>Key Skills:</b> Python, RISC-V, Visual Studio Code.</p>
-      <div class="skills-used">
-        <img src="assets/Python-logo-notext.svg.png" alt="C" class="icon-small">
-        <img src="assets/riscv-logo.png" alt="RISC-V" height="50">
-        <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
-      </div>
-      <br>
-      <div class="project-links">
-        <a href="projects.html#riscv">View Details</a>
-        <a href="https://github.com/Aamir-Ir/RISC-V_Interpreter" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </div>
+        <div class="project-summary">
+          <h4>Molecule Visualization Application (Full-Stack Website For Training)</h4>
+          <p>Full-Stack website developed for fun by parsing chemical compounds from molecular data done by creating a library in C and invoking the funcitons with Python to create molecule objects, and stored the information in a SQL database using the SQLite library. Finally used SVG format to display on the frontend. All requirments were created by me from the start and I developed the key features <b>(Waterfall Software Development Life Cycle)</b>. In the end I gained an introduction to full-stack with this project and there is no need to continue to maintain this site as it is only for myself.</p>
+          <p><b>Key Skills:</b> C | Python | JavaScript | HTML | CSS | SQL | Visual Studio Code.</p>
+          <div class="skills-used">
+            <img src="assets/C_Programming_Language.svg.png" alt="C" class="icon-small">
+            <img src="assets/Python-logo-notext.svg.png" alt="Python" class="icon-small">
+            <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+            <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+            <img src="assets/CSS.png" alt="CSS" class="icon-small">
+            <img src="assets/SQL2.png" alt="SQL" class="icon-small">
+            <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#ecommerceplatform">View Details</a>
+            <a href="https://github.com/Aamir-Ir/Molecule-Visualization-Application" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
 
-  <!-- OTHER -->
-  <div id="other" class="project-category">
-    <h3 style="color: rgb(255, 255, 255);">Other Projects</h3>
-    <div class="project-summary">
-      <h4>Personal Portfolio</h4>
-      <p>Short summary of Personal Portfolio...</p>
-      <div class="skills-used">
-        <img src="assets/HTML_2.png" alt="HTML" class="icon-small">
-        <img src="assets/CSSS.png" alt="CSS" class="icon-small">
+        <!-- 4th Project (FS4).-->
+
+        <div class="project-summary">
+          <h4>Personal Portfolio Website</h4>
+          <p>Full-Stack website developed for myself to showcase the projects I have created with the tools I have used, along with a detailed construction process, and impact to the community.</p>
+          <p><b>Key Skills:</b> Python | JavaScript | HTML | CSS | Visual Studio Code.</p>
+          <div class="skills-used">
+            <img src="assets/JavaScript.png" alt="JavaScript" class="icon-small">
+            <img src="assets/HTML_1.png" alt="HTML" class="icon-small">
+            <img src="assets/CSS.png" alt="CSS" class="icon-small">
+            <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#ecommerceplatform">View Details</a>
+            <a href="https://github.com/Aamir-Ir/Aamir-Ir.github.io" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
       </div>
-      <div class="project-links">
-        <a href="projects.html#portfolio">View Details</a>
-        <a href="https://github.com/yourusername/portfolio" target="_blank" rel="noopener">GitHub</a>
+
+      <!-- EMBEDDED Projects -->
+
+      <div id="embedded" class="project-category">
+        <h3 style="color: rgb(255, 255, 255);">Embedded Projects</h3>
+
+        <!-- 1st Project (EM1).-->
+
+        <div class="project-summary">
+          <h4>RISC-V Interpreter</h4>
+          <p>A basic RISC-V instruction set simulator programmed in Python. It can correctly execute a subset of RISC-V instructions such as ADD, SUB, LW, SW, BEQ, JAL. Simulates the functionailty of registers and memory simulation for a 5-staged single cycle processor.</p>
+          <p><b>Key Skills:</b> Python | RISC-V | Visual Studio Code.</p>
+          <div class="skills-used">
+            <img src="assets/Python-logo-notext.svg.png" alt="C" class="icon-small">
+            <img src="assets/riscv-logo.png" alt="RISC-V" height="50">
+            <img src="assets/VSCode.png" alt="VSCode" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/RISC-V_Interpreter" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts (DLC).-->
+
+        <h4 style="color: rgb(255, 255, 255);">Digital Logic Concepts</h4>
+
+        <!-- Digital Logic Concepts 7 (DLC 7).-->
+
+        <div class="project-summary">
+          <h4>Design of a Arithmetic Logic Unit (NEXYS-3 Board)</h4>
+          <p>In this project a Arithmetic Logic Unit (ALU) was made with the core operations using Hierarchical Design, the source file were written in VHDL (.vhd). Next the behavioral simulation was done by creating a test bench in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board once the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/ALU" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts 6 (DLC 6).-->
+
+        <div class="project-summary">
+          <h4>Design of a Sequence Recognizer Circuit using a Sequential Circuit (NEXYS-3 Board)</h4>
+          <p>In this project a sequence recognizer circuit was made using a sequential circuit which was a Moore Machine, the source file were written in VHDL (.vhd) utilizing a clock and a debouncer circuit to have smooth state transitions. Next the behavioral simulation was done by creating a test bench in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board once the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Sequence%20Recognizer" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts 5 (DLC5).-->
+
+        <div class="project-summary">
+          <h4>Design of a 4-Bit Full Adder with 7-Segment Decoder for 7-Segment Display (NEXYS-3 Board)</h4>
+          <p>In this project a 4-Bit Adder was designed using 2's Complement inputs and the output was displayed on a seven-segment display circuit, the source file were written in VHDL (.vhd). Next the behavioral simulation was done by creating a test bench in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board once the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Full%20Adder_Subtractor%20(4%20Bit)" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts 4 (DLC4).-->
+
+        <div class="project-summary">
+          <h4>Design of a 7-Segment Decoder for 7-Segment Display (NEXYS-3 Board)</h4>
+          <p>A seven-segment display circuit was designed with 4 inputs which would display a number on the board from 0 - 15, the source file were written in VHDL (.vhd). Next the behavioral simulation was done by creating a test bench in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board once the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Seven%20Segment%20Display" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts 3 (DLC3).-->
+
+        <div class="project-summary">
+          <h4>Comparator Combinational Circuit Logic Design</h4>
+          <p>A comparator circuit was designed which would let the user know which stream of bits was larger, the source file was written in VHDL (.vhd). Next the behavioral simulation was done by creating a test bench in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board once the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Comparator%20Combinational%20Circuit" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts 2 (DLC2).-->
+
+        <div class="project-summary">
+          <h4>Combinational Logic Design</h4>
+          <p>A more complicated circuit represented by a boolean function dealing with multiple outputs was designed with schematic capture tool in Xilinx ISE Design Suite, then for the behavioral simulation the test bench was written out in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Simple%20Combinational%20Circuit" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <!-- Digital Logic Concepts 1 (DLC1).-->
+
+        <div class="project-summary">
+          <h4>Simple Boolean Circuit</h4>
+          <p>A circuit represented by a basic boolean function was designed with schematic capture tool in Xilinx ISE Design Suite, then for the behavioral simulation the test bench was written out in VHDL to simulate the design. Finally the design was exectued and ran on a FPGA board once the inputs and outputs were mapped to the switches and LEDs.</p>
+          <p><b>Key Skills:</b> VHDL | Xilinx ISE Design Suite | FPGA.</p>
+          <div class="skills-used">
+            <img src="assets/VHDL.png" alt="C" class="icon-small">
+            <img src="assets/Xilinx_ISE.jpg" alt="RISC-V" class="icon-small">
+          </div>
+          <br>
+          <div class="project-links">
+            <a href="projects.html#riscv">View Details</a>
+            <a href="https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Simple%20AND%20Gate" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+
+      <!-- OTHER -->
+      <div id="other" class="project-category">
+        <h3 style="color: rgb(255, 255, 255);">Other Projects</h3>
+        <div class="project-summary">
+          <h4>Personal Portfolio</h4>
+          <p>Short summary of Personal Portfolio...</p>
+          <div class="skills-used">
+            <img src="assets/HTML_2.png" alt="HTML" class="icon-small">
+            <img src="assets/CSSS.png" alt="CSS" class="icon-small">
+          </div>
+          <div class="project-links">
+            <a href="projects.html#portfolio">View Details</a>
+            <a href="https://github.com/yourusername/portfolio" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
 
     <section id="contact">
