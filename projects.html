@@ -61,16 +61,22 @@
       padding: 1.5rem;
       border-left: 4px solid red;
     }
-    .project-detail img,
-    .project-detail video {
-      max-width: 100%;
+    /* --- Gallery layout --- */
+    .project-media {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
       margin-top: 1rem;
+    }
+    .project-media img,
+    .project-media video {
+      width: 100%;
       border: 2px solid red;
-      border-radius: 4px;
+      border-radius: 6px;
     }
     .download {
       display: inline-block;
-      margin-top: 1rem;
+      margin: 0.5rem 0.5rem 0 0;
       padding: 0.5rem 1rem;
       background: red;
       color: white;
@@ -107,7 +113,7 @@
   <h1>Hey, I am Aamir Irfan 👋</h1>
   <nav>
     <a href="index.html">Home</a>
-    <a href="projects.html" style="text-decoration: underline;">Projects (Exploratative View)</a>
+    <a href="projects.html" style="text-decoration: underline;">Projects (Explorative View)</a>
   </nav>
 </header>
 
@@ -130,14 +136,20 @@
   const projectsData = {
     "Full-Stack": [
       {
-        id: "websitebuilder",
-        name: "Website Builder",
-        summary: "A full-stack web app to build websites dynamically.",
-        image: "assets/website-builder.png",
-        video: "",
-        download: "",
+        id: "Inventory_Management_Application",
+        name: "Inventory Management Application",
+        summary: [
+          "<u><b>Building Process</b></u>",
+          "The building process of the full-stack web app was done by first installing all the software and dependencies required to build the project. The best way to achieve this will be to follow the documentation of the project on my GitHub repository <a href=https://github.com/Aamir-Ir/Inventory-Management-Application/blob/main/README.md>(READ.ME)</a>.",
+          "The <u><b>database</b></u> was designed for a company to host on the client’s local server whiich was backing up data every day. This allows for the system to save the database on a daily basis, how I achieved this was by using SQL Server Express to create an instance which could be saved. I could connect to that instance with Microsoft SQL Server Management Studio (SSMS).",
+          "The <u><b>backend</b></u> was built with Python with a Flask micro-webservice for handling all logic, database management, and server side operations.",
+          "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX."
+        ],
+        images: ["assets/website-builder.png", "assets/database-diagram.png"],
+        videos: [],
+        downloads: [],
         links: [
-          { label: "GitHub Repo", url: "https://github.com/yourusername/website-builder" },
+          { label: "GitHub Repo", url: "https://github.com/Aamir-Ir/Inventory-Management-Application" },
           { label: "Live Demo", url: "https://yourwebsite.com/website-builder" }
         ],
         code: `function greet(name) {
@@ -149,10 +161,13 @@ console.log(greet('World'));`
       {
         id: "ecommerceplatform",
         name: "E-commerce Platform",
-        summary: "An online store with payment gateway integration.",
-        image: "",
-        video: "assets/ecommerce-demo.mp4",
-        download: "",
+        summary: [
+          "An online store with payment gateway integration.",
+          "Built using React for the frontend and Node.js for the backend."
+        ],
+        images: [],
+        videos: ["assets/ecommerce-demo.mp4"],
+        downloads: [],
         links: [
           { label: "GitHub Repo", url: "https://github.com/yourusername/ecommerce-platform" }
         ],
@@ -163,10 +178,13 @@ console.log(greet('World'));`
       {
         id: "iotsensor",
         name: "IoT Sensor",
-        summary: "Temperature and humidity sensor with cloud upload.",
-        image: "assets/iot-sensor.jpg",
-        video: "",
-        download: "assets/iot-sensor-firmware.zip",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
         links: [],
         code: `#include <DHT.h>
 
@@ -196,10 +214,13 @@ void loop() {
       {
         id: "gameprototype",
         name: "Game Prototype",
-        summary: "2D multiplayer game demo built with HTML5 Canvas.",
-        image: "",
-        video: "assets/game-demo.mp4",
-        download: "",
+        summary: [
+          "2D multiplayer game demo built with HTML5 Canvas.",
+          "Supports real-time movement and collision detection."
+        ],
+        images: ["assets/game-screenshot1.png", "assets/game-screenshot2.png"],
+        videos: ["assets/game-demo.mp4", "assets/game-demo2.mp4"],
+        downloads: [],
         links: [
           { label: "YouTube Video", url: "https://youtu.be/yourgamevideo" }
         ],
@@ -220,7 +241,7 @@ void loop() {
   }
 
   function renderCategories() {
-    Object.keys(projectsData).forEach((category, index) => {
+    Object.keys(projectsData).forEach((category) => {
       const btn = document.createElement('button');
       btn.textContent = category;
       btn.onclick = () => selectCategory(category, btn);
@@ -230,7 +251,6 @@ void loop() {
 
   function renderProjects(category) {
     projectNav.innerHTML = '';
-    clearActive([...projectNav.children]);
     projectsData[category].forEach((project) => {
       const btn = document.createElement('button');
       btn.textContent = project.name;
@@ -254,21 +274,19 @@ void loop() {
 
     projectDetail.innerHTML = `
       <h2>${project.name}</h2>
-      <p>${project.summary}</p>
+      ${project.summary.map(p => `<p>${p}</p>`).join("")}
       <div class="project-media">
-        ${project.image ? `<img src="${project.image}" alt="${project.name} Image">` : ''}
-        ${project.video ? `<video controls src="${project.video}"></video>` : ''}
+        ${project.images.map(img => `<img src="${img}" alt="${project.name} Image">`).join("")}
+        ${project.videos.map(video => `<video controls src="${video}"></video>`).join("")}
       </div>
-      ${project.links && project.links.length > 0 ? `<div class="links">${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>` : ''}
-      ${project.download ? `<a href="${project.download}" class="download" download>Download</a>` : ''}
+      ${project.links.length > 0 ? `<div class="links">${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>` : ''}
+      ${project.downloads.length > 0 ? project.downloads.map(file => `<a href="${file}" class="download" download>Download</a>`).join('') : ''}
       ${project.code ? `<pre class="language-javascript"><code>${escapeHtml(project.code)}</code></pre>` : ''}
     `;
 
-    // After injecting code block, highlight it
     if (project.code) Prism.highlightAll();
   }
 
-  // Escape HTML special chars in code strings
   function escapeHtml(text) {
     return text.replace(/&/g, "&amp;")
                .replace(/</g, "&lt;")
@@ -277,18 +295,15 @@ void loop() {
                .replace(/'/g, "&#039;");
   }
 
-  // Find and select category and project by project id (hash)
   function selectById(projectId) {
     for (const category in projectsData) {
       const project = projectsData[category].find(p => p.id === projectId);
       if (project) {
-        // Select category button
         const categoryButtons = categoryNav.querySelectorAll('button');
         categoryButtons.forEach(btn => {
           if (btn.textContent === category) selectCategory(category, btn);
         });
 
-        // Wait a tiny moment for projects to render, then select project button
         setTimeout(() => {
           const projectButtons = projectNav.querySelectorAll('button');
           projectButtons.forEach(btn => {
@@ -305,22 +320,17 @@ void loop() {
   document.addEventListener('DOMContentLoaded', () => {
     renderCategories();
 
-    // Check for hash in URL
     const hash = window.location.hash.slice(1).toLowerCase();
     if (hash && !selectById(hash)) {
-      // If hash doesn't match any project, select first category/project by default
       const firstCategory = Object.keys(projectsData)[0];
       selectCategory(firstCategory, categoryNav.querySelector('button'));
-      const firstProject = projectsData[firstCategory][0];
       const firstProjectBtn = projectNav.querySelector('button');
-      selectProject(firstProject, firstProjectBtn);
+      selectProject(projectsData[firstCategory][0], firstProjectBtn);
     } else if (!hash) {
-      // No hash, default select first category/project
       const firstCategory = Object.keys(projectsData)[0];
       selectCategory(firstCategory, categoryNav.querySelector('button'));
-      const firstProject = projectsData[firstCategory][0];
       const firstProjectBtn = projectNav.querySelector('button');
-      selectProject(firstProject, firstProjectBtn);
+      selectProject(projectsData[firstCategory][0], firstProjectBtn);
     }
   });
 </script>
