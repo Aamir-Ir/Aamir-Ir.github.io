@@ -159,35 +159,36 @@
         summary: [
           "<u><b>Building Process</b></u>",
           "The building process of the full-stack web app was done by first installing all the software and dependencies required to build the project. The best way to achieve this will be to follow the documentation of the project on my GitHub repository <a href=https://github.com/Aamir-Ir/Inventory-Management-Application/blob/main/README.md>(READ.ME)</a>.",
-          "The <u><b>database</b></u> was designed for a company to host on the client’s local server whiich was backing up data every day. This allows for the system to save the database on a daily basis, how I achieved this was by using SQL Server Express to create an instance which could be saved. I could connect to that instance with Microsoft SQL Server Management Studio (SSMS).",
+          "The <u><b>database</b></u> was designed for a company to host on the client’s local server which required data to be backed up everyday. This allows for the system to save up their database on a daily basis, how I achieved this was by using SQL Server Express to create an instance which could be saved. I could connect to that instance with Microsoft SQL Server Management Studio (SSMS).",
           "The <u><b>backend</b></u> was built with Python with a Flask micro-webservice for handling all logic, database management, and server side operations.",
-          "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX."
+          "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX.<br></br>"
         ],
         images: [],
         videos: ["https://drive.google.com/file/d/1JFzMwJuoGDxpm8znIGZQ-JlgwjU3Fz4d/preview"],
         downloads: [],
         links: [
-          { label: "GitHub Repo", url: "https://github.com/Aamir-Ir/Inventory-Management-Application" },
-          { label: "Live Demo", url: "https://yourwebsite.com/website-builder" }
+          { label: "GitHub Repository", url: "https://github.com/Aamir-Ir/Inventory-Management-Application" }
         ],
-        code: `function greet(name) {
-  return \`Hello, \${name}!\`;
-}
-
-console.log(greet('World'));`
+        code: null
       },
       {
-        id: "ecommerceplatform",
-        name: "E-commerce Platform",
+        id: "User_Management_Application",
+        name: "User Management Application",
         summary: [
-          "An online store with payment gateway integration.",
-          "Built using React for the frontend and Node.js for the backend."
+          "<u><b>Building Process</b></u>",
+          "The building process of the full-stack web app was done by first installing all the software and dependencies required to build the project. The best way to achieve this will be to follow the documentation of the project on my GitHub repository <a href=https://github.com/Aamir-Ir/Inventory-Management-Application/blob/main/README.md>(READ.ME)</a>.",
+          "The <u><b>database</b></u> was designed for a company to host on the client’s local server which required data to be backed up everyday. This allows for the system to save up their database on a daily basis, how I achieved this was by using SQL Server Express to create an instance which could be saved. I could connect to that instance with Microsoft SQL Server Management Studio (SSMS).",
+          "The <u><b>backend</b></u> was built with Python with a Flask micro-webservice for handling all logic, database management, and server side operations.",
+          "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX.",
+          "<u><b>Project Impact</b></u>",
+          "This project was created for the IT team that works at Reena Group, this project is used to store all the devices and systems under the company network along with all the software the devices use. It is mainly used to track which employee requires which software for their tasks helping track the companies resources.",
+          "<u><b>Key Skills:</b></u> Python | JavaScript | HTML | CSS | Flask | SQL | Visual Studio Code | Microsoft SQL Server Managment Studio | SQL Server Express | Git."
         ],
         images: [],
-        videos: ["assets/ecommerce-demo.mp4"],
+        videos: [],
         downloads: [],
         links: [
-          { label: "GitHub Repo", url: "https://github.com/yourusername/ecommerce-platform" }
+          { label: "GitHub Repository", url: "https://github.com/Aamir-Ir/User_Management_Application" }
         ],
         code: null
       }
@@ -344,7 +345,7 @@ void loop() {
   document.addEventListener('DOMContentLoaded', () => {
     renderCategories();
 
-    const hash = window.location.hash.slice(1).toLowerCase();
+    const hash = window.location.hash.slice(1); // .toLowerCase()
     if (hash && !selectById(hash)) {
       const firstCategory = Object.keys(projectsData)[0];
       selectCategory(firstCategory, categoryNav.querySelector('button'));
