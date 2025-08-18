@@ -69,7 +69,8 @@
       margin-top: 1rem;
     }
     .project-media img,
-    .project-media video {
+    .project-media video,
+    .project-media iframe {
       width: 100%;
       border: 2px solid red;
       border-radius: 6px;
@@ -105,6 +106,23 @@
       border-radius: 4px;
       font-size: 0.9rem;
     }
+
+    .responsive-video {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 aspect ratio (9/16 = 0.5625) */
+    }
+
+    .responsive-video iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 2px solid red;
+      border-radius: 6px;
+    }
+
   </style>
 </head>
 <body>
@@ -145,8 +163,8 @@
           "The <u><b>backend</b></u> was built with Python with a Flask micro-webservice for handling all logic, database management, and server side operations.",
           "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX."
         ],
-        images: ["assets/website-builder.png", "assets/database-diagram.png"],
-        videos: [],
+        images: [],
+        videos: ["https://drive.google.com/file/d/1JFzMwJuoGDxpm8znIGZQ-JlgwjU3Fz4d/preview"],
         downloads: [],
         links: [
           { label: "GitHub Repo", url: "https://github.com/Aamir-Ir/Inventory-Management-Application" },
@@ -277,7 +295,13 @@ void loop() {
       ${project.summary.map(p => `<p>${p}</p>`).join("")}
       <div class="project-media">
         ${project.images.map(img => `<img src="${img}" alt="${project.name} Image">`).join("")}
-        ${project.videos.map(video => `<video controls src="${video}"></video>`).join("")}
+        ${project.videos.map(video => {
+          if (video.includes("drive.google.com")) {
+            return `<div class="responsive-video"><iframe src="${video}" allow="autoplay" allowfullscreen></iframe></div>`;
+          } else {
+            return `<video controls src="${video}"></video>`;
+          }
+        }).join("")}
       </div>
       ${project.links.length > 0 ? `<div class="links">${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>` : ''}
       ${project.downloads.length > 0 ? project.downloads.map(file => `<a href="${file}" class="download" download>Download</a>`).join('') : ''}
