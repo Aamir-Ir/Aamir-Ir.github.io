@@ -371,6 +371,380 @@ void loop() {
   Serial.println("°C");
   delay(2000);
 }`
+      },
+      {
+        id: "Reg_Mem",
+        name: "Register/Memory",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "SIMD_CPU",
+        name: "SIMD CPU",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "ALU_7Segs",
+        name: "ALU",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "7Seg",
+        name: "6-Bit Adder",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "ALU_2",
+        name: "ALU_2",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "Sequential",
+        name: "Sequential Circuit",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "FA",
+        name: "Full-Adder",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "7Seg_1",
+        name: "7-Segement ISE",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "comparator",
+        name: "Comparator Circuit",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "Combo",
+        name: "Combinational Circuit",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
+      },
+      {
+        id: "Simple",
+        name: "Simple Circuit",
+        summary: [
+          "Temperature and humidity sensor with cloud upload.",
+          "The device logs data locally and pushes to the cloud periodically."
+        ],
+        images: ["assets/iot-sensor.jpg"],
+        videos: [],
+        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
+        links: [],
+        code: `#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.println("°C");
+  delay(2000);
+}`
       }
     ],
     "Other": [
