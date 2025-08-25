@@ -801,35 +801,114 @@ void loop() {
         id: "Simple",
         name: "Simple Circuit",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "The building process of the Simple Curcuit consisted of understanding the circuit presented and based on that creating a truth table, boolean function, and a circuit. Once that was done the circuit was designed using the <b>Schematic Capture</b> tool in <b>Xilinx ISE</b> after this a <b>test bench was created to simulate the design and showcase a <b>waveform</b>. Finally the program was run on a <b>FPGA</b> and the switches were mapped to the input and the LEDs to the output.",
+          "<u><b>Project Impact</b></u>",
+          "This project strengthened practical understanding of digital logic design and FPGA implementation. It enabled hands-on experience with translating boolean functions into working hardware, validating designs through simulation, and deploying circuits on an FPGA. The project also enhanced problem-solving, debugging, and verification skills crucial for hardware design.",
+          "<u><b>Key Skills:</b></u> Xilinx ISE | FPGA | Truth Tables | Boolean Functions | Schematic Captur | Test Bench Code | Waveform Simulation."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/DS_L1_1.png", "assets/DS_L1_2.png", "assets/DS_L1_3.png", "assets/DS_L1_4.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: `#include <DHT.h>
+        downloads: ["downloads/DS_L1.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Simple%20AND%20Gate"}],
+        code: `--Test Bench Code
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+LIBRARY UNISIM;
+USE UNISIM.Vcomponents.ALL;
+ENTITY SimpleLogic_SimpleLogic_sch_tb IS
+END SimpleLogic_SimpleLogic_sch_tb;
+ARCHITECTURE behavioral OF SimpleLogic_SimpleLogic_sch_tb IS 
 
-#define DHTPIN 2
-#define DHTTYPE DHT22
+   COMPONENT SimpleLogic
+   PORT( A	:	IN	STD_LOGIC; 
+          B	:	IN	STD_LOGIC; 
+			 C	:	IN	STD_LOGIC;
+          F	:	OUT	STD_LOGIC);
+   END COMPONENT;
 
-DHT dht(DHTPIN, DHTTYPE);
+   SIGNAL A	:	STD_LOGIC;
+   SIGNAL B	:	STD_LOGIC;
+	SIGNAL C	:	STD_LOGIC;
+   SIGNAL F	:	STD_LOGIC;
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-}
+BEGIN
 
-void loop() {
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.print("%  Temperature: ");
-  Serial.print(t);
-  Serial.println("°C");
-  delay(2000);
-}`
+   UUT: SimpleLogic PORT MAP(
+		A => A, 
+		B => B, 
+		C => C,
+		F => F
+   );
+
+-- *** Test Bench - User Defined Section ***
+   tb : PROCESS
+	constant period: time:= 20ns;
+   BEGIN
+      
+		A <= '0';
+		B <= '0';
+		C <= '0';
+		wait for period;
+		assert (F = '1')
+		report "test failed for input combination 000" severity error;
+		
+		A <= '0';
+		B <= '0';
+		C <= '1';
+		wait for period;
+		assert (F = '1')
+		report "test failed for input combination 001" severity error;
+		
+		A <= '0';
+		B <= '1';
+		C <= '0';
+		wait for period;
+		assert (F = '1')
+		report "test failed for input combination 010" severity error;      	
+
+		A <= '0';
+		B <= '1';
+		C <= '1';
+		wait for period;
+		assert (F = '0')
+		report "test failed for input combination 011" severity error;
+		
+		A <= '1';
+		B <= '0';
+		C <= '0';
+		wait for period;
+		assert (F = '1')
+		report "test failed for input combination 100" severity error;
+		
+		A <= '1';
+		B <= '0';
+		C <= '1';
+		wait for period;
+		assert (F = '0')
+		report "test failed for input combination 101" severity error;
+		
+		A <= '1';
+		B <= '1';
+		C <= '0';
+		wait for period;
+		assert (F = '0')
+		report "test failed for input combination 110" severity error;
+		
+		A <= '1';
+		B <= '1';
+		C <= '1';
+		wait for period;
+		assert (F = '0')
+		report "test failed for input combination 111" severity error;
+		
+				
+		WAIT; -- will wait forever
+   END PROCESS;
+-- *** End Test Bench - User Defined Section ***
+
+END;`
       }
     ],
     "Other": [
@@ -898,7 +977,6 @@ void loop() {
       <h2>${project.name}</h2>
       ${project.summary.map(p => `<p>${p}</p>`).join("")}
       <div class="project-media">
-        ${project.images.map(img => `<img src="${img}" alt="${project.name} Image">`).join("")}
         ${project.videos.map(video => {
           if (video.includes("drive.google.com")) {
             return `<div class="responsive-video"><iframe src="${video}" allow="autoplay" allowfullscreen></iframe></div>`;
@@ -906,6 +984,7 @@ void loop() {
             return `<video controls src="${video}"></video>`;
           }
         }).join("")}
+        ${project.images.map(img => `<img src="${img}" alt="${project.name} Image">`).join("")}
       </div>
       ${project.links.length > 0 ? `<div class="links">${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>` : ''}
       ${project.downloads.length > 0 ? project.downloads.map(file => `<a href="${file}" class="download" download>Download</a>`).join('') : ''}
