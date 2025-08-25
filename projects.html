@@ -767,42 +767,215 @@ void loop() {
         id: "Combo",
         name: "Combinational Circuit",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "The Combinational Circuit project involved understanding the given circuit, creating its truth table and boolean function, and then implementing the circuit. The design was created using the <b>Schematic Capture</b> tool in <b>Xilinx ISE</b>. Afterwards, a <b>test bench</b> was written to simulate the circuit and generate a <b>waveform</b>. Finally, the program was deployed on a <b>FPGA</b>, mapping switches to inputs and LEDs to outputs.",
+          "<u><b>Project Impact</b></u>",
+          "This project strengthened practical knowledge of digital logic design and FPGA implementation. It provided hands-on experience translating boolean functions into working hardware, validating designs via simulation, and deploying them on an FPGA. It also enhanced problem-solving, debugging, and verification skills essential for hardware design.",
+          "<u><b>Key Skills:</b></u> Xilinx ISE | FPGA | Truth Tables | Boolean Functions | Schematic Capture | Test Bench Code | Waveform Simulation."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/DS_L2_1.png", "assets/DS_L2_5.png", "assets/DS_L2_3.png", "assets/DS_L2_2.png", "assets/DS_L2_4.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: `#include <DHT.h>
+        downloads: ["downloads/DS_L2.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Simple%20Combinational%20Circuit"}],
+        code: `-- VHDL TEST BENCH CODE
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+LIBRARY UNISIM;
+USE UNISIM.Vcomponents.ALL;
 
-#define DHTPIN 2
-#define DHTTYPE DHT22
+ENTITY TripGenie_TripGenie_sch_tb IS
+END TripGenie_TripGenie_sch_tb;
 
-DHT dht(DHTPIN, DHTTYPE);
+ARCHITECTURE behavioral OF TripGenie_TripGenie_sch_tb IS 
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-}
+   COMPONENT TripGenie
+   PORT( MtPilot	:	IN	STD_LOGIC; 
+          SilverCity	:	IN	STD_LOGIC; 
+          Hooterville	:	IN	STD_LOGIC; 
+          Mayberry	:	IN	STD_LOGIC; 
+          HWY1	:	OUT	STD_LOGIC; 
+          HWY2	:	OUT	STD_LOGIC; 
+          HWY3	:	OUT	STD_LOGIC; 
+          HWY4	:	OUT	STD_LOGIC; 
+          HWY5	:	OUT	STD_LOGIC; 
+          HWY6	:	OUT	STD_LOGIC);
+   END COMPONENT;
 
-void loop() {
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.print("%  Temperature: ");
-  Serial.print(t);
-  Serial.println("°C");
-  delay(2000);
-}`
+   SIGNAL MtPilot	:	STD_LOGIC;
+   SIGNAL SilverCity	:	STD_LOGIC;
+   SIGNAL Hooterville	:	STD_LOGIC;
+   SIGNAL Mayberry	:	STD_LOGIC;
+   SIGNAL HWY1	:	STD_LOGIC;
+   SIGNAL HWY2	:	STD_LOGIC;
+   SIGNAL HWY3	:	STD_LOGIC;
+   SIGNAL HWY4	:	STD_LOGIC;
+   SIGNAL HWY5	:	STD_LOGIC;
+   SIGNAL HWY6	:	STD_LOGIC;
+
+BEGIN
+
+   UUT: TripGenie PORT MAP(
+		MtPilot => MtPilot, 
+		SilverCity => SilverCity, 
+		Hooterville => Hooterville, 
+		Mayberry => Mayberry, 
+		HWY1 => HWY1, 
+		HWY2 => HWY2, 
+		HWY3 => HWY3, 
+		HWY4 => HWY4, 
+		HWY5 => HWY5, 
+		HWY6 => HWY6
+   );
+
+-- *** Test Bench - User Defined Section ***
+   tb : PROCESS
+	constant period: time := 20 ns;
+   BEGIN
+	
+	Mayberry<= '0';
+	MtPilot<= '0';
+	SilverCity<= '0';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY1='0') and(HWY1='0') and(HWY1='0'))
+	report "test failed for input combination 0000" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '0';
+	SilverCity<= '0';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 0001" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '0';
+	SilverCity<= '1';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 0010" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '0';
+	SilverCity<= '1';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='1') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 0011" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '1';
+	SilverCity<= '0';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 0100" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '1';
+	SilverCity<= '0';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='1') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 0101" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '1';
+	SilverCity<= '1';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='1'))
+	report "test failed for input combination 0110" severity error;
+	
+	Mayberry<= '0';
+	MtPilot<= '1';
+	SilverCity<= '1';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 0111" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '0';
+	SilverCity<= '0';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1000" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '0';
+	SilverCity<= '0';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='1') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1001" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '0';
+	SilverCity<= '1';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='1') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1010" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '0';
+	SilverCity<= '1';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1011" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '1';
+	SilverCity<= '0';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='1') and(HWY6='0'))
+	report "test failed for input combination 1100" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '1';
+	SilverCity<= '0';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1101" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '1';
+	SilverCity<= '1';
+	Hooterville<= '0';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1110" severity error;
+	
+	Mayberry<= '1';
+	MtPilot<= '1';
+	SilverCity<= '1';
+	Hooterville<= '1';
+	wait for period;
+	assert((HWY1='0') and(HWY2='0') and(HWY3='0') and(HWY4='0') and(HWY5='0') and(HWY6='0'))
+	report "test failed for input combination 1111" severity error;
+	
+	
+	
+      WAIT; -- will wait forever
+   END PROCESS;
+-- *** End Test Bench - User Defined Section ***
+
+END;
+`
       },
       {
         id: "Simple",
         name: "Simple Circuit",
         summary: [
           "<u><b>Building Process</b></u>",
-          "The building process of the Simple Curcuit consisted of understanding the circuit presented and based on that creating a truth table, boolean function, and a circuit. Once that was done the circuit was designed using the <b>Schematic Capture</b> tool in <b>Xilinx ISE</b> after this a <b>test bench was created to simulate the design and showcase a <b>waveform</b>. Finally the program was run on a <b>FPGA</b> and the switches were mapped to the input and the LEDs to the output.",
+          "The building process of the Simple Curcuit consisted of understanding the circuit presented and based on that creating a truth table, boolean function, and a circuit. Once that was done the circuit was designed using the <b>Schematic Capture</b> tool in <b>Xilinx ISE</b> after this a <b>test bench</b> was created to simulate the design and showcase a <b>waveform</b>. Finally the program was run on a <b>FPGA</b> and the switches were mapped to the input and the LEDs to the output.",
           "<u><b>Project Impact</b></u>",
           "This project strengthened practical understanding of digital logic design and FPGA implementation. It enabled hands-on experience with translating boolean functions into working hardware, validating designs through simulation, and deploying circuits on an FPGA. The project also enhanced problem-solving, debugging, and verification skills crucial for hardware design.",
           "<u><b>Key Skills:</b></u> Xilinx ISE | FPGA | Truth Tables | Boolean Functions | Schematic Captur | Test Bench Code | Waveform Simulation."
@@ -811,7 +984,7 @@ void loop() {
         videos: [],
         downloads: ["downloads/DS_L1.zip"],
         links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Simple%20AND%20Gate"}],
-        code: `--Test Bench Code
+        code: `-- VHDL TEST BENCH CODE
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
