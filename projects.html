@@ -12,6 +12,7 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: #0d0d0d;
       color: white;
+      text-align: justify;
     }
     header {
       background-color: #1a1a1a;
@@ -64,7 +65,7 @@
     /* --- Gallery layout --- */
     .project-media {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(2, 1fr); /* exactly 2 columns *//*repeat(auto-fit, minmax(300px, 1fr));*/
       gap: 1rem;
       margin-top: 1rem;
     }
@@ -159,9 +160,13 @@
         summary: [
           "<u><b>Building Process</b></u>",
           "The building process of the full-stack web app was done by first installing all the software and dependencies required to build the project. The best way to achieve this will be to follow the documentation of the project on my GitHub repository <a href=https://github.com/Aamir-Ir/Inventory-Management-Application/blob/main/README.md>(READ.ME)</a>.",
-          "The <u><b>database</b></u> was designed for a company to host on the client’s local server which required data to be backed up everyday. This allows for the system to save up their database on a daily basis, how I achieved this was by using SQL Server Express to create an instance which could be saved. I could connect to that instance with Microsoft SQL Server Management Studio (SSMS).",
-          "The <u><b>backend</b></u> was built with Python with a Flask micro-webservice for handling all logic, database management, and server side operations.",
-          "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX.<br></br>"
+          "The <u><b>database</b></u> was designed for a company to host on the client’s local server which required data to be backed up everyday. This allows for the system to save their database on a daily basis, how I achieved this was by using <b>SQL Server Express</b> to create an instance which could be saved. I could connect to that instance with <b>Microsoft SQL Server Management Studio (SSMS)</b>. I also connected to this database instance with VS Code by using an API along with a library named <b>pyodbc</b> which allows applications to access data for database management systems.",
+          "The <u><b>backend</b></u> was built with <b>Python</b> with a <b>Flask</b> micro-webservice for handling all logic, database management, and server side operations.",
+          "The <u><b>frontend</b></u> was built with <b>HTML</b>, <b>CSS</b>, and <b>JavaScript</b> for UI/UX.",
+          "The <u><b>Security</b></u> in this project was very important as inventory tracking had to be accurate and not be tampered with as this would cause delays. How I did this was by making sure that the administrator would create an account for every user and the passwords were creating with a hashing algorithm so it would be impossible to decode the password to access the site. Next there were 3 privileges on the server (Admin, Manager, & employee) the manager and employee had enough access to the tables so that they would not damage the data set as they could only alter fields in tables or at most a column each change was tracked so we would know who did what. The backend could not be used to add or delete tables all of that was done through SSMS which is where major changes were made. Finally if something did go wrong we could revert to a previous save or the administrator could try to fix it.",
+          "<u><b>Project Impact</b></u>",
+          "This project was created for a company named Reena Enterprises Limited (Total Health Centre), this project is used to store all the inventory information inside of Total Health Centre this allows them to create orders and keep track of inventory virtually. <b>This eliminated 2 hours of counting time</b> for the inventory daily also it streamlined workflows as tickets could be made faster with accuracy allowing for products to be made faster as the team always knew they had raw materials in stock. The system also reduced errors in inventory tracking and overall boosted the performance of the team and led to more sales.",
+          "<u><b>Key Skills:</b></u> Python | JavaScript | HTML | CSS | Flask | SQL | Visual Studio Code | Microsoft SQL Server Managment Studio | SQL Server Express | Git | API | Developing Secure Code."
         ],
         images: [],
         videos: ["https://drive.google.com/file/d/1JFzMwJuoGDxpm8znIGZQ-JlgwjU3Fz4d/preview"],
@@ -177,14 +182,15 @@
         summary: [
           "<u><b>Building Process</b></u>",
           "The building process of the full-stack web app was done by first installing all the software and dependencies required to build the project. The best way to achieve this will be to follow the documentation of the project on my GitHub repository <a href=https://github.com/Aamir-Ir/Inventory-Management-Application/blob/main/README.md>(READ.ME)</a>.",
-          "The <u><b>database</b></u> was designed for a company to host on the client’s local server which required data to be backed up everyday. This allows for the system to save up their database on a daily basis, how I achieved this was by using SQL Server Express to create an instance which could be saved. I could connect to that instance with Microsoft SQL Server Management Studio (SSMS).",
+          "The <u><b>database</b></u> was designed for a company to host on the client’s local server which required data to be backed up everyday. This allows for the system to save their database on a daily basis, how I achieved this was by using <b>SQL Server Express</b> to create an instance which could be saved. I could connect to that instance with <b>Microsoft SQL Server Management Studio (SSMS)</b>. I also connected to this database instance with VS Code by using an API along with a library named <b>pyodbc</b> which allows applications to access data for database management systems.",
           "The <u><b>backend</b></u> was built with Python with a Flask micro-webservice for handling all logic, database management, and server side operations.",
-          "The <u><b>frontend</b></u> was built with HTML, CSS, and JavaScript for UI/UX.",
+          "The <u><b>frontend</b></u> was built with <b>HTML</b>, <b>CSS</b>, and <b>JavaScript</b> for UI/UX.",
+          "The <u><b>Security</b></u> in this project was very important as this held all the information on employees and their company devices. How I did this was by making sure that the administrator would create an account for every new user and the passwords were creating with a hashing algorithm so it would be impossible to decode the password to access the site. All changes was tracked so we would know who did what. The backend could not be used to add or delete tables all of that was done through SSMS which is where major changes were made. Finally if something did go wrong we could revert to a previous save or the administrator could try to fix it.",
           "<u><b>Project Impact</b></u>",
-          "This project was created for the IT team that works at Reena Group, this project is used to store all the devices and systems under the company network along with all the software the devices use. It is mainly used to track which employee requires which software for their tasks helping track the companies resources.",
-          "<u><b>Key Skills:</b></u> Python | JavaScript | HTML | CSS | Flask | SQL | Visual Studio Code | Microsoft SQL Server Managment Studio | SQL Server Express | Git."
+          "This project was created for the IT team that works at Reena Enterprises Limited (Total Health Centre), this project is used to store all the devices and systems under the company network along with all the software the devices use. It is mainly used to track over 75 employees by tracking what software are required for their tasks, and helping track the companies resources.",
+          "<u><b>Key Skills:</b></u> Python | JavaScript | HTML | CSS | Flask | SQL | Visual Studio Code | Microsoft SQL Server Managment Studio | SQL Server Express | Git | API | Developing Secure Code."
         ],
-        images: [],
+        images: ["assets/User_Man_Login.png", "assets/User_Man_Hope_Page.png", "assets/User_Man_Add_System.png", "assets/User_Man_Change_Pass.png", "assets/User_Man_Manage_System_Access.png", "assets/User_Man_Remove_System_Access.png"],
         videos: [],
         downloads: [],
         links: [
