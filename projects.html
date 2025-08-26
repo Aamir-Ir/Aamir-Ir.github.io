@@ -699,35 +699,170 @@ void loop() {
         id: "7Seg_1",
         name: "7-Segement ISE",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "Developed a 7-Segment Display system in <b>Xilinx ISE</b> by designing the logic with a <b>VHDL source file</b>, creating a truth table, and coding the entity and architecture. A <b>test bench</b> was implemented to simulate and verify output waveforms, ensuring correct behavior for inputs 0–F. Finally, the design was deployed on an <b>FPGA</b>, mapping switches to inputs and LEDs to the display outputs.",
+          
+          "<u><b>Project Impact</b></u>",
+          "This project provided hands-on experience in digital circuit design, verification, and FPGA deployment. It strengthened the ability to translate boolean logic into hardware, apply simulation-based validation, and debug designs effectively. The work reinforced both theoretical knowledge of digital logic and practical skills in hardware implementation.",
+          
+          "<u><b>Key Skills:</b></u> Xilinx ISE | FPGA | VHDL | Truth Tables | Boolean Logic | Test Benches | Waveform Simulation | Hardware Debugging"
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/DS_L4_3.png", "assets/DS_L4_4.png", "assets/DS_L4_5.png", "assets/DS_L4_6.png", "assets/DS_L4_7.png", "assets/DS_L4_8.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: `#include <DHT.h>
+        downloads: ["downloads/DS_L4.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Seven%20Segment%20Display"}],
+        code: `-- VHDL SOURCE CODE FILE FOR COMPARATOR CIRCUIT (DS_L4):
+----------------------------------------------------------------------------------
+-- Design Name: 7-Segment Display
+-- Target Devices: NEXYS 3
+-- Description: Displays numbers 0-9 and letters AbCdEF on LED light
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+entity test is
+    Port (  INPUT: in  std_logic_vector (3 downto 0);
+				LEDTARGET: out  std_logic_vector (3 downto 0);
+            OUTPUT: out std_logic_vector (6 downto 0));
+end test;
+architecture Behavioral of test is
+begin
+LEDTARGET<= "0111";
+--output for binary inputs for numbers 0-15, output corresponds to each led on the 
+--7-segment display, input corresponds to last four switches on board
+OUTPUT <= 
+	"0000001" WHEN (INPUT = "0000") ELSE
+	"1001111" WHEN (INPUT = "0001") ELSE
+	"0010010" WHEN (INPUT = "0010") ELSE
+	"0000110" WHEN (INPUT = "0011") ELSE
+	"1001100" WHEN (INPUT = "0100") ELSE
+	"0100100" WHEN (INPUT = "0101") ELSE
+	"0100000" WHEN (INPUT = "0110") ELSE
+	"0001111" WHEN (INPUT = "0111") ELSE
+	"0000000" WHEN (INPUT = "1000") ELSE
+	"0000100" WHEN (INPUT = "1001") ELSE
+	"0001000" WHEN (INPUT = "1010") ELSE
+	"1100000" WHEN (INPUT = "1011") ELSE
+	"0110001" WHEN (INPUT = "1100") ELSE
+	"1000010" WHEN (INPUT = "1101") ELSE
+	"0110000" WHEN (INPUT = "1110") ELSE
+	"0111000" WHEN (INPUT = "1111");
+end Behavioral;
 
-#define DHTPIN 2
-#define DHTTYPE DHT22
+-- VHDL TEST BENCH CODE:
 
-DHT dht(DHTPIN, DHTTYPE);
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+ 
+ENTITY lab4_TB IS
+END lab4_TB;
+ 
+ARCHITECTURE behavior OF lab4_TB IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+    COMPONENT test
+    PORT(
+         INPUT : IN  std_logic_vector(3 downto 0);
+         LEDTARGET : OUT  std_logic_vector(3 downto 0);
+         OUTPUT : OUT  std_logic_vector(6 downto 0)
+        );
+    END COMPONENT;
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-}
+   --Inputs
+   signal INPUT : std_logic_vector(3 downto 0);
+   signal LEDTARGET : std_logic_vector(3 downto 0);
 
-void loop() {
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.print("%  Temperature: ");
-  Serial.print(t);
-  Serial.println("°C");
-  delay(2000);
-}`
+ 	--Outputs
+   signal OUTPUT : std_logic_vector(6 downto 0);
+   -- No clocks detected in port list. Replace <clock> below with 
+   -- appropriate port name 
+ constant period : time := 20 ns;
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: test PORT MAP (
+          INPUT => INPUT,
+          LEDTARGET => LEDTARGET,
+          OUTPUT => OUTPUT
+        );
+ 
+	
+
+   -- Stimulus process
+   stim_proc: process
+	
+   begin	
+
+		INPUT <= "0000";
+		wait for period;
+		assert(OUTPUT = "0000001")report "ERROR on case 0000" severity error;
+		
+		
+		INPUT <= "0001";
+		wait for period;
+		assert(OUTPUT = "1001111")report "ERROR on case 0001" severity error;
+		
+		
+		INPUT <= "0010";
+		wait for period;
+		assert(OUTPUT = "0010010")report "ERROR on case 0010" severity error;
+		
+		INPUT <= "0011";
+		wait for period;
+		assert(OUTPUT = "0000110")report "ERROR on case 0011" severity error;
+		
+		INPUT <= "0100";
+		wait for period;
+		assert(OUTPUT = "1001100")report "ERROR on case 0100" severity error;
+		
+		INPUT <= "0101";
+		wait for period;
+		assert(OUTPUT = "0100100")report "ERROR on case 0101" severity error;
+		
+		INPUT <= "0110";
+		wait for period;
+		assert(OUTPUT = "0100000")report "ERROR on case 0110" severity error;
+		
+		INPUT <= "0111";
+		wait for period;
+		assert(OUTPUT = "0001111")report "ERROR on case 0111" severity error;
+
+		
+		INPUT <= "1000";
+		wait for period;
+		assert(OUTPUT = "0000000")report "ERROR on case 1000" severity error;
+		
+		INPUT <= "1001";
+		wait for period;
+		assert(OUTPUT = "0000100")report "ERROR on case 1001" severity error;
+		
+		INPUT <= "1010";
+		wait for period;
+		assert(OUTPUT = "0001000")report "ERROR on case 1010" severity error;
+		
+		INPUT <= "1011";
+		wait for period;
+		assert(OUTPUT = "1100000")report "ERROR on case 1011" severity error;
+		
+		INPUT <= "1100";
+		wait for period;
+		assert(OUTPUT = "0110001")report "ERROR on case 1100" severity error;
+		
+		INPUT <= "1101";
+		wait for period;
+		assert(OUTPUT = "1000010")report "ERROR on case 1101" severity error;
+		
+		INPUT <= "1110";
+		wait for period;
+		assert(OUTPUT = "0110000")report "ERROR on case 1110" severity error;
+		
+		INPUT <= "1111";
+		wait for period;
+		assert(OUTPUT = "0111000")report "ERROR on case 1111" severity error;
+
+      wait;
+   end process;
+
+END;`
       },
       {
         id: "comparator",
