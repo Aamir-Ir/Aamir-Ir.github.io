@@ -631,35 +631,311 @@ void loop() {
         id: "Sequential",
         name: "Sequential Circuit",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "This project involved designing a <b>Sequential Circuit</b> in <b>VHDL</b> to recognize a specific input sequence using a <b>Finite State Machine (FSM)</b>. A <b>debouncer</b> module was integrated to ensure reliable input from mechanical switches. The design was implemented in <b>Xilinx ISE</b>, verified through a <b>test bench</b>, and simulated to validate correct state transitions and output behavior before being deployed on an <b>FPGA</b>.",
+          "<u><b>Project Impact</b></u>",
+          "This project reinforced practical knowledge of <b>sequential logic</b> and <b>FSM-based design</b> in hardware. It provided hands-on experience with reliable input handling, simulation-based validation, and FPGA implementation. Additionally, it enhanced debugging, verification, and state machine design skills essential for digital system development.",
+          "<u><b>Key Skills:</b></u> VHDL | Sequential Circuits | FSM Design | Xilinx ISE | FPGA | Debouncing | Test Bench Development | Simulation & Verification | Moore Machine | Mealy Machine."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/DS_L6_1.png", "assets/DS_L6_2.png", "assets/DS_L6_3.png", "assets/DS_L6_4.png", "assets/DS_L6_5.png", "assets/DS_L6_6.png", "assets/DS_L6_7.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: `#include <DHT.h>
+        downloads: ["downloads/DS_L6.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Sequence%20Recognizer"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) SEQUENCE RECOGNIZER SEQUENTIAL CIRCUIT (DS_L6):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
 
-#define DHTPIN 2
-#define DHTTYPE DHT22
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
 
-DHT dht(DHTPIN, DHTTYPE);
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-}
+entity topmod is
+    Port ( clk_topmod : in  STD_LOGIC;
+				reset_topmod : in  STD_LOGIC;
+           topmod_out : out  STD_LOGIC;
+           input_topmod : in  STD_LOGIC;
+			  btn_in : in  STD_LOGIC);
+end topmod;
 
-void loop() {
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.print("%  Temperature: ");
-  Serial.print(t);
-  Serial.println("°C");
-  delay(2000);
-}`
+architecture Behavioral of topmod is
+	component dbounce is
+		Port ( push_bt : in  STD_LOGIC;
+           cclk : in  STD_LOGIC;
+           debounce_out : out  STD_LOGIC);
+	end component dbounce;
+
+	component SequenceRecongnizer_VHDL is
+		Port ( clk : in  STD_LOGIC;
+           reset : in  STD_LOGIC;
+           X : in  STD_LOGIC;
+           Y : out  STD_LOGIC);
+	end component SequenceRecongnizer_VHDL;
+
+signal tmp_clk : std_logic;
+
+begin
+
+dbounce_SR : dbounce
+	port map(btn_in, clk_topmod, tmp_clk);
+
+SR : SequenceRecongnizer_VHDL
+	port map(tmp_clk, reset_topmod, input_topmod, topmod_out);
+
+end Behavioral;
+
+-- DEBOUNCER CIRCUIT VHDL CODE:
+
+----------------------------------------------------------------
+-- This VHDL code can be used to debounce a key 
+-- (switch or push button)in other words get
+-- rid of the oscillations that might occur due 
+-- to the mechanical nature of the switch.
+-- One problem with using a mechanical switch 
+-- is that when it is closed, it bounces for a 
+-- few milliseconds (i.e it makes a number of 
+-- very rapid make and break actions before the  
+-- contacts become stable), which lets the CPU or FPGA 
+-- see that it has been pressed several   
+-- times, and gives the wrong information.
+--
+-- You can use the VHDL code by synthesizing it,
+-- creating a symbol and using it within your    
+-- schematics. 
+-- The UFC file to be used should put the 
+-- following in consideration:
+-- 
+-- The push_bt should be connected to the 
+-- PUSH BUTTON ON THE FPGA e.g., C9 
+-- The cclk should be connected to V10 
+-- the main clock on the NEXYS3 FPGA Board
+-- The debounce_out should be connected as a source
+-- of the stable clock to run the machine
+--
+--
+----------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity dbounce is
+    Port ( push_bt : in  STD_LOGIC;
+           cclk : in  STD_LOGIC;
+           debounce_out : out  STD_LOGIC);
+end dbounce;
+
+architecture Behavioral of dbounce is
+signal d1, d2, reset, cout : std_logic;
+signal count : std_logic_vector(20 downto 0);
+begin
+
+reset <= d1 xor d2;
+
+FF: process(cclk)
+begin
+if(cclk'event and cclk = '1') then
+d1 <= push_bt;
+d2 <= d1;
+if(cout = '1') then
+debounce_out <= d2;
+end if;
+end if;
+end process;
+
+CNTR: process(cclk, reset)
+begin
+if(reset='1') then
+count <= (others=>'0');
+elsif (cclk'event and cclk='1') then
+if (cout = '0') then
+count <= count + 1;
+end if;
+end if;
+end process;
+
+cout <= count(20);
+
+end Behavioral;
+
+-- SEQUENCE RECOGNIZER VHDL CODE:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity SequenceRecongnizer_VHDL is
+    Port ( clk : in  STD_LOGIC;
+           reset : in  STD_LOGIC;
+           X : in  STD_LOGIC;
+           Y : out  STD_LOGIC);
+end SequenceRecongnizer_VHDL;
+
+architecture Structural of SequenceRecongnizer_VHDL is
+	type statetype is (A,B,C,D,E);
+	signal present_state, next_state: statetype;
+	
+Begin
+
+clk_process: process( reset, clk)
+begin
+	if reset = '1' then -- Check for reset and initialize state
+		present_state <= A;
+	Elsif (rising_edge(clk)) then -- wait until the rising edge
+		present_state <= next_state;
+	end if;
+end process clk_process;
+
+
+next_state_process: process( present_state, X) is
+begin
+	case present_state is -- depending upon current state
+	when A => -- set next state
+		if X = '0' then
+			next_state <= A;
+		else
+			next_state <= B;
+	end if;
+		when B =>
+			if X = '0' then
+				next_state <= A;
+			else
+				next_state <= C;
+	end if;
+		when C =>
+			if X = '0' then
+				next_state <= D;
+			else
+				next_state <= C;
+	end if;
+		when D =>
+			if X = '0' then
+				next_state <= A;
+			else
+				next_state <= E;
+	end if;
+		when E =>
+			if X = '0' then
+				next_state <= A;
+			else
+				next_state <= C;
+	end if;
+	end case;
+end process next_state_process;
+
+
+output_process: process( present_state) is
+begin
+		case present_state is -- depending upon current state
+		when A => -- set output signals
+			Y<= '0';
+		when B =>
+			Y<= '0';
+		when C =>
+			Y<= '0';
+		when D =>
+			Y<= '0';
+		when E =>
+			Y<= '1';
+		end case;
+end process output_process;
+
+
+end Structural;
+
+-- SEQUENCE RECOGNIZER TESTBENCH CODE:
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+ 
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--USE ieee.numeric_std.ALL;
+ 
+ENTITY SequentialRecongnizer_VHDL_TB IS
+END SequentialRecongnizer_VHDL_TB;
+ 
+ARCHITECTURE behavior OF SequentialRecongnizer_VHDL_TB IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT SequenceRecongnizer_VHDL
+    PORT(
+         clk : IN  std_logic;
+         reset : IN  std_logic;
+         X : IN  std_logic;
+         Y : OUT  std_logic
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal clk : std_logic := '0';
+   signal reset : std_logic := '0';
+   signal X : std_logic := '0';
+
+ 	--Outputs
+   signal Y : std_logic;
+
+   -- Clock period definitions
+   constant clk_period : time := 10 ns;
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: SequenceRecongnizer_VHDL PORT MAP (
+          clk => clk,
+          reset => reset,
+          X => X,
+          Y => Y
+        );
+
+   -- Clock process definitions
+   clk_process :process
+   begin
+		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
+		wait for clk_period/2;
+   end process;
+ 
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+	  X <= '0';
+	  reset <= '1';
+	  -- Wait 100 ns for global reset to finish
+	  wait for 10 ns;
+		reset <= '0';
+	  wait for 10 ns;
+	  X <= '1';
+	  wait for 10 ns;
+	  X <= '1';
+	  wait for 10 ns;
+	  X <= '1'; 
+	  wait for 10 ns;
+	  X <= '0'; 
+	  wait for 10 ns;
+	  X <= '1'; 
+	  wait for 10 ns;
+	  X <= '0'; 
+      wait;
+   end process;
+
+END;`
       },
       {
         id: "FA",
@@ -675,7 +951,7 @@ void loop() {
         videos: [],
         downloads: ["downloads/DS_L5.zip"],
         links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Full%20Adder_Subtractor%20(4%20Bit)"}],
-        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) (DS_L5):
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) 4-Bit Full Adder (DS_L5):
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
