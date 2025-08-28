@@ -663,16 +663,382 @@ void loop() {
       },
       {
         id: "FA",
-        name: "Full-Adder",
+        name: "4 Bit Adder",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "This project involved designing a hierarchical <b>4-bit Full Adder/Subtractor</b> in <b>VHDL</b>, composed of <b>Half Adders</b>, <b>Full Adders</b>, and a <b>4-bit Adder-Subtractor</b> module. The output was connected to a <b>7-Segment Display Decoder</b> for real-time visualization of results. The design was developed in <b>Xilinx ISE</b>, verified with detailed <b>test benches</b>, and simulated to validate both addition and subtraction operations before being deployed on an <b>FPGA board</b>.",
+          "<u><b>Project Impact</b></u>",
+          "This project reinforced a strong understanding of <b>hierarchical digital design</b> and <b>modular architecture</b> in VHDL. It provided hands-on experience in combining arithmetic logic with display interfacing, testing through simulation, and validating hardware behavior on an FPGA. The structured, bottom-up design process improved debugging, verification, and hardware mapping skills essential in digital systems engineering.",
+          "<u><b>Key Skills:</b></u> VHDL | Hierarchical Design | Xilinx ISE | FPGA | Full Adder & Subtractor Circuits | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/DS_L5_6.png", "assets/DS_L5_5.png", "assets/DS_L5_4.png", "assets/DS_L5_3.png", "assets/DS_L5_2.png", "assets/DS_L5_1.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/DS_L5.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Full%20Adder_Subtractor%20(4%20Bit)"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) (DS_L5):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity SevenSegmentDecoder is
+    Port ( Operand_7SD : in  std_logic;
+			  Input_7SD : inout std_logic_vector(3 downto 0);
+			  A_7SD : in  std_logic_vector(3 downto 0);
+			  B_7SD: in std_logic_vector(3 downto 0);
+			  Output_7SD: out std_logic_vector(6 downto 0);
+	        Segment_7SD: out std_logic_vector(3 downto 0));
+end SevenSegmentDecoder;
+
+architecture Structural of SevenSegmentDecoder is
+
+	component FourBitAdderSubtractor is
+		Port ( Operand_FBAS : in  STD_LOGIC;
+           A_FBAS : in  STD_LOGIC_VECTOR(3 downto 0);
+           B_FBAS : in  STD_LOGIC_VECTOR(3 downto 0);
+           Sum_FBAS : out  STD_LOGIC_VECTOR(3 downto 0);
+           CarryOut_FBAS : out  STD_LOGIC;
+           Overflow_FBAS : out  STD_LOGIC);
+	end component FourBitAdderSubtractor;
+
+	signal CarryOut_7SD: std_logic;
+	signal Overflow_7SD: std_logic;
+
+begin
+
+	FBAS : FourBitAdderSubtractor
+		port map(Operand_7SD, A_7SD, B_7SD, Input_7SD, CarryOut_7SD, Overflow_7SD);
+
+	Segment_7SD<= "0111";
+
+	Output_7SD <= 
+		"0000001" WHEN (Input_7SD = "0000") ELSE
+		"1001111" WHEN (Input_7SD = "0001") ELSE
+		"0010010" WHEN (Input_7SD = "0010") ELSE
+		"0000110" WHEN (Input_7SD = "0011") ELSE
+		"1001100" WHEN (Input_7SD = "0100") ELSE
+		"0100100" WHEN (Input_7SD = "0101") ELSE
+		"0100000" WHEN (Input_7SD = "0110") ELSE
+		"0001111" WHEN (Input_7SD = "0111") ELSE
+		"0000000" WHEN (Input_7SD = "1000") ELSE
+		"0000100" WHEN (Input_7SD = "1001") ELSE
+		"0001000" WHEN (Input_7SD = "1010") ELSE
+		"1100000" WHEN (Input_7SD = "1011") ELSE
+		"0110001" WHEN (Input_7SD = "1100") ELSE
+		"1000010" WHEN (Input_7SD = "1101") ELSE
+		"0110000" WHEN (Input_7SD = "1110") ELSE
+		"0111000" WHEN (Input_7SD = "1111");
+
+end Structural;       
+
+-- VHDL SOURCE CODE FILE FOR FOUR BIT ADDER SUBTRACTOR:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity FourBitAdderSubtractor is
+    Port ( Operand_FBAS : in  STD_LOGIC;
+           A_FBAS : in  STD_LOGIC_VECTOR(3 downto 0);
+           B_FBAS : in  STD_LOGIC_VECTOR(3 downto 0);
+           Sum_FBAS : out  STD_LOGIC_VECTOR(3 downto 0);
+           CarryOut_FBAS : out  STD_LOGIC;
+           Overflow_FBAS : out  STD_LOGIC);
+end FourBitAdderSubtractor;
+
+architecture Structural of FourBitAdderSubtractor is
+	component FullAdder is
+	Port ( A_Full : in  STD_LOGIC;
+           B_Full : in  STD_LOGIC;
+           CarryIn_Full : in  STD_LOGIC;
+           CarryOut_Full : out  STD_LOGIC;
+           Sum_Full : out  STD_LOGIC);	  
+		  
+	end component FullAdder;
+	
+	signal Carry1_FBAS, Carry2_FBAS, Carry3_FBAS, Carry4_FBAS : std_logic;
+	signal TMP: std_logic_vector(3 downto 0);
+
+begin
+	TMP(0)<= Operand_FBAS xor B_FBAS(0);
+	TMP(1)<= Operand_FBAS xor B_FBAS(1);
+	TMP(2)<= Operand_FBAS xor B_FBAS(2);
+	TMP(3)<= Operand_FBAS xor B_FBAS(3);
+	
+	FullAdder_0:FullAdder 
+		port map(A_FBAS(0),TMP(0),Operand_FBAS,Carry1_FBAS, Sum_FBAS(0)); --- Sum_FBAS(0)
+	
+	FullAdder_1:FullAdder 
+		port map(A_FBAS(1),TMP(1),Carry1_FBAS,Carry2_FBAS, Sum_FBAS(1)); --- Sum_FBAS(1)
+	
+	FullAdder_2:FullAdder 
+		port map(A_FBAS(2),TMP(2),Carry2_FBAS,Carry3_FBAS, Sum_FBAS(2));-- - Sum_FBAS(2)
+	
+	FullAdder_3:FullAdder 
+		port map(A_FBAS(3),TMP(3),Carry3_FBAS,Carry4_FBAS, Sum_FBAS(3));-- - Sum_FBAS(3)
+	
+	Overflow_FBAS <= Carry3_FBAS XOR Carry4_FBAS ;
+	CarryOut_FBAS <= Carry4_FBAS;
+	
+end Structural;
+
+-- VHDL SOURCE CODE FILE FOR FULL ADDERS:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FullAdder is
+    Port ( A_Full : in  STD_LOGIC;
+           B_Full : in  STD_LOGIC;
+           CarryIn_Full : in  STD_LOGIC;
+           CarryOut_Full : out  STD_LOGIC;
+           Sum_Full : out  STD_LOGIC);
+end FullAdder;
+
+architecture Structural of FullAdder is
+	signal M : STD_LOGIC;
+	signal N : STD_LOGIC;
+	signal P : STD_LOGIC;
+	component HalfAdder is 
+		Port ( A_Half : in  STD_LOGIC;
+           B_Half : in  STD_LOGIC;
+           Sum_Half : out  STD_LOGIC;
+           CarryOut_Half : out  STD_LOGIC);
+	end component HalfAdder;
+begin
+	ha1 : HalfAdder 
+		port map (A_Half=>A_Full, B_Half=>B_Full , Sum_Half=> M, CarryOut_Half=>N);
+					
+	ha2 : HalfAdder 
+		port map (A_Half=>M, B_Half=>CarryIn_Full , Sum_Half=> Sum_Full, CarryOut_Half=>P);
+	CarryOut_Full<= P or N;
+end Structural;
+
+-- VHDL SOURCE CODE FILE FOR HALF ADDERS:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity HalfAdder is
+    Port ( A_Half : in  STD_LOGIC;
+           B_Half : in  STD_LOGIC;
+           Sum_Half : out  STD_LOGIC;
+           CarryOut_Half : out  STD_LOGIC);
+end HalfAdder;
+
+architecture Dataflow of HalfAdder is
+
+begin
+
+	Sum_Half <= A_Half xor B_Half;
+	CarryOut_Half <= A_Half and B_Half;
+
+end Dataflow;
+
+-- VHDL TEST BENCH CODE FOR FOUR BIT ADDER SUBTRACTOR:
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY FourBitAdderSubtractor_TB IS
+END FourBitAdderSubtractor_TB;
+ 
+ARCHITECTURE behavior OF FourBitAdderSubtractor_TB IS
+    COMPONENT FourBitAdderSubtractor
+    PORT(
+         Operand_FBAS : IN  std_logic;
+         A_FBAS : IN  std_logic_vector(3 downto 0);
+         B_FBAS : IN  std_logic_vector(3 downto 0);
+         Sum_FBAS : OUT  std_logic_vector(3 downto 0);
+         CarryOut_FBAS : OUT  std_logic;
+         Overflow_FBAS : OUT  std_logic
+        );
+    END COMPONENT;
+    
+   --Inputs
+   signal Operand_FBAS : std_logic := '0';
+   signal A_FBAS : std_logic_vector(3 downto 0) := (others => '0');
+   signal B_FBAS : std_logic_vector(3 downto 0) := (others => '0');
+ 	--Outputs
+   signal Sum_FBAS : std_logic_vector(3 downto 0);
+   signal CarryOut_FBAS : std_logic;
+   signal Overflow_FBAS : std_logic;
+ 
+   constant period : time := 10 ns;
+ 
+BEGIN
+   uut: FourBitAdderSubtractor PORT MAP (
+          Operand_FBAS => Operand_FBAS,
+          A_FBAS => A_FBAS,
+          B_FBAS => B_FBAS,
+          Sum_FBAS => Sum_FBAS,
+          CarryOut_FBAS => CarryOut_FBAS,
+          Overflow_FBAS => Overflow_FBAS
+        );
+
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+	
+
+ A_7SD <= "0000"; B_7SD <= "0101"; -- 0 + 5 => 05 (0 0101)
+ WAIT FOR 100 ns;
+ A_7SD <= "0001"; B_7SD <= "0111"; -- 1 + 7 => 08 (0 1000)
+ WAIT FOR 100 ns;
+ A_7SD <= "0010"; B_7SD <= "1001"; -- 2 + 9 => 0B (0 1011)
+ WAIT FOR 100 ns;
+ A_7SD <= "0011"; B_7SD <= "1011"; -- 3 + B => 0E (0 1110)
+ WAIT FOR 100 ns;
+ A_7SD <= "0100"; B_7SD <= "1101"; -- 4 + D => 11 (1 0001)
+ WAIT FOR 100 ns;
+ A_7SD <= "0101"; B_7SD <= "1111"; -- 5 + F => 14 (1 0100)
+ WAIT FOR 100 ns;
+ A_7SD <= "0110"; B_7SD <= "0001"; -- 6 + 1 => 07 (0 0111)
+ WAIT FOR 100 ns;
+ A_7SD <= "0111"; B_7SD <= "0011"; -- 7 + 3 => 0A (0 1010)
+ WAIT FOR 100 ns;
+ A_7SD <= "1000"; B_7SD <= "0101"; -- 8 + 5 => 0D (0 1101)
+ WAIT FOR 100 ns;
+ A_7SD <= "1001"; B_7SD <= "0111"; -- 9 + 7 => 10 (1 0000)
+
+
+
+      wait;
+   end process;
+
+END;
+
+-- VHDL TEST BENCH CODE FOR 7 SEGMENT DISPLAY:
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY SevenSegmentDecoder_TB IS
+END SevenSegmentDecoder_TB;
+ 
+ARCHITECTURE behavior OF SevenSegmentDecoder_TB IS 
+ 
+    COMPONENT SevenSegmentDecoder
+    PORT(
+         Operand_7SD : IN  std_logic;
+         Input_7SD : INOUT  std_logic_vector(3 downto 0);
+         A_7SD : IN  std_logic_vector(3 downto 0);
+         B_7SD : IN  std_logic_vector(3 downto 0);
+         Output_7SD : OUT  std_logic_vector(6 downto 0);
+         Segment_7SD : OUT  std_logic_vector(3 downto 0)
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal Operand_7SD : std_logic := '0';
+   signal A_7SD : std_logic_vector(3 downto 0) := (others => '0');
+   signal B_7SD : std_logic_vector(3 downto 0) := (others => '0');
+
+	--BiDirs
+   signal Input_7SD : std_logic_vector(3 downto 0);
+
+ 	--Outputs
+   signal Output_7SD : std_logic_vector(6 downto 0);
+   signal Segment_7SD : std_logic_vector(3 downto 0);
+ 
+   constant period : time := 20 ns;
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: SevenSegmentDecoder PORT MAP (
+          Operand_7SD => Operand_7SD,
+          Input_7SD => Input_7SD,
+          A_7SD => A_7SD,
+          B_7SD => B_7SD,
+          Output_7SD => Output_7SD,
+          Segment_7SD => Segment_7SD
+        );
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+       
+		 --addition
+		 A_7SD <= "0000"; B_7SD <= "0101"; -- 0 + 5 => 05 (0 0101)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0101")report "error on case" severity error;
+		 A_7SD <= "0001"; B_7SD <= "0111"; -- 1 + 7 => 08 (0 1000)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1000")report "error on case" severity error;
+		 A_7SD <= "0010"; B_7SD <= "1001"; -- 2 + 9 => 0B (0 1011)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1011")report "error on case" severity error;
+		 A_7SD <= "0011"; B_7SD <= "1011"; -- 3 + B => 0E (0 1110)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1110")report "error on case" severity error;
+		 A_7SD <= "0100"; B_7SD <= "1101"; -- 4 + D => 11 (1 0001)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0001")report "error on case" severity error;
+		 A_7SD <= "0101"; B_7SD <= "1111"; -- 5 + F => 14 (1 0100)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0100")report "error on case" severity error;
+		 A_7SD <= "0110"; B_7SD <= "0001"; -- 6 + 1 => 07 (0 0111)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0111")report "error on case" severity error;
+		 A_7SD <= "0111"; B_7SD <= "0011"; -- 7 + 3 => 0A (0 1010)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1010")report "error on case" severity error;
+		 A_7SD <= "1000"; B_7SD <= "0101"; -- 8 + 5 => 0D (0 1101)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1101")report "error on case" severity error;
+		 A_7SD <= "1001"; B_7SD <= "0111"; -- 9 + 7 => 10 (1 0000)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0000")report "error on case" severity error;
+		 
+		
+		 --subtraction
+		 Operand_7SD <= '1';
+		 
+		 A_7SD <= "0000"; B_7SD <= "0101"; -- 0 - 5 => -5 (0 0101)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1011")report "error on case" severity error;
+		 A_7SD <= "0001"; B_7SD <= "0111"; -- 1 - 7 => -6 (0 1000)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1010")report "error on case" severity error;
+		 A_7SD <= "0010"; B_7SD <= "1001"; -- 2 - 9 => -7 (0 1011)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "1001")report "error on case" severity error;
+		 A_7SD <= "0110"; B_7SD <= "0001"; -- 6 - 1 => 5 (0 0111)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0101")report "error on case" severity error;
+		 A_7SD <= "0111"; B_7SD <= "0011"; -- 7 - 3 => 4 (0 1010)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0100")report "error on case" severity error;
+		 A_7SD <= "1000"; B_7SD <= "0101"; -- 8 - 5 => 3 (0 1101)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0011")report "error on case" severity error;
+		 A_7SD <= "1001"; B_7SD <= "0111"; -- 9 - 7 => 2 (1 0000)
+		 WAIT FOR 100 ns;
+		 assert(Input_7SD = "0010")report "error on case" severity error;
+
+      wait;
+   end process;
+
+END;
+`
       },
       {
         id: "7Seg_1",
