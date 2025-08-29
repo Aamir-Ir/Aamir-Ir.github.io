@@ -561,7 +561,7 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
           "Temperature and humidity sensor with cloud upload.",
           "The device logs data locally and pushes to the cloud periodically."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: [],
         videos: [],
         downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
         links: [],
@@ -571,14 +571,591 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
         id: "ALU_7Segs",
         name: "ALU",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "This project involved designing a hierarchical <b>4-bit Arithmetic Unit (AU)</b> in <b>VHDL</b>, built from <b>Half Adders</b>, <b>Full Adders</b>, and <b>Arithmetic Input Logic modules</b> to form <b>One-Bit</b> and <b>Four-Bit AUs</b>. The AU supported multiple arithmetic and logic operations controlled by selection inputs. Results, along with operands, were displayed on a multiplexed <b>7-Segment Display Decoder</b> for real-time visualization. A <b>top-level module</b> integrated switches, LEDs, carry indicators, and display control logic. The design was implemented in <b>Xilinx ISE</b>, thoroughly verified using <b>test benches</b>, and simulated before being deployed on an <b>FPGA board</b>.",
+          "<u><b>Project Impact</b></u>",
+          "This project reinforced understanding of <b>ALU architecture</b> and <b>hierarchical modular design</b> in VHDL. It provided hands-on experience in implementing arithmetic/logic selection control, real-time <b>7-segment multiplexing</b>, and structured hardware verification. The work strengthened skills in <b>debugging</b>, <b>simulation</b>, and <b>hardware deployment</b>, essential for scalable and efficient digital system design.",
+          "<u><b>Key Skills:</b></u> VHDL | ALU & Arithmetic Circuits | Hierarchical Design | Xilinx ISE | FPGA | Half & Full Adders | Arithmetic Input Logic Modules | 7-Segment Display Multiplexing | Modular Architecture | Test Bench Development | Hardware Simulation & Verification"
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/RCS_L2_1.png", "assets/RCS_L2_2.png", "assets/RCS_L2_3.png", "assets/RCS_L2_4.png", "assets/RCS_L2_5.png", "assets/RCS_L2_6.png", "assets/RCS_L2_7.png", "assets/RCS_L2_8.png", "assets/RCS_L2_9.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/RCS_L2.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Intermediate/4%20Bit%20ALU"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) SEVEN SEGMENT DECODER FOR ALU (RCS_L2):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity Top_Module is
+    Port (
+        clk : in STD_LOGIC;
+        SW : in STD_LOGIC_VECTOR(10 downto 0);
+        LED : out STD_LOGIC_VECTOR(10 downto 0);
+        AN : out STD_LOGIC_VECTOR(7 downto 0);
+        Cathode : out STD_LOGIC_VECTOR(6 downto 0);
+        carryLED : out STD_LOGIC
+    );
+end Top_Module;
+
+architecture Behavioral of Top_Module is
+    signal sum : STD_LOGIC_VECTOR(5 downto 0); --changed range
+    signal carry_out : STD_LOGIC;
+
+    -- For Operands
+--    signal operand1 : STD_LOGIC_VECTOR(3 downto 0);
+--    signal operand2 : STD_LOGIC_VECTOR(3 downto 0);
+    
+    signal operand1SegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    signal operand2SegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    
+    -- For Ans
+    signal lowBits : STD_LOGIC_VECTOR(3 downto 0);
+    signal highBits : STD_LOGIC_VECTOR(3 downto 0);
+    signal lowSegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+--    signal highSegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    
+    signal num : integer := 0;
+    signal counter : integer range 0 to 32000 := 0;
+begin
+    carryLED <= carry_out;  -- using the first LED as carry indicator
+    LED(10 downto 0) <= SW(10 downto 0);
+
+    -- Instantiate the ripple carry adder
+    Adder : entity work.FourBitAU port map (
+        A_FBAU => SW(10 downto 7),   --SW(6 downto 3)
+        B_FBAU => SW(6 downto 3),  --SW(10 downto 7)
+        Cin_FBAU => SW(2),
+        G_FBAU => sum(3 downto 0),
+        Cout_FBAU => carry_out,
+        S0_FBAU => SW(0), --SW(1)
+        S1_FBAU => SW(1)  --SW(0)
+    );
+    lowBits <= sum(3 downto 0);
+    sum(4) <= carry_out; --added
+    highBits <= "000" & sum(4); --changed to sum6
+    
+    decode_op1 : entity work.BCD_7SegDecoder port map (
+            Input_7SD => SW(6 downto 3),
+            a_to_g => operand1SegmentDis
+    );
+    
+    decode_op2 : entity work.BCD_7SegDecoder port map (
+        Input_7SD => SW(10 downto 7),
+        a_to_g => operand2SegmentDis
+    );
+    
+--    lowBits <= sum(3 downto 0);
+--    highBits <= "000" & sum(4); --changed to sum6
+    
+    decode_low : entity work.BCD_7SegDecoder port map (
+        Input_7SD => lowBits,
+        a_to_g => lowSegmentDis
+    );
+        
+--    decode_high : entity work.BCD_7SegDecoder port map (
+--        Input_7SD => highBits,
+--        a_to_g => highSegmentDis
+--    );
+
+process(clk) 
+begin
+    if rising_edge(clk) then 
+        if counter >= 5000 then -- 5 ms assuming 100 MHz clock 
+            if num = 0 then 
+                num <= 1; 
+                AN <= "11111110"; -- rightmost digit 
+                Cathode <= lowSegmentDis; 
+--            elsif num = 1 then -- Use "elsif" instead of "else if" 
+--                num <= 2; 
+--                AN <= "11111101"; -- second rightmost digit 
+--                Cathode <= highSegmentDis; 
+            elsif num = 1 then -- Use "elsif" instead of "else if" 
+                num <= 2; 
+                AN <= "11101111"; -- second rightmost digit 
+                Cathode <= operand1SegmentDis; 
+            else 
+                num <= 0; 
+                AN <= "10111111"; -- second rightmost digit 
+                Cathode <= operand2SegmentDis; 
+            end if; 
+            counter <= 0; 
+        else 
+            counter <= counter + 1; 
+        end if; 
+    end if; 
+
+end process; 
+        
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR 7-SEGMENT DECODER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity BCD_7SegDecoder is
+    Port ( Input_7SD : in STD_LOGIC_VECTOR (3 downto 0);
+           a_to_g : out STD_LOGIC_VECTOR (6 downto 0));
+end BCD_7SegDecoder;
+
+architecture Behavioral of BCD_7SegDecoder is
+
+begin
+   process(Input_7SD)
+   begin   
+     case Input_7SD is                                  -- a,b,c,d,e,f,g
+         when "0000" => a_to_g <= "1000000"; --0
+         when "0001" => a_to_g <= "1111001"; --1        1001111         1111001
+         when "0010" => a_to_g <= "0100100"; --2     0010010  0100100
+         when "0011" => a_to_g <= "0110000"; --3         
+         when "0100" => a_to_g <= "0011001"; --4         
+         when "0101" => a_to_g <= "0010010"; --5             
+         when "0110" => a_to_g <= "0000010"; --6 
+         when "0111" => a_to_g <= "1011000"; --7
+         when "1000" => a_to_g <= "0000000"; --8
+         when "1001" => a_to_g <= "0010000"; --9         
+         when "1010" => a_to_g <= "0001000"; --A
+         when "1011" => a_to_g <= "0000011"; --b         
+         when "1100" => a_to_g <= "1000110"; --C         z
+         when "1101" => a_to_g <= "0100001"; --d    
+         when "1110" => a_to_g <= "0000110"; --E    
+         when "1111" => a_to_g <= "0001110"; --F    
+     end case;
+   end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR FOUR BIT AU:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FourBitAU is
+
+    generic (N_BITS : integer := 4);
+    
+    Port ( A_FBAU : in STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           B_FBAU : in STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           Cin_FBAU : in STD_LOGIC;
+           G_FBAU : out STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           Cout_FBAU : out STD_LOGIC;
+           S0_FBAU : in STD_LOGIC;
+           S1_FBAU : in STD_LOGIC);
+end FourBitAU;
+
+architecture Behavioral of FourBitAU is
+
+component OneBitAU is
+    Port ( Ain_AU : in STD_LOGIC;
+           Bin_AU : in STD_LOGIC;
+           Cin_AU : in STD_LOGIC;
+           SCin_AU : in STD_LOGIC;
+           S1_AU : in STD_LOGIC;
+           S0_AU : in STD_LOGIC;
+           G_AU : out STD_LOGIC;
+           Cout_AU : out STD_LOGIC);
+end component;
+
+signal SCin_FBAU : STD_LOGIC;
+signal Carry : STD_LOGIC_VECTOR(N_BITS downto 0) := (others => '0'); --Set
+
+begin
+    SCin_FBAU <= Cin_FBAU;
+    Carry(0) <= Cin_FBAU;
+    make_each_AU: for i in 0 to N_BITS-1 generate            -- Loop through each 1 bit AU and port everything.
+        signal CarryOut_i : STD_LOGIC;                       -- This will catch each output of every carry out for each 1 bit AU.
+    begin
+        OneBitAU_inst : OneBitAU                           -- hierarchy for One Bit AU + port (Make sure to look at the circuit and understand each ports.)
+            port map (
+                Ain_AU => A_FBAU(i),                          -- A(N) passed. Done For all 4 bits of operand 1
+                Bin_AU => B_FBAU(i),                          -- B(N) passed. Done For all 4 bits of operand 2
+                Cin_AU => Carry(i),                         -- Previous Carry in passed in from the update or Cin_FBAU initally.
+                SCin_AU => SCin_FBAU,
+                S0_AU => S0_FBAU,                      	    -- Selects never iterate for the One bit AU's.
+                S1_AU => S1_FBAU,
+                G_AU => G_FBAU(i), 			    -- G_AU(N) recives output of AU
+                Cout_AU => CarryOut_i                  -- CarryOut_i updated and used a temp for carry vector.
+            );
+            Carry(i+1) <= CarryOut_i;         -- Setting the updated CarryOut_i as input for the next Full Adder.
+     end generate make_each_AU;
+     
+     Cout_FBAU <= Carry(4);
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ONE BIT AU:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity OneBitAU is
+    Port ( Ain_AU : in STD_LOGIC;
+           Bin_AU : in STD_LOGIC;
+           Cin_AU : in STD_LOGIC;
+           SCin_AU : in STD_LOGIC;
+           S1_AU : in STD_LOGIC;
+           S0_AU : in STD_LOGIC;
+           G_AU : out STD_LOGIC;
+           Cout_AU : out STD_LOGIC);
+end OneBitAU;
+
+architecture Behavioral of OneBitAU is
+
+    component ArithmeticInputLogicA is
+        Port ( S0_AILA : in STD_LOGIC;
+               Ain_AILA : in STD_LOGIC;
+               Aout_AILA : out STD_LOGIC);
+    end component;
+    
+    component ArithmeticInputLogicB is
+        Port ( SCin_AILB : in STD_LOGIC;
+               S1_AILB : in STD_LOGIC;
+               S0_AILB : in STD_LOGIC;
+               Bin_AILB : in STD_LOGIC;
+               Bout_AILB : out STD_LOGIC);
+    end component;
+
+
+    component FullAdder is
+    Port ( A_Full : in STD_LOGIC;
+           B_Full : in STD_LOGIC;
+           CarryIn_Full : in STD_LOGIC;
+           Sum_Full : out STD_LOGIC;
+           CarryOut_Full : out STD_LOGIC);
+    end component;
+
+    SIGNAL Apostlogic:STD_LOGIC;
+    SIGNAL Bpostlogic:STD_LOGIC;
+	
+begin
+    -- All Logic required for OneBitAU according to my diagram Sir Aamir Irfan's diagram ( I AM HIM )
+ALogic:ArithmeticInputLogicA PORT MAP(S0_AILA=>S0_AU, Ain_AILA=>Ain_AU, Aout_AILA=>Apostlogic);
+BLogic:ArithmeticInputLogicB PORT MAP(SCin_AILB=>SCin_AU, S1_AILB=>S1_AU, S0_AILB=>S0_AU, Bin_AILB=>Bin_AU, Bout_AILB=>Bpostlogic);
+FA1:FullAdder PORT MAP(A_Full => Apostlogic, B_Full => Bpostlogic, CarryIn_Full => Cin_AU, Sum_Full => G_AU,CarryOut_Full => Cout_AU);
+
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ARITHMETIC_LOGIC_A:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ArithmeticInputLogicA is
+    Port ( S0_AILA : in STD_LOGIC;
+           Ain_AILA : in STD_LOGIC;
+           Aout_AILA : out STD_LOGIC);
+end ArithmeticInputLogicA;
+
+architecture Behavioral of ArithmeticInputLogicA is
+
+begin
+
+    -- Logic required to handle A depending on select lines. No need for Cin_AILA and S1in_AILA as if you do K-map it is irrelavant. 
+    
+    Aout_AILA <= Ain_AILA when (S0_AILA = '0')
+        else (not Ain_AILA) when (S0_AILA = '1');
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ARITHMETIC_LOGIC_B:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ArithmeticInputLogicB is
+    Port ( SCin_AILB : in STD_LOGIC;
+           S1_AILB : in STD_LOGIC;
+           S0_AILB : in STD_LOGIC;
+           Bin_AILB : in STD_LOGIC;
+           Bout_AILB : out STD_LOGIC);
+end ArithmeticInputLogicB;
+
+architecture Behavioral of ArithmeticInputLogicB is
+
+begin
+
+     -- Logic required to handle B_AU depending on select lines. Here we simply look at look up table given in lab. Can't optimize to many distincct cases.
+     
+    Bout_AILB <= Bin_AILB when (SCin_AILB = '0' and S1_AILB = '0' and S0_AILB = '0')
+        else Bin_AILB when (SCin_AILB = '0' and S1_AILB = '0' and S0_AILB = '1')
+        else '1' when (SCin_AILB = '0' and S1_AILB = '1' and S0_AILB = '0')
+        else '0' when (SCin_AILB = '0' and S1_AILB = '1' and S0_AILB = '1')
+        else (not Bin_AILB) when (SCin_AILB = '1' and S1_AILB = '0' and S0_AILB = '0')
+        else Bin_AILB when (SCin_AILB = '1' and S1_AILB = '0' and S0_AILB = '1')
+        else '0' when (SCin_AILB = '1' and S1_AILB = '1' and S0_AILB = '0')
+        else '0' when (SCin_AILB = '1' and S1_AILB = '1' and S0_AILB = '1');
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR FULL ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FullAdder is
+    Port ( A_Full : in STD_LOGIC;
+           B_Full : in STD_LOGIC;
+           CarryIn_Full : in STD_LOGIC;
+           Sum_Full : out STD_LOGIC;
+           CarryOut_Full : out STD_LOGIC);
+end FullAdder;
+
+architecture Behavioral of FullAdder is
+    
+    -- Component and Output signals needed for between operations.
+    
+    component HalfAdder is
+        Port ( A_Half : in STD_LOGIC;
+               B_Half : in STD_LOGIC;
+               Sum_Half : out STD_LOGIC;
+               CarryOut_Half : out STD_LOGIC);
+    end component HalfAdder;
+    
+    signal sum_half_tmp : STD_LOGIC;
+    signal CarryOut_half0 : STD_LOGIC;
+    signal CarryOut_half1 : STD_LOGIC;
+    
+begin
+
+    -- Logic for a FullAdder.
+    
+    ha1: HalfAdder
+        port map(A_Half => A_Full, B_Half => B_Full, Sum_Half => sum_half_tmp, CarryOut_Half => CarryOut_half0);
+
+    ha2: HalfAdder
+        port map(A_Half => sum_half_tmp, B_Half => CarryIn_Full, Sum_Half => Sum_Full, CarryOut_Half => CarryOut_half1);
+        
+    CarryOut_Full <= CarryOut_half1 OR CarryOut_half0;
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR HALF ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity HalfAdder is
+    Port ( A_Half : in STD_LOGIC;
+           B_Half : in STD_LOGIC;
+           Sum_Half : out STD_LOGIC;
+           CarryOut_Half : out STD_LOGIC);
+end HalfAdder;
+
+architecture Behavioral of HalfAdder is
+
+begin
+    -- Logic inside a Half Adder.
+    
+    CarryOut_Half <= A_Half AND B_Half;
+    Sum_Half <= A_Half XOR B_Half;
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL TEST BENCH CODE FOR FOUR BIT AU:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FourBitAU_TB is
+--  Port ( );
+end FourBitAU_TB;
+
+architecture Behavioral of FourBitAU_TB is
+
+component FourBitAU is
+    
+    Port ( A_FBAU : in STD_LOGIC_VECTOR (3 downto 0);
+           B_FBAU : in STD_LOGIC_VECTOR (3 downto 0);
+           Cin_FBAU : in STD_LOGIC;
+           G_FBAU : out STD_LOGIC_VECTOR (3 downto 0);
+           Cout_FBAU : out STD_LOGIC;
+           S0_FBAU : in STD_LOGIC;
+           S1_FBAU : in STD_LOGIC);
+end component;
+
+signal A_FBAU : STD_LOGIC_VECTOR (3 downto 0);
+signal B_FBAU : STD_LOGIC_VECTOR (3 downto 0);
+signal Cin_FBAU : STD_LOGIC;
+signal G_FBAU : STD_LOGIC_VECTOR (3 downto 0);
+signal Cout_FBAU : STD_LOGIC;
+signal S0_FBAU : STD_LOGIC;
+signal S1_FBAU : STD_LOGIC;
+
+begin
+
+uut: FourBitAU port map (
+    A_FBAU => A_FBAU,
+    B_FBAU => B_FBAU,
+    Cin_FBAU => Cin_FBAU,
+    S0_FBAU => S0_FBAU,
+    S1_FBAU => S1_FBAU,
+    G_FBAU => G_FBAU,
+    Cout_FBAU => Cout_FBAU
+);
+
+stim_proc : process
+begin
+
+wait for 65ns;
+
+-- F = A + B (Add) --
+S0_FBAU <= '0';
+S1_FBAU <= '0';
+Cin_FBAU <= '0';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = A' + B (Add) --
+S0_FBAU <= '1';
+S1_FBAU <= '0';
+Cin_FBAU <= '0';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = A - 1 --
+S0_FBAU <= '0';
+S1_FBAU <= '1';
+Cin_FBAU <= '0';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = A' --
+S0_FBAU <= '1';
+S1_FBAU <= '1';
+Cin_FBAU <= '0';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = A + (B' + 1) => A + (2's comp B) => A - B --
+S0_FBAU <= '0';
+S1_FBAU <= '0';
+Cin_FBAU <= '1';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = (A' + 1) + B => B + (2's comp A) => B - A --
+S0_FBAU <= '1';
+S1_FBAU <= '0';
+Cin_FBAU <= '1';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = A + 1 --
+S0_FBAU <= '0';
+S1_FBAU <= '1';
+Cin_FBAU <= '1';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+-- F = A' + 1 --
+S0_FBAU <= '1';
+S1_FBAU <= '1';
+Cin_FBAU <= '1';
+A_FBAU <= "0111";
+B_FBAU <= "0101";
+wait for 65ns;
+
+wait;
+
+end process; 
+
+end Behavioral;`
       },
       {
         id: "6BitAdder",
