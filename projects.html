@@ -597,35 +597,605 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
         id: "ALU_2",
         name: "Simple ALU",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "This project involved designing a hierarchical <b>4-bit Arithmetic Logic Unit (ALU)</b> in <b>VHDL</b>, integrating both <b>arithmetic</b> and <b>logic circuits</b>. The ALU supported multiple operations controlled by selection inputs and produced results displayed through a <b>7-Segment Display Decoder</b>. The design was created in <b>Xilinx ISE</b>, verified using detailed <b>test benches</b>, and simulated to validate arithmetic and logical operations before deployment on an <b>FPGA board</b>.",
+          "<u><b>Project Impact</b></u>",
+          "This project deepened understanding of <b>ALU architecture</b> and <b>hierarchical VHDL design</b>. It provided hands-on experience in combining arithmetic and logic modules, developing selection-controlled operations, and interfacing with a display for real-time output. The process enhanced skills in modular design, simulation, debugging, and FPGA hardware validation, all of which are fundamental in digital systems engineering.",
+          "<u><b>Key Skills:</b></u> VHDL | ALU Design | Hierarchical Design | Xilinx ISE | FPGA | Arithmetic & Logic Circuits | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/DS_L7_1.png", "assets/DS_L7_2.png", "assets/DS_L7_3.png", "assets/DS_L7_4.png", "assets/DS_L7_5.png", "assets/DS_L7_6.png", "assets/DS_L7_7.png", "assets/DS_L7_8.png", "assets/DS_L7_9.png", "assets/DS_L7_10.png", "assets/DS_L7_11.png", "assets/DS_L7_12.png", "assets/DS_L7_13.png", "assets/DS_L7_14.png", "assets/DS_L7_15.png", "assets/DS_L7_16.png", "assets/DS_L7_17.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: `#include <DHT.h>
+        downloads: ["downloads/DS_L7.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/ALU"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) SEVEN SEGMENT DECODER FOR 4-BIT ALU (DS_L7):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
 
-#define DHTPIN 2
-#define DHTTYPE DHT22
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
 
-DHT dht(DHTPIN, DHTTYPE);
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-}
+entity SevenSegmentDecoder is
+    Port ( A_SSD : in  STD_LOGIC_VECTOR (3 downto 0);
+			  B_SSD : in  STD_LOGIC_VECTOR (3 downto 0);
+			  Cin_SSD : in  STD_LOGIC;
+           S0_SSD : in  STD_LOGIC;
+           S1_SSD : in  STD_LOGIC;
+           S2_SSD : in  STD_LOGIC;
+           Target_SSD : out  STD_LOGIC_VECTOR (3 downto 0);
+           Output_SSD : out  STD_LOGIC_VECTOR (6 downto 0));
+end SevenSegmentDecoder;
 
-void loop() {
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.print("%  Temperature: ");
-  Serial.print(t);
-  Serial.println("°C");
-  delay(2000);
-}`
+architecture Structural of SevenSegmentDecoder is
+
+component FourBitALU is
+	Port ( A_ALU : in  STD_LOGIC_VECTOR(3 downto 0);
+           B_ALU : in  STD_LOGIC_VECTOR(3 downto 0);
+           Cin_ALU : in  STD_LOGIC;
+           S0_ALU : in  STD_LOGIC;
+           S1_ALU : in  STD_LOGIC;
+           S2_ALU : in  STD_LOGIC;
+           Cout_ALU : out  STD_LOGIC := '0';
+           G_ALU : out  STD_LOGIC_VECTOR(3 downto 0));
+end component;
+
+SIGNAL Carry: STD_LOGIC;
+SIGNAL G_SSD  :  STD_LOGIC_VECTOR (3 downto 0);
+
+begin
+ALU : FourBitALU PORT MAP (A_ALU=> A_SSD, B_ALU=> B_SSD, Cin_ALU=>Cin_SSD, S0_ALU=>S0_SSD, S1_ALU=>S1_SSD, S2_ALU=>S2_SSD, Cout_ALU=>Carry, G_ALU=> G_SSD);
+
+Target_SSD<="0111";
+Output_SSD <=
+    "0000001" WHEN (G_SSD = "0000") ELSE
+    "1001111" WHEN (G_SSD = "0001") ELSE
+    "0010010" WHEN (G_SSD = "0010") ELSE
+    "0000110" WHEN (G_SSD = "0011") ELSE
+    "1001100" WHEN (G_SSD = "0100") ELSE
+    "0100100" WHEN (G_SSD = "0101") ELSE
+    "0100000" WHEN (G_SSD = "0110") ELSE
+    "0001111" WHEN (G_SSD = "0111") ELSE
+    "0000000" WHEN (G_SSD = "1000") ELSE
+    "0000100" WHEN (G_SSD = "1001") ELSE
+    "0001000" WHEN (G_SSD = "1010") ELSE
+    "1100000" WHEN (G_SSD = "1011") ELSE
+    "0110001" WHEN (G_SSD = "1100") ELSE
+    "1000010" WHEN (G_SSD = "1101") ELSE
+    "0110000" WHEN (G_SSD = "1110") ELSE
+    "0111000" WHEN (G_SSD = "1111");
+
+end Structural;
+----------------------------------------------------------------------------------
+VHDL CODE FOR FOUR BIT ALU:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FourBitALU is
+    Port ( A_ALU : in  STD_LOGIC_VECTOR(3 downto 0);
+           B_ALU : in  STD_LOGIC_VECTOR(3 downto 0);
+           Cin_ALU : in  STD_LOGIC;
+           S0_ALU : in  STD_LOGIC;
+           S1_ALU : in  STD_LOGIC;
+           S2_ALU : in  STD_LOGIC;
+           Cout_ALU : out  STD_LOGIC := '0';
+           G_ALU : out  STD_LOGIC_VECTOR(3 downto 0));
+end FourBitALU;
+
+architecture Structural of FourBitALU is
+
+component LogicCircuit is
+	Port ( A_LC : in  STD_LOGIC_VECTOR (3 downto 0);
+           B_LC : in  STD_LOGIC_VECTOR (3 downto 0);
+           S0_LC : in  STD_LOGIC;
+           S1_LC : in  STD_LOGIC;
+           G_LC : out  STD_LOGIC_VECTOR (3 downto 0));
+	end component;
+	
+component ArithmeticCircuit is
+	Port ( Ain_AC : in  STD_LOGIC_VECTOR (3 downto 0);
+           Bin_AC : in  STD_LOGIC_VECTOR (3 downto 0);
+           S0_AC : in  STD_LOGIC;
+           S1_AC : in  STD_LOGIC;
+           Cout_AC : out  STD_LOGIC;
+           G_AC : out  STD_LOGIC_VECTOR (3 downto 0);
+           Cin_AC : in  STD_LOGIC);
+	end component;
+
+SIGNAL Cout_AC_TMP : STD_LOGIC;
+SIGNAL G_AC_TMP,G_LC_TMP : STD_LOGIC_VECTOR (3 downto 0);
+
+begin
+
+	LC : LogicCircuit PORT MAP(A_LC=> A_ALU, B_LC=> B_ALU, S0_LC=> S0_ALU, S1_LC=> S1_ALU, G_LC=> G_LC_TMP);
+	AC : ArithmeticCircuit PORT MAP(Ain_AC=> A_ALU, Bin_AC=> B_ALU, S0_AC=> S0_ALU, S1_AC=> S1_ALU, Cout_AC=> Cout_AC_TMP, G_AC=> G_AC_TMP, Cin_AC=>Cin_ALU );
+	
+	process(S2_ALU,G_AC_TMP,G_LC_TMP,Cout_AC_TMP)
+		begin
+		if (S2_ALU = '0') then
+			G_ALU<=G_AC_TMP;
+			Cout_ALU<=Cout_AC_TMP;
+		else
+			G_ALU<=G_LC_TMP;
+		end if;
+	end process;
+	
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR LOGIC MULTIPLEXER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity LogicMultiplexer is
+    Port ( A_LM : in  STD_LOGIC;
+           B_LM : in  STD_LOGIC;
+           S0_LM : in  STD_LOGIC;
+           S1_LM : in  STD_LOGIC;
+           G_LM : out  STD_LOGIC);
+end LogicMultiplexer;
+
+architecture Structural of LogicMultiplexer is
+
+begin
+
+  G_LM <= (A_LM and B_LM) when (S1_LM = '0' and S0_LM = '0')
+					else (A_LM or B_LM) when (S1_LM = '0' and S0_LM = '1')
+					else (A_LM xor B_LM) when (S1_LM = '1' and S0_LM = '0')
+					else (not A_LM) when (S1_LM = '1' and S0_LM = '1');
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR LOGIC CIRCUIT:
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity LogicCircuit is
+    Port ( A_LC : in  STD_LOGIC_VECTOR (3 downto 0);
+           B_LC : in  STD_LOGIC_VECTOR (3 downto 0);
+           S0_LC : in  STD_LOGIC;
+           S1_LC : in  STD_LOGIC;
+           G_LC : out  STD_LOGIC_VECTOR (3 downto 0));
+end LogicCircuit;
+
+architecture Structural of LogicCircuit is
+
+component LogicMultiplexer is
+	Port ( A_LM : in  STD_LOGIC;
+           B_LM : in  STD_LOGIC;
+           S0_LM : in  STD_LOGIC;
+           S1_LM : in  STD_LOGIC;
+           G_LM : out  STD_LOGIC);
+	end component;
+
+begin
+
+MUX1:LogicMultiplexer PORT MAP(A_LM=>A_LC(0), B_LM=>B_LC(0),S0_LM=>S0_LC,S1_LM=>S1_LC,G_LM=>G_LC(0));
+MUX2:LogicMultiplexer PORT MAP(A_LM=>A_LC(1), B_LM=>B_LC(1),S0_LM=>S0_LC,S1_LM=>S1_LC,G_LM=>G_LC(1));
+MUX3:LogicMultiplexer PORT MAP(A_LM=>A_LC(2), B_LM=>B_LC(2),S0_LM=>S0_LC,S1_LM=>S1_LC,G_LM=>G_LC(2));
+MUX4:LogicMultiplexer PORT MAP(A_LM=>A_LC(3), B_LM=>B_LC(3),S0_LM=>S0_LC,S1_LM=>S1_LC,G_LM=>G_LC(3));
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ARITHMETIC CIRCUIT:
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ArithmeticCircuit is
+    Port ( Ain_AC : in  STD_LOGIC_VECTOR (3 downto 0);
+           Bin_AC : in  STD_LOGIC_VECTOR (3 downto 0);
+           S0_AC : in  STD_LOGIC;
+           S1_AC : in  STD_LOGIC;
+           Cout_AC : out  STD_LOGIC;
+           G_AC : out  STD_LOGIC_VECTOR (3 downto 0);
+           Cin_AC : in  STD_LOGIC);
+end ArithmeticCircuit;
+
+architecture Structural of ArithmeticCircuit is
+
+component ArithmeticLogicB is
+	Port ( S1_AL : in  STD_LOGIC;
+           S0_AL : in  STD_LOGIC;
+           Bin_AL : in  STD_LOGIC_VECTOR (3 downto 0);
+           Bout_AL : out  STD_LOGIC_VECTOR (3 downto 0));
+	end component;
+
+component FullAdder is
+	Port ( A_FA : in  STD_LOGIC;
+           B_FA : in  STD_LOGIC;
+           Cin_FA : in  STD_LOGIC;
+           Sum_FA : out  STD_LOGIC;
+           Cout_FA : out  STD_LOGIC);
+	end component;
+	
+	SIGNAL Bpostlogic:STD_LOGIC_VECTOR (3 downto 0);
+	SIGNAL C1,C2,C3: STD_LOGIC;
+
+	
+begin
+
+BLogic:ArithmeticLogicB PORT MAP(S1_AL=>S1_AC, S0_AL=>S0_AC,Bin_AL=>Bin_AC,Bout_AL=>Bpostlogic);
+FA1:FullAdder PORT MAP(A_FA => Ain_AC(0),B_FA => Bpostlogic(0), Cin_FA => Cin_AC, Sum_FA => G_AC(0),Cout_FA => C1);
+FA2:FullAdder PORT MAP(A_FA => Ain_AC(1),B_FA => Bpostlogic(1), Cin_FA => C1, Sum_FA => G_AC(1),Cout_FA => C2);
+FA3:FullAdder PORT MAP(A_FA => Ain_AC(2),B_FA => Bpostlogic(2), Cin_FA => C2, Sum_FA => G_AC(2),Cout_FA => C3);
+FA4:FullAdder PORT MAP(A_FA => Ain_AC(3),B_FA => Bpostlogic(3), Cin_FA => C3, Sum_FA => G_AC(3),Cout_FA => Cout_AC);
+
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR LOGIC MULTIPLEXER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity LogicMultiplexer is
+    Port ( A_LM : in  STD_LOGIC;
+           B_LM : in  STD_LOGIC;
+           S0_LM : in  STD_LOGIC;
+           S1_LM : in  STD_LOGIC;
+           G_LM : out  STD_LOGIC);
+end LogicMultiplexer;
+
+architecture Structural of LogicMultiplexer is
+
+begin
+
+  G_LM <= (A_LM and B_LM) when (S1_LM = '0' and S0_LM = '0')
+					else (A_LM or B_LM) when (S1_LM = '0' and S0_LM = '1')
+					else (A_LM xor B_LM) when (S1_LM = '1' and S0_LM = '0')
+					else (not A_LM) when (S1_LM = '1' and S0_LM = '1');
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ONE BIT ALU:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity OneBitALU is
+	Port ( A_OBALU : in  STD_LOGIC;
+           B_OBALU : in  STD_LOGIC;
+           Cin_OBALU : in  STD_LOGIC;
+           S0_OBALU : in  STD_LOGIC;
+           S1_OBALU : in  STD_LOGIC;
+           S2_OBALU : in  STD_LOGIC;
+           Cout_OBALU : out  STD_LOGIC;
+           G_OBALU : out  STD_LOGIC);
+end OneBitALU;
+
+architecture Structural of OneBitALU is
+
+component LogicCircuit is
+	Port ( A_LC : in  STD_LOGIC_VECTOR (3 downto 0);
+           B_LC : in  STD_LOGIC_VECTOR (3 downto 0);
+           S0_LC : in  STD_LOGIC;
+           S1_LC : in  STD_LOGIC;
+           G_LC : out  STD_LOGIC_VECTOR (3 downto 0));
+	end component;
+	
+component ArithmeticCircuit is
+	Port ( Ain_AC : in  STD_LOGIC_VECTOR (3 downto 0);
+           Bin_AC : in  STD_LOGIC_VECTOR (3 downto 0);
+           S0_AC : in  STD_LOGIC;
+           S1_AC : in  STD_LOGIC;
+           Cout_AC : out  STD_LOGIC;
+           G_AC : out  STD_LOGIC_VECTOR (3 downto 0);
+           Cin_AC : in  STD_LOGIC);
+	end component;
+
+begin
+
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ArithmeticLogicB:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ArithmeticLogicB is
+    Port ( S1_AL : in  STD_LOGIC;
+           S0_AL : in  STD_LOGIC;
+           Bin_AL : in  STD_LOGIC_VECTOR (3 downto 0);
+           Bout_AL : out  STD_LOGIC_VECTOR (3 downto 0));
+end ArithmeticLogicB;
+
+architecture Structural of ArithmeticLogicB is
+
+begin
+
+	Bout_AL <= "0000" when (S1_AL = '0' and S0_AL = '0')
+					else Bin_AL when (S1_AL = '0' and S0_AL = '1')
+					else (not Bin_AL) when (S1_AL = '1' and S0_AL = '0')
+					else "1111" when (S1_AL = '1' and S0_AL = '1');
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR FULL ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FullAdder is
+    Port ( A_FA : in  STD_LOGIC;
+           B_FA : in  STD_LOGIC;
+           Cin_FA : in  STD_LOGIC;
+           Sum_FA : out  STD_LOGIC;
+           Cout_FA : out  STD_LOGIC);
+end FullAdder;
+
+architecture Structural of FullAdder is
+
+	component HalfAdder is
+	Port ( A,B : in STD_LOGIC;
+			Sum,Cout : out STD_LOGIC);
+	end component;
+	
+	SIGNAL S0,S1,S2:STD_LOGIC;
+	
+begin
+HA1:HalfAdder PORT MAP(A=>A_FA,B=>B_FA,Sum=>S0,Cout=>S1);
+HA2:HalfAdder PORT MAP(A=>S0,B=>Cin_FA,Sum=>Sum_FA,Cout=>S2);
+
+Cout_FA<=S2 or S1;
+
+end Structural;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR HALF ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity HalfAdder is
+    Port ( A : in  STD_LOGIC;
+           B : in  STD_LOGIC;
+           Sum : out  STD_LOGIC;
+           Cout : out  STD_LOGIC);
+end HalfAdder;
+
+architecture Structural of HalfAdder is
+
+begin
+	Sum <= A xor B;
+   Cout <= A and B;
+
+end Structural;
+
+--------------------------------------------------------------------------------
+VHDL TEST BENCH CODE FOR 4-BIT ALU:
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+ 
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--USE ieee.numeric_std.ALL;
+ 
+ENTITY ALU_TB IS
+END ALU_TB;
+ 
+ARCHITECTURE behavior OF ALU_TB IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT SevenSegmentDecoder
+    PORT(
+         A_SSD : IN  std_logic_vector(3 downto 0);
+         B_SSD : IN  std_logic_vector(3 downto 0);
+         Cin_SSD : IN  std_logic;
+         S0_SSD : IN  std_logic;
+         S1_SSD : IN  std_logic;
+         S2_SSD : IN  std_logic;
+         Target_SSD : OUT  std_logic_vector(3 downto 0);
+         Output_SSD : OUT  std_logic_vector(6 downto 0)
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal A_SSD : std_logic_vector(3 downto 0) := (others => '0');
+   signal B_SSD : std_logic_vector(3 downto 0) := (others => '0');
+   signal Cin_SSD : std_logic := '0';
+   signal S0_SSD : std_logic := '0';
+   signal S1_SSD : std_logic := '0';
+   signal S2_SSD : std_logic := '0';
+
+ 	--Outputs
+   signal Target_SSD : std_logic_vector(3 downto 0);
+   signal Output_SSD : std_logic_vector(6 downto 0);
+   -- No clocks detected in port list. Replace <clock> below with 
+   -- appropriate port name 
+
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: SevenSegmentDecoder PORT MAP (
+          A_SSD => A_SSD,
+          B_SSD => B_SSD,
+          Cin_SSD => Cin_SSD,
+          S0_SSD => S0_SSD,
+          S1_SSD => S1_SSD,
+          S2_SSD => S2_SSD,
+          Target_SSD => Target_SSD,
+          Output_SSD => Output_SSD
+        );
+
+   -- Clock process definitions
+
+ 
+
+   -- Stimulus process
+   stim_proc: process
+   begin	
+
+--testing arithmetic circuit
+		S0_SSD <= '0';
+		S1_SSD <= '0';
+		Cin_SSD <= '0';
+		A_SSD <= "0111";
+		B_SSD <= "0101";
+      wait for 65 ns;	
+		
+		S0_SSD <= '0';
+		S1_SSD <= '0';
+		Cin_SSD <= '1';
+		wait for 65 ns;
+		
+		S0_SSD <= '0';
+		S1_SSD <= '1';
+		Cin_SSD <= '0';
+		wait for 65 ns;
+		
+		S0_SSD <= '0';
+		S1_SSD <= '1';
+		Cin_SSD <= '1';
+		wait for 65 ns;
+		
+		S0_SSD <= '1';
+		S1_SSD <= '0';
+		Cin_SSD <= '0';
+		wait for 65 ns;
+		
+		S0_SSD <= '1';
+		S1_SSD <= '0';
+		Cin_SSD <= '1';
+		wait for 65 ns;
+		
+		S0_SSD <= '1';
+		S1_SSD <= '1';
+		Cin_SSD <= '0';
+		wait for 65 ns;
+		
+		S0_SSD <= '1';
+		S1_SSD <= '1';
+		Cin_SSD <= '1';
+		wait for 65 ns;
+
+-- testing logic circuit
+		S2_SSD <= '1';
+
+      S0_SSD <= '0';
+		S1_SSD <= '0';
+		Cin_SSD <= '0';
+      wait for 65 ns;	
+		
+		S0_SSD <= '0';
+		S1_SSD <= '1';
+		Cin_SSD <= '0';
+		wait for 65 ns;
+		
+		
+		S0_SSD <= '1';
+		S1_SSD <= '0';
+		Cin_SSD <= '0';
+		wait for 65 ns;
+	
+		
+		S0_SSD <= '1';
+		S1_SSD <= '1';
+		Cin_SSD <= '0';
+		wait for 65 ns;
+		
+
+      wait;
+   end process;
+
+END;`
       },
       {
         id: "Sequential",
@@ -687,7 +1257,7 @@ SR : SequenceRecongnizer_VHDL
 	port map(tmp_clk, reset_topmod, input_topmod, topmod_out);
 
 end Behavioral;
-
+----------------------------------------------------------------------------------
 -- DEBOUNCER CIRCUIT VHDL CODE:
 
 ----------------------------------------------------------------
@@ -769,7 +1339,7 @@ end process;
 cout <= count(20);
 
 end Behavioral;
-
+----------------------------------------------------------------------------------
 -- SEQUENCE RECOGNIZER VHDL CODE:
 
 library IEEE;
@@ -854,7 +1424,7 @@ end process output_process;
 
 
 end Structural;
-
+----------------------------------------------------------------------------------
 -- SEQUENCE RECOGNIZER TESTBENCH CODE:
 
 LIBRARY ieee;
@@ -1004,7 +1574,7 @@ begin
 		"0111000" WHEN (Input_7SD = "1111");
 
 end Structural;       
-
+----------------------------------------------------------------------------------
 -- VHDL SOURCE CODE FILE FOR FOUR BIT ADDER SUBTRACTOR:
 
 library IEEE;
@@ -1054,7 +1624,7 @@ begin
 	CarryOut_FBAS <= Carry4_FBAS;
 	
 end Structural;
-
+----------------------------------------------------------------------------------
 -- VHDL SOURCE CODE FILE FOR FULL ADDERS:
 
 library IEEE;
@@ -1095,7 +1665,7 @@ begin
 		port map (A_Half=>M, B_Half=>CarryIn_Full , Sum_Half=> Sum_Full, CarryOut_Half=>P);
 	CarryOut_Full<= P or N;
 end Structural;
-
+----------------------------------------------------------------------------------
 -- VHDL SOURCE CODE FILE FOR HALF ADDERS:
 
 library IEEE;
@@ -1125,7 +1695,7 @@ begin
 	CarryOut_Half <= A_Half and B_Half;
 
 end Dataflow;
-
+----------------------------------------------------------------------------------
 -- VHDL TEST BENCH CODE FOR FOUR BIT ADDER SUBTRACTOR:
 
 LIBRARY ieee;
@@ -1199,8 +1769,8 @@ BEGIN
    end process;
 
 END;
-
--- VHDL TEST BENCH CODE FOR 7 SEGMENT DISPLAY:
+----------------------------------------------------------------------------------
+-- VHDL TEST BENCH CODE FOR 7 SEGMENT DISPLAY TESTING 4-BIT ADDER:
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -1368,8 +1938,8 @@ OUTPUT <=
 	"0110000" WHEN (INPUT = "1110") ELSE
 	"0111000" WHEN (INPUT = "1111");
 end Behavioral;
-
--- VHDL TEST BENCH CODE:
+----------------------------------------------------------------------------------
+-- VHDL TEST BENCH CODE FOR SEVEN SEGMENT DECODER:
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -1521,7 +2091,7 @@ EQ<=((not A1 and not A0 and not B1 and not B0) or (not A1 and A0 and not B1 and 
 LT<=((B1 and not A1) or (B0 and not A1 and not A0) or (B1 and B0 and not A0));
 
 end Behavioral;
-
+----------------------------------------------------------------------------------
 -- VHDL TEST BENCH CODE:
 
 LIBRARY ieee;
@@ -1723,7 +2293,7 @@ BEGIN
    end process;
 
 END;
-
+----------------------------------------------------------------------------------
 -- UCF FILE:
 NET A1 LOC=T5; //(leftmost slide switch on NEXYS 3 board)
 NET A0 LOC=V8; //(second slide switch on NEXYS 3 board)
