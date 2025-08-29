@@ -581,17 +581,381 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
         code: ``
       },
       {
-        id: "7Seg",
+        id: "6BitAdder",
         name: "6-Bit Adder",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "This project involved designing a hierarchical <b>6-bit Ripple Carry Adder</b> in <b>VHDL</b>, composed of <b>Half Adders</b>, <b>Full Adders</b>, and a <b>Six-Bit Adder</b> module. The design incorporated a <b>Carry-In</b> and <b>Carry-Out</b> feature, with results displayed using a <b>7-Segment Display Decoder</b>. A <b>top-level module</b> integrated input switches, LED indicators, and real-time display multiplexing logic. The design was implemented in <b>Xilinx ISE</b>, verified with <b>test benches</b>, and simulated before being deployed on an <b>FPGA board</b>.",
+          "<u><b>Project Impact</b></u>",
+          "This project strengthened knowledge of <b>ripple carry adders</b> and <b>hierarchical hardware design</b>. It provided hands-on experience with <b>multi-bit arithmetic circuits</b>, <b>carry propagation</b>, and <b>real-time output interfacing</b> using a 7-segment display. The modular approach improved debugging, simulation, and hardware validation skills essential for building scalable digital systems.",
+          "<u><b>Key Skills:</b></u> VHDL | Ripple Carry Adder Design | Hierarchical Design | Xilinx ISE | FPGA | Half & Full Adders | 7-Segment Display Multiplexing | Modular Architecture | Test Bench Development | Hardware Simulation & Verification"
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/RCS_L1_1.png", "assets/RCS_L1_2.png", "assets/RCS_L1_3.png", "assets/RCS_L1_4.png", "assets/RCS_L1_5.png", "assets/RCS_L1_6.png", "assets/RCS_L1_7.png", "assets/RCS_L1_8.png", "assets/RCS_L1_9.png", "assets/RCS_L1_10.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/RCS_L1.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Intermediate/6%20-%20Bit%20Adder"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) SEVEN SEGMENT DECODER FOR 6-BIT ADDER (RCS_L1):
+----------------------------------------------------------------------------------
+VHDL CODE FOR TOP MODULE:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity Top_Module is
+    generic (N_BITS : integer := 6);
+
+    Port (
+        clk : in STD_LOGIC;
+        SW : in STD_LOGIC_VECTOR(11 downto 0);
+        LED : out STD_LOGIC_VECTOR(11 downto 0);
+        AN : out STD_LOGIC_VECTOR(7 downto 0);
+        Cathode : out STD_LOGIC_VECTOR(6 downto 0);
+        carryLED : out STD_LOGIC;
+        CarryInButton : in STD_LOGIC
+    );
+end Top_Module;
+
+architecture Behavioral of Top_Module is
+    signal sum : STD_LOGIC_VECTOR(6 downto 0); --changed range
+    signal carry_out : STD_LOGIC;
+
+    signal lowBits : STD_LOGIC_VECTOR(3 downto 0);
+    signal highBits : STD_LOGIC_VECTOR(3 downto 0);
+    
+    signal lowSegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    signal highSegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    
+    signal num : STD_LOGIC := '0';
+    signal counter : integer range 0 to 32000 := 0;
+
+begin
+    carryLED <= carry_out;  -- using the first LED as carry indicator
+    LED(11 downto 0) <= SW(11 downto 0);
+    -- Instantiate the ripple carry adder
+    Adder : entity work.SixBitAdder port map (
+        A_SBA => SW(5 downto 0),
+        B_SBA => SW(11 downto 6),
+        Sum_SBA => sum(5 downto 0),  -- Changed this line
+        CarryIn_SBA => CarryInButton,
+        CarryOut_SBA => carry_out
+    );
+    
+    sum(6) <= carry_out; --added
+
+    lowBits <= sum(3 downto 0);
+
+    highBits <= "0" & sum(6 downto 4); --changed to sum6
+    
+    decode_low : entity work.BCD_7SegDecoder port map (
+            Input_7SD => lowBits,
+            a_to_g => lowSegmentDis
+    );
+    
+    decode_high : entity work.BCD_7SegDecoder port map (
+                Input_7SD => highBits,
+                a_to_g => highSegmentDis
+    );
+    
+    process(clk)
+        begin
+        if rising_edge(clk) then
+            if counter >= 5000 then --5 ms assuming 100 MHz clock
+                if num = '0' then
+                    num <= '1';
+                    AN <= "11111110";  -- rightmost digit
+                    Cathode <= lowSegmentDis;
+                else
+                    num <= '0';  -- This line was the problem
+                    AN <= "11111101";  -- second rightmost digit
+                    Cathode <= highSegmentDis;
+                end if;
+                counter <= 0;
+            else
+                counter <= counter + 1;
+            end if;
+        end if;
+    end process;
+        
+            
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR 7-SEGMENT DECODER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity BCD_7SegDecoder is
+    Port ( Input_7SD : in STD_LOGIC_VECTOR (3 downto 0);
+           a_to_g : out STD_LOGIC_VECTOR (6 downto 0));
+end BCD_7SegDecoder;
+
+architecture Behavioral of BCD_7SegDecoder is
+
+begin
+   process(Input_7SD)
+   begin   
+     case Input_7SD is                                  -- a,b,c,d,e,f,g
+         when "0000" => a_to_g <= "1000000"; --0
+         when "0001" => a_to_g <= "1111001"; --1        1001111         1111001
+         when "0010" => a_to_g <= "0100100"; --2     0010010  0100100
+         when "0011" => a_to_g <= "0110000"; --3         
+         when "0100" => a_to_g <= "0011001"; --4         
+         when "0101" => a_to_g <= "0010010"; --5             
+         when "0110" => a_to_g <= "0000010"; --6 
+         when "0111" => a_to_g <= "1011000"; --7
+         when "1000" => a_to_g <= "0000000"; --8
+         when "1001" => a_to_g <= "0010000"; --9         
+         when "1010" => a_to_g <= "0001000"; --A
+         when "1011" => a_to_g <= "0000011"; --b         
+         when "1100" => a_to_g <= "1000110"; --C         z
+         when "1101" => a_to_g <= "0100001"; --d    
+         when "1110" => a_to_g <= "0000110"; --E    
+         when "1111" => a_to_g <= "0001110"; --F    
+     end case;
+   end process;
+end Behavioral;
+
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR 6-BIT ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity SixBitAdder is
+    generic (N_BITS : integer := 6);
+
+    Port ( A_SBA : in STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           B_SBA : in STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           Sum_SBA : out STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           CarryIn_SBA : in STD_LOGIC;
+           CarryOut_SBA : out STD_LOGIC);
+end SixBitAdder;
+
+architecture Behavioral of SixBitAdder is
+
+component FullAdder is
+    Port ( A_Full : in STD_LOGIC;
+           B_Full : in STD_LOGIC;
+           CarryIn_Full : in STD_LOGIC;
+           Sum_Full : out STD_LOGIC;
+           CarryOut_Full : out STD_LOGIC);
+end component FullAdder;
+
+signal Carry : STD_LOGIC_VECTOR(N_BITS downto 0) := (others => '0'); --Set
+
+begin
+    Carry(0) <= CarryIn_SBA;
+    make_each_FA: for i in 0 to N_BITS-1 generate            -- Loop through each 1 bit adder and port everything.
+        signal CarryOut_i : STD_LOGIC;                       -- This will catch each output of every carry out for each 1 bit adder.
+    begin
+        FullAdder_inst : FullAdder                           -- hierarchy for FA + port (Make sure to look at the circuit and understnad each ports.)
+            port map (
+                A_Full => A_SBA(i),                          -- A(N) passed.
+                B_Full => B_SBA(i),                          -- B(N) passed.
+                CarryIn_Full => Carry(i),                       -- Previous Carry in passed in from the update or 0 initally.
+                Sum_Full => Sum_SBA(i),                      -- Sum_SBA(i) passed out.
+                CarryOut_Full => CarryOut_i                  -- CarryOut_i updated.
+            );
+            Carry(i+1) <= CarryOut_i;         		     -- Setting the updated CarryOut_i as input for the next Full Adder.
+     end generate make_each_FA;
+     
+     CarryOut_SBA <= Carry(N_BITS);
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR FULL ADDER:
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FullAdder is
+    Port ( A_Full : in STD_LOGIC;
+           B_Full : in STD_LOGIC;
+           CarryIn_Full : in STD_LOGIC;
+           Sum_Full : out STD_LOGIC;
+           CarryOut_Full : out STD_LOGIC);
+end FullAdder;
+
+architecture Behavioral of FullAdder is
+
+    component HalfAdder is
+        Port ( A_Half : in STD_LOGIC;
+               B_Half : in STD_LOGIC;
+               Sum_Half : out STD_LOGIC;
+               CarryOut_Half : out STD_LOGIC);
+    end component HalfAdder;
+    
+    signal sum_half_tmp : STD_LOGIC;
+    signal CarryOut_half0 : STD_LOGIC;
+    signal CarryOut_half1 : STD_LOGIC;
+        
+begin
+
+    ha1: HalfAdder
+        port map(A_Half => A_Full, B_Half => B_Full, Sum_Half => sum_half_tmp, CarryOut_Half => CarryOut_half0);
+
+    ha2: HalfAdder
+        port map(A_Half => sum_half_tmp, B_Half => CarryIn_Full, Sum_Half => Sum_Full, CarryOut_Half => CarryOut_half1);
+        
+    CarryOut_Full <= CarryOut_half1 OR CarryOut_half0;
+end Behavioral;
+        
+----------------------------------------------------------------------------------
+VHDL CODE FOR HALF ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity HalfAdder is
+    Port ( A_Half : in STD_LOGIC;
+           B_Half : in STD_LOGIC;
+           Sum_Half : out STD_LOGIC;
+           CarryOut_Half : out STD_LOGIC);
+end HalfAdder;
+
+architecture Behavioral of HalfAdder is
+
+begin
+
+    CarryOut_Half <= A_Half AND B_Half;
+    Sum_Half <= A_Half XOR B_Half;
+
+end Behavioral;
+----------------------------------------------------------------------------------
+VHDL CODE FOR TEST BENCH FOR THE TOP MODULE:
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity lab1_tb is
+--  Port ( );
+end lab1_tb;
+
+architecture Behavioral of lab1_tb is
+
+--generic (N_BITS : integer := 6);
+Component SixBitAdder
+    Port ( A_SBA : in STD_LOGIC_VECTOR (5 downto 0);
+           B_SBA : in STD_LOGIC_VECTOR (5 downto 0);
+           Sum_SBA : out STD_LOGIC_VECTOR (5 downto 0);
+           CarryIn_SBA : in STD_LOGIC;
+           CarryOut_SBA : out STD_LOGIC);
+end component;
+
+signal A_SBA : std_logic_vector(5 downto 0) := (others => '0');
+signal B_SBA : std_logic_vector(5 downto 0) := (others => '0');
+signal CarryIn_SBA : std_logic := '0';
+
+signal Sum_SBA : std_logic_vector(5 downto 0);
+signal CarryOut_SBA : std_logic;
+
+begin
+
+uut: SixBitAdder port map (
+
+A_SBA => A_SBA,
+B_SBA => B_SBA,
+CarryIn_SBA => CarryIn_SBA,
+Sum_SBA => Sum_SBA,
+CarryOut_SBA => CarryOut_SBA
+);
+
+stim_proc : process
+begin
+wait for 100ns;
+A_SBA <= "000110";
+B_SBA <= "001100";
+CarryIn_SBA <= '0';
+
+wait for 100ns;
+A_SBA <= "110100";
+B_SBA <= "010001";
+CarryIn_SBA <= '0';
+
+wait for 100ns;
+A_SBA <= "101010";
+B_SBA <= "010101";
+CarryIn_SBA <= '1';
+
+wait for 100ns;
+A_SBA <= "100110";
+B_SBA <= "011001";
+CarryIn_SBA <= '1';
+
+wait for 100ns;
+A_SBA <= "111100";
+B_SBA <= "111000";
+CarryIn_SBA <= '0';
+
+wait for 100ns;
+A_SBA <= "111111";
+B_SBA <= "111111";
+CarryIn_SBA <= '1';
+
+wait for 100ns;
+A_SBA <= "000000";
+B_SBA <= "000000";
+CarryIn_SBA <= '0';
+
+wait for 100ns;
+A_SBA <= "111100";
+B_SBA <= "111010";
+CarryIn_SBA <= '1';
+
+wait;
+end process;
+
+
+end Behavioral;`
       },
       {
         id: "ALU_2",
