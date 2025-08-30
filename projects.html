@@ -1576,6 +1576,96 @@ begin
     Sum_Half <= A_Half XOR B_Half;
 
 end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL TEST BENCH CODE FOR TOP MODULE:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity Top_Module_TB is
+--  Port ( );
+end Top_Module_TB;
+
+architecture Behavioral of Top_Module_TB is
+  -- Declare signals for your testbench inputs and outputs
+  signal clk : STD_LOGIC := '0';
+  signal reset : STD_LOGIC := '0';
+  signal state : STD_LOGIC := '0';
+  signal SW : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+  signal LED : STD_LOGIC_VECTOR(7 downto 0);
+  signal AN : STD_LOGIC_VECTOR(7 downto 0);
+  signal Cathode : STD_LOGIC_VECTOR(6 downto 0);
+  signal carryLED1 : STD_LOGIC;
+  signal carryLED2 : STD_LOGIC;
+  signal SC_LED : STD_LOGIC;
+  signal S1_LED : STD_LOGIC;
+  signal S0_LED : STD_LOGIC;
+
+  -- Instantiate your Top_Module component
+  component Top_Module is
+    Port (
+        clk : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        state : in STD_LOGIC;
+        SW : in STD_LOGIC_VECTOR(7 downto 0);
+        LED : out STD_LOGIC_VECTOR(7 downto 0);
+        AN : out STD_LOGIC_VECTOR(7 downto 0);
+        Cathode : out STD_LOGIC_VECTOR(6 downto 0);
+        carryLED1 : out STD_LOGIC;
+        carryLED2 : out STD_LOGIC;
+        SC_LED : out STD_LOGIC;
+        S1_LED : out STD_LOGIC;
+        S0_LED : out STD_LOGIC
+    );
+  end component;
+
+begin
+  -- Instantiate your Top_Module component
+  uut: Top_Module port map (
+    clk => clk,
+    reset => reset,
+    state => state,
+    SW => SW,
+    LED => LED,
+    AN => AN,
+    Cathode => Cathode,
+    carryLED1 => carryLED1,
+    carryLED2 => carryLED2,
+    SC_LED => SC_LED,
+    S1_LED => S1_LED,
+    S0_LED => S0_LED
+  );
+
+  -- Clock generation process
+  clk_process: process
+  begin
+    while now < 1000 ns loop  -- Adjust the simulation time as needed
+      clk <= not clk;  -- Toggle the clock signal
+      wait for 5 ns;  -- Adjust the clock period as needed
+    end loop;
+    wait;
+  end process;
+
+  -- Stimulus process
+  stimulus_process: process
+  begin
+    -- Apply test vectors and reset as needed here
+    -- For example:
+    reset <= '0';
+    state <= '0';
+    SW <= "00000000";
+
+    wait for 10 ns;
+
+    -- Continue with more test vectors as needed
+
+    wait;
+  end process;
+
+end Behavioral;
+
 `
       },
       {
