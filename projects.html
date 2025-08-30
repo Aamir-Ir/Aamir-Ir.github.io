@@ -558,16 +558,1025 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
       },
       {
         id: "SIMD_CPU",
-        name: "SIMD CPU",
+        name: "CPU (SIMD)",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+          "<u><b>Building Process</b></u>",
+          "This project involved designing a <b>CPU with SIMD architecture</b> in <b>VHDL</b>, integrating a <b>Control Unit</b>, <b>Register Files</b>, and <b>Arithmetic Units (AUs)</b> for parallel computation. A debouncer module ensured stable input handling, while operands and results were displayed on a multiplexed <b>7-Segment Display</b>. The hierarchical design included <b>One-Bit</b> and <b>Four-Bit Arithmetic Units</b>, controlled by the FSM-based control unit. The entire system was implemented in <b>Xilinx ISE</b>, simulated using <b>test benches</b>, and deployed on an <b>FPGA board</b> with real-time visualization of operands, operations, and results.",
+          "<u><b>Project Impact</b></u>",
+          "This project provided deep insight into <b>CPU architecture</b> and <b>SIMD processing</b>. It reinforced hierarchical hardware design principles, control-flow implementation through FSMs, and data handling with register files. By integrating parallel arithmetic operations with synchronized control and output multiplexing, the project strengthened skills in <b>VHDL design</b>, <b>hardware verification</b>, and <b>FPGA deployment</b>, while offering practical exposure to scalable processor design concepts.",
+          "<u><b>Key Skills:</b></u> VHDL | SIMD Architecture | Control Unit (FSM) | Register Files | Arithmetic Units | Hierarchical Design | Xilinx ISE | FPGA | Debouncer Circuits | 7-Segment Display Multiplexing | Test Bench Development | Hardware Simulation & Verification"
         ],
-        images: [],
+        images: ["assets/RCS_L3_1.png", "assets/RCS_L3_2.png", "assets/RCS_L3_3.png", "assets/RCS_L3_4.png", "assets/RCS_L3_5.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/RCS_L3.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Intermediate/SIMD%20Strcuture%20-%20ALU%20%2B%20Control%20Unit"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) SEVEN SEGMENT DECODER FOR CPU (ALU + CONTROL UNIT) (RCS_L3):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity Top_Module is
+    Port (
+        clk : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        state : in STD_LOGIC;
+        SW : in STD_LOGIC_VECTOR(7 downto 0);
+        LED : out STD_LOGIC_VECTOR(7 downto 0);
+        AN : out STD_LOGIC_VECTOR(7 downto 0);
+        Cathode : out STD_LOGIC_VECTOR(6 downto 0);
+        carryLED1 : out STD_LOGIC;
+        carryLED2 : out STD_LOGIC;
+        SC_LED : out STD_LOGIC;
+        S1_LED : out STD_LOGIC;
+        S0_LED : out STD_LOGIC
+    );
+end Top_Module;
+
+architecture Behavioral of Top_Module is
+    signal sum : STD_LOGIC_VECTOR(5 downto 0); --changed range
+    signal carry_out : STD_LOGIC;
+    
+    signal sum2 : STD_LOGIC_VECTOR(5 downto 0); --changed range
+    signal carry_out2 : STD_LOGIC;
+
+    signal SCin_top : STD_LOGIC;
+    signal S1_top : STD_LOGIC;
+    signal S0_top : STD_LOGIC;
+    
+    -- For Operands
+    signal operand1 : STD_LOGIC_VECTOR(3 downto 0);
+    signal operand2 : STD_LOGIC_VECTOR(3 downto 0);
+    signal operand3 : STD_LOGIC_VECTOR(3 downto 0);
+    signal operand4 : STD_LOGIC_VECTOR(3 downto 0);
+    
+    signal operand1SegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    signal operand2SegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    signal operand3SegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    signal operand4SegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    
+    -- For Ans
+    signal lowBits : STD_LOGIC_VECTOR(3 downto 0);
+    signal highBits : STD_LOGIC_VECTOR(3 downto 0);
+    signal lowSegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+--    signal highSegmentDis : STD_LOGIC_VECTOR (6 downto 0);
+    signal lowBits2 : STD_LOGIC_VECTOR(3 downto 0);
+    signal highBits2 : STD_LOGIC_VECTOR(3 downto 0);
+    signal lowSegmentDis2 : STD_LOGIC_VECTOR (6 downto 0);
+    
+    signal num : integer := 0;
+    signal counter : integer range 0 to 32000 := 0;
+    
+    signal debounce_state : STD_LOGIC;
+begin
+    carryLED1 <= carry_out;  -- using the first LED as carry indicator
+    carryLED2 <= carry_out2;
+    LED(7 downto 0) <= SW(7 downto 0);
+    
+    SC_LED <= SCin_top; 
+    S1_LED <= S1_top; 
+    S0_LED <= S0_top; 
+    
+
+    dbounce : entity work.dbounce port map (
+            push_bt => state,
+            clk => clk,
+            debounce_out => debounce_state                        
+    );
+    
+    reg1 : entity work.RegFile1 port map (
+            ReadA => SW(3 downto 0), --SW(7 downto 4)
+            DataOut => operand1,
+            CLK => clk
+    );
+    
+    reg2 : entity work.RegFile2 port map (
+            ReadA => SW(7 downto 4), --SW(3 downto 0)
+            DataOut => operand2,
+            CLK => clk
+    );
+    
+    reg3 : entity work.RegFile3 port map (
+            ReadA => SW(3 downto 0),
+            DataOut => operand3,
+            CLK => clk
+    );
+    
+    reg4 : entity work.RegFile4 port map (
+            ReadA => SW(7 downto 4),
+            DataOut => operand4,
+            CLK => clk
+    );
+    
+    ControlUnit : entity work.controlUnit port map (
+            clk => clk,
+            reset => reset,
+            stateStop => debounce_state,
+            SCin_CU => SCin_top,
+            S0_CU => S0_top,
+            S1_CU => S1_top
+    );
+    
+    -- Instantiate the Four Bit Arithmetic Unit.
+    FBAU_1 : entity work.FourBitAU port map (
+        A_FBAU => operand1,   
+        B_FBAU => operand2,  
+        Cin_FBAU => SCin_top,
+        G_FBAU => sum(3 downto 0),
+        Cout_FBAU => carry_out,
+        S0_FBAU => S0_top, 
+        S1_FBAU => S1_top  
+    );
+    lowBits <= sum(3 downto 0);
+    sum(4) <= carry_out; --added
+    highBits <= "000" & sum(4); --changed to sum6
+    
+    decode_op1 : entity work.BCD_7SegDecoder port map (
+            Input_7SD => operand1,
+            a_to_g => operand1SegmentDis
+    );
+    
+    decode_op2 : entity work.BCD_7SegDecoder port map (
+        Input_7SD => operand2,
+        a_to_g => operand2SegmentDis
+    );
+    
+--    lowBits <= sum(3 downto 0);
+--    highBits <= "000" & sum(4); --changed to sum6
+    
+    decode_low : entity work.BCD_7SegDecoder port map (
+        Input_7SD => lowBits,
+        a_to_g => lowSegmentDis
+    );
+        
+--    decode_high : entity work.BCD_7SegDecoder port map (
+--        Input_7SD => highBits,
+--        a_to_g => highSegmentDis
+--    );
+
+-- Register 3 and 4 
+
+ -- Instantiate the Four Bit Arithmetic Unit.
+    FBAU_2 : entity work.FourBitAU port map (
+        A_FBAU => operand3,   
+        B_FBAU => operand4,  
+        Cin_FBAU => SCin_top,
+        G_FBAU => sum2(3 downto 0),
+        Cout_FBAU => carry_out2,
+        S0_FBAU => S0_top, 
+        S1_FBAU => S1_top 
+    );
+    lowBits2 <= sum2(3 downto 0);
+    sum2(4) <= carry_out2; --added
+    highBits2 <= "000" & sum(4); --changed to sum6
+    
+    decode_op3 : entity work.BCD_7SegDecoder port map (
+            Input_7SD => operand3,
+            a_to_g => operand3SegmentDis
+    );
+    
+    decode_op4 : entity work.BCD_7SegDecoder port map (
+        Input_7SD => operand4,
+        a_to_g => operand4SegmentDis
+    );
+    
+--    lowBits <= sum(3 downto 0);
+--    highBits <= "000" & sum(4); --changed to sum6
+    
+    decode_low2 : entity work.BCD_7SegDecoder port map (
+        Input_7SD => lowBits2,
+        a_to_g => lowSegmentDis2
+    );
+        
+--    decode_high : entity work.BCD_7SegDecoder port map (
+--        Input_7SD => highBits,
+--        a_to_g => highSegmentDis
+--    );
+
+
+
+process(clk) 
+begin
+    if rising_edge(clk) then 
+        if counter >= 5000 then -- 5 ms assuming 100 MHz clock 
+            if num = 0 then 
+                num <= 1; 
+                AN <= "11101111"; -- rightmost digit 
+                Cathode <= lowSegmentDis; 
+            elsif num = 1 then -- Use "elsif" instead of "else if" 
+                num <= 2; 
+                AN <= "01111111"; -- Operand 1 from reg 1 
+                Cathode <= operand1SegmentDis; 
+            elsif num = 2 then
+                num <= 3; 
+                AN <= "10111111"; -- Operand 2 From reg 2 
+                Cathode <= operand2SegmentDis; 
+            elsif num = 3 then
+                num <= 4; 
+                AN <= "11111110"; -- Operand 2 From reg 2 
+                Cathode <= lowSegmentDis2;
+            elsif num = 4 then
+                num <= 5; 
+                AN <= "11110111"; -- Operand 2 From reg 2 
+                Cathode <= operand3SegmentDis;
+            else
+                num <= 0; 
+                AN <= "11111011"; -- Operand 2 From reg 2 
+                Cathode <= operand4SegmentDis; 
+            end if; 
+            counter <= 0; 
+        else 
+            counter <= counter + 1; 
+        end if; 
+    end if; 
+
+end process; 
+        
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR DeBounce Circuit:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity dbounce is
+    Port ( push_bt : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           debounce_out : out STD_LOGIC);
+end dbounce;
+
+architecture Behavioral of dbounce is
+signal d1, d2, reset, cout : std_logic;
+signal count : std_logic_vector(20 downto 0);
+begin
+
+reset <= d1 xor d2;
+
+FF: process(clk)
+begin
+    if (clk'event and clk = '1') then
+        d1 <= push_bt;
+        d2 <= d1;
+        if (cout = '1') then
+            debounce_out <= d2;
+        end if;
+    end if;
+end process;
+
+CNTR: process(clk, reset)
+begin
+    if (reset='1') then
+        count <= (others => '0');
+    elsif (clk'event and clk = '1') then
+        if (cout = '0') then
+            count <= count + 1;
+        end if;
+    end if;
+end process;
+
+cout <= count(20);
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR RegFile1:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity RegFile1 is
+    generic (
+        Dwidth : integer := 4;
+        Awidth : integer := 4
+    );
+    
+    Port ( 
+        ReadA : IN std_logic_vector(Awidth-1 downto 0);
+        DataOut : OUT std_logic_vector(Dwidth-1 downto 0);
+        CLK : in std_logic
+    );
+end RegFile1;
+
+architecture Behavioral of RegFile1 is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+
+signal memory: memType := (
+    "0000",
+    "0001",
+    "0010",
+    "0011",
+    "0100",
+    "0101",
+    "0110",
+    "0111",
+    "1000",
+    "1001",
+    "1010",
+    "1011",
+    "1100",
+    others => "1111");
+begin
+    process(CLK)
+    begin
+    
+    if (clk'event and clk = '1') then
+        DataOut <= memory(conv_integer(ReadA));
+    end if;
+    
+    end process;
+end Behavioral;
+
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR RegFile2:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity RegFile2 is
+    generic (
+        Dwidth : integer := 4;
+        Awidth : integer := 4
+    );
+    
+    Port ( 
+        ReadA : IN std_logic_vector(Awidth-1 downto 0);
+        DataOut : OUT std_logic_vector(Dwidth-1 downto 0);
+        CLK : in std_logic
+    );
+end RegFile2;
+
+architecture Behavioral of RegFile2 is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+
+signal memory: memType := (
+    "1100",  -- "0000"
+    "1011",  -- "0001"
+    "1010",  -- "0010"
+    "1001",  -- "0011"
+    "1000",  -- "0100"
+    "0111",  -- "0101"
+    "1101",  -- "0110"
+    "0101",  -- "0111"
+    "0100",  -- "1000"
+    "0011",  -- "1001"
+    "0010",  -- "1010"
+    "0001",  -- "1011"
+    "0000",  -- "1100"
+    others => "0000");
+begin
+    process(CLK)
+    begin
+    
+    if (clk'event and clk = '1') then
+        DataOut <= memory(conv_integer(ReadA));
+    end if;
+    
+    end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR RegFile3:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity RegFile3 is
+    generic (
+        Dwidth : integer := 4;
+        Awidth : integer := 4
+    );
+    
+    Port ( 
+        ReadA : IN std_logic_vector(Awidth-1 downto 0);
+        DataOut : OUT std_logic_vector(Dwidth-1 downto 0);
+        CLK : in std_logic
+    );
+end RegFile3;
+
+architecture Behavioral of RegFile3 is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+
+signal memory: memType := (
+    "1001",  -- "0000"
+    "0110",  -- "0001"
+    "0101",  -- "0010"
+    "1010",  -- "0011"
+    "1000",  -- "0100"
+    "0111",  -- "0101"
+    "1111",  -- "0110"
+    "1111",  -- "0111"
+    "0111",  -- "1000"
+    "1010",  -- "1001"
+    "0101",  -- "1010"
+    "0110",  -- "1011"
+    "1001",  -- "1100"
+    others => "0110");
+begin
+    process(CLK)
+    begin
+    
+    if (clk'event and clk = '1') then
+        DataOut <= memory(conv_integer(ReadA));
+    end if;
+    
+    end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR RegFile4:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity RegFile4 is
+    generic (
+        Dwidth : integer := 4;
+        Awidth : integer := 4
+    );
+    
+    Port ( 
+        ReadA : IN std_logic_vector(Awidth-1 downto 0);
+        DataOut : OUT std_logic_vector(Dwidth-1 downto 0);
+        CLK : in std_logic
+    );
+end RegFile4;
+
+architecture Behavioral of RegFile4 is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+
+signal memory: memType := (
+    "0000",  -- "0000"
+    "0100",  -- "0001"
+    "1101",  -- "0010"
+    "1111",  -- "0011"
+    "1000",  -- "0100"
+    "0111",  -- "0101"
+    "1111",  -- "0110"
+    "1110",  -- "0111"
+    "0111",  -- "1000"
+    "0101",  -- "1001"
+    "1010",  -- "1010"
+    "0110",  -- "1011"
+    "1111",  -- "1100"
+    others => "1001");
+begin
+    process(CLK)
+    begin
+    
+    if (clk'event and clk = '1') then
+        DataOut <= memory(conv_integer(ReadA));
+    end if;
+    
+    end process;
+
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR Control Unit:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity controlUnit is
+  Port ( clk : IN STD_LOGIC;
+         reset : IN STD_LOGIC;
+         stateStop : IN STD_LOGIC;
+         SCin_CU : OUT STD_LOGIC;
+         S0_CU : OUT STD_LOGIC;
+         S1_CU : OUT STD_LOGIC);
+end controlUnit;
+
+architecture Behavioral of controlUnit is
+    type statetype is (idle_state, A_plus_B, AComp_plus_B, A_minus_1, Acomp, A_minus_B, B_minus_A, A_plus_1, Acomp_plus_1);
+    signal present_state, next_state: statetype;
+Begin
+clk_process: process(reset, clk)
+begin
+    if reset = '1' then -- Check for reset and initialize state.
+        present_state <= idle_state;
+    Elsif (rising_edge(clk)) then
+        present_state <= next_state;
+    end if;
+end process clk_process;
+                
+next_state_process: process(present_state) is
+begin
+    case present_state is --depending on the current state. Just move to the next operation in line.
+    when idle_state => -- set next state.
+        if stateStop = '1' then
+            next_state <= A_plus_B;
+        else
+            next_state <= idle_state;
+        end if;     
+    when A_plus_B => -- set next state.
+        if stateStop = '1' then
+            next_state <= AComp_plus_B;
+        else
+            next_state <= A_plus_B;
+        end if;
+    when AComp_plus_B =>
+        if stateStop = '1' then
+            next_state <= A_minus_1;
+        else
+            next_state <= AComp_plus_B;
+        end if;
+    when A_minus_1 =>
+        if stateStop = '1' then
+            next_state <= Acomp;
+        else
+            next_state <= A_minus_1;
+        end if;
+    when Acomp =>
+        if stateStop = '1' then
+            next_state <= A_minus_B;
+        else
+            next_state <= Acomp;
+        end if;
+    when A_minus_B =>
+        if stateStop = '1' then
+            next_state <= B_minus_A;
+        else
+            next_state <= A_minus_B;
+        end if;
+    when B_minus_A =>
+        if stateStop = '1' then
+            next_state <= A_plus_1;
+        else
+            next_state <= B_minus_A;
+        end if;
+    when A_plus_1 =>
+        if stateStop = '1' then
+            next_state <= Acomp_plus_1;
+        else
+            next_state <= A_plus_1;
+        end if;
+    when Acomp_plus_1 =>
+        if stateStop = '1' then
+            next_state <= A_plus_B;
+        else
+            next_state <= Acomp_plus_1;
+        end if;
+    end case;
+end process next_state_process;   
+
+output_process: process(present_state) is
+begin
+    case present_state is -- depending on the current state set select signals
+    when idle_state =>
+
+    when A_plus_B => -- select signals for F = A + B (add).
+        SCin_CU <= '0';
+        S0_CU <= '0';
+        S1_CU <= '0';
+    when AComp_plus_B => -- select signals for F = A' + B.
+        SCin_CU <= '0';
+        S0_CU <= '1';
+        S1_CU <= '0';
+    when A_minus_1 =>  -- select signals for F = A - 1.
+        SCin_CU <= '0';
+        S0_CU <= '0';
+        S1_CU <= '1';
+    when Acomp =>  -- select signals for F = A'.
+        SCin_CU <= '0';
+        S0_CU <= '1';
+        S1_CU <= '1';
+    when A_minus_B =>  -- select signals for F = A - B.
+        SCin_CU <= '1';
+        S0_CU <= '0';
+        S1_CU <= '0';
+    when B_minus_A =>   -- select signals for F = B - A.
+        SCin_CU <= '1';
+        S0_CU <= '1';
+        S1_CU <= '0';
+    when A_plus_1 =>     -- select signals for F = A + 1.
+        SCin_CU <= '1';
+        S0_CU <= '0';
+        S1_CU <= '1';
+    when Acomp_plus_1 =>    -- select signals for F = A' + 1.
+        SCin_CU <= '1';
+        S0_CU <= '1';
+        S1_CU <= '1';
+    end case;
+end process output_process;
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR Four Bit Arithmetic Unit (FBAU):
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FourBitAU is
+
+    generic (N_BITS : integer := 4);
+    
+    Port ( A_FBAU : in STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           B_FBAU : in STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           Cin_FBAU : in STD_LOGIC;
+           G_FBAU : out STD_LOGIC_VECTOR (N_BITS-1 downto 0);
+           Cout_FBAU : out STD_LOGIC;
+           S0_FBAU : in STD_LOGIC;
+           S1_FBAU : in STD_LOGIC);
+end FourBitAU;
+
+architecture Behavioral of FourBitAU is
+
+component OneBitAU is
+    Port ( Ain_AU : in STD_LOGIC;
+           Bin_AU : in STD_LOGIC;
+           Cin_AU : in STD_LOGIC;
+           SCin_AU : in STD_LOGIC;
+           S1_AU : in STD_LOGIC;
+           S0_AU : in STD_LOGIC;
+           G_AU : out STD_LOGIC;
+           Cout_AU : out STD_LOGIC);
+end component;
+
+signal SCin_FBAU : STD_LOGIC;
+signal Carry : STD_LOGIC_VECTOR(N_BITS downto 0) := (others => '0'); --Set
+
+begin
+    SCin_FBAU <= Cin_FBAU;
+    Carry(0) <= Cin_FBAU;
+    make_each_AU: for i in 0 to N_BITS-1 generate            -- Loop through each 1 bit AU and port everything.
+        signal CarryOut_i : STD_LOGIC;                       -- This will catch each output of every carry out for each 1 bit AU.
+    begin
+        OneBitAU_inst : OneBitAU                           -- hierarchy for One Bit AU + port (Make sure to look at the circuit and understand each ports.)
+            port map (
+                Ain_AU => A_FBAU(i),                          -- A(N) passed. Done For all 4 bits of operand 1
+                Bin_AU => B_FBAU(i),                          -- B(N) passed. Done For all 4 bits of operand 2
+                Cin_AU => Carry(i),                         -- Previous Carry in passed in from the update or Cin_FBAU initally.
+                SCin_AU => SCin_FBAU,
+                S0_AU => S0_FBAU,                      	    -- Selects never iterate for the One bit AU's.
+                S1_AU => S1_FBAU,
+                G_AU => G_FBAU(i), 			    -- G_AU(N) recives output of AU
+                Cout_AU => CarryOut_i                  -- CarryOut_i updated and used a temp for carry vector.
+            );
+            Carry(i+1) <= CarryOut_i;         
+     end generate make_each_AU;
+     
+     Cout_FBAU <= Carry(4);
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR SEVEN SEGMENT DECODER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity BCD_7SegDecoder is
+    Port ( Input_7SD : in STD_LOGIC_VECTOR (3 downto 0);
+           a_to_g : out STD_LOGIC_VECTOR (6 downto 0));
+end BCD_7SegDecoder;
+
+architecture Behavioral of BCD_7SegDecoder is
+
+begin
+   process(Input_7SD)
+   begin   
+     case Input_7SD is                                  -- a,b,c,d,e,f,g
+         when "0000" => a_to_g <= "1000000"; --0
+         when "0001" => a_to_g <= "1111001"; --1        1001111         1111001
+         when "0010" => a_to_g <= "0100100"; --2     0010010  0100100
+         when "0011" => a_to_g <= "0110000"; --3         
+         when "0100" => a_to_g <= "0011001"; --4         
+         when "0101" => a_to_g <= "0010010"; --5             
+         when "0110" => a_to_g <= "0000010"; --6 
+         when "0111" => a_to_g <= "1011000"; --7
+         when "1000" => a_to_g <= "0000000"; --8
+         when "1001" => a_to_g <= "0010000"; --9         
+         when "1010" => a_to_g <= "0001000"; --A
+         when "1011" => a_to_g <= "0000011"; --b         
+         when "1100" => a_to_g <= "1000110"; --C         z
+         when "1101" => a_to_g <= "0100001"; --d    
+         when "1110" => a_to_g <= "0000110"; --E    
+         when "1111" => a_to_g <= "0001110"; --F    
+     end case;
+   end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ONE Bit Arithmetic Unit:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity OneBitAU is
+    Port ( Ain_AU : in STD_LOGIC;
+           Bin_AU : in STD_LOGIC;
+           Cin_AU : in STD_LOGIC;
+           SCin_AU : in STD_LOGIC;
+           S1_AU : in STD_LOGIC;
+           S0_AU : in STD_LOGIC;
+           G_AU : out STD_LOGIC;
+           Cout_AU : out STD_LOGIC);
+end OneBitAU;
+
+architecture Behavioral of OneBitAU is
+
+    component ArithmeticInputLogicA is
+        Port ( S0_AILA : in STD_LOGIC;
+               Ain_AILA : in STD_LOGIC;
+               Aout_AILA : out STD_LOGIC);
+    end component;
+    
+    component ArithmeticInputLogicB is
+        Port ( SCin_AILB : in STD_LOGIC;
+               S1_AILB : in STD_LOGIC;
+               S0_AILB : in STD_LOGIC;
+               Bin_AILB : in STD_LOGIC;
+               Bout_AILB : out STD_LOGIC);
+    end component;
+
+
+    component FullAdder is
+    Port ( A_Full : in STD_LOGIC;
+           B_Full : in STD_LOGIC;
+           CarryIn_Full : in STD_LOGIC;
+           Sum_Full : out STD_LOGIC;
+           CarryOut_Full : out STD_LOGIC);
+    end component;
+
+    SIGNAL Apostlogic:STD_LOGIC;
+    SIGNAL Bpostlogic:STD_LOGIC;
+	
+begin
+    -- All Logic required for OneBitAU according to my diagram Sir Aamir Irfan's diagram ( I AM HIM )
+ALogic:ArithmeticInputLogicA PORT MAP(S0_AILA=>S0_AU, Ain_AILA=>Ain_AU, Aout_AILA=>Apostlogic);
+BLogic:ArithmeticInputLogicB PORT MAP(SCin_AILB=>SCin_AU, S1_AILB=>S1_AU, S0_AILB=>S0_AU, Bin_AILB=>Bin_AU, Bout_AILB=>Bpostlogic);
+FA1:FullAdder PORT MAP(A_Full => Apostlogic, B_Full => Bpostlogic, CarryIn_Full => Cin_AU, Sum_Full => G_AU,CarryOut_Full => Cout_AU);
+
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ArithmeticInputLogicA:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ArithmeticInputLogicA is
+    Port ( S0_AILA : in STD_LOGIC;
+           Ain_AILA : in STD_LOGIC;
+           Aout_AILA : out STD_LOGIC);
+end ArithmeticInputLogicA;
+
+architecture Behavioral of ArithmeticInputLogicA is
+
+begin
+
+    -- Logic required to handle A depending on select lines. No need for Cin_AILA and S1in_AILA as if you do K-map it is irrelavant. 
+    
+    Aout_AILA <= Ain_AILA when (S0_AILA = '0')
+        else (not Ain_AILA) when (S0_AILA = '1');
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR ArithmeticInputLogicB:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ArithmeticInputLogicB is
+    Port ( SCin_AILB : in STD_LOGIC;
+           S1_AILB : in STD_LOGIC;
+           S0_AILB : in STD_LOGIC;
+           Bin_AILB : in STD_LOGIC;
+           Bout_AILB : out STD_LOGIC);
+end ArithmeticInputLogicB;
+
+architecture Behavioral of ArithmeticInputLogicB is
+
+begin
+
+     -- Logic required to handle B_AU depending on select lines. Here we simply look at look up table given in lab. Can't optimize to many distincct cases.
+     
+    Bout_AILB <= Bin_AILB when (SCin_AILB = '0' and S1_AILB = '0' and S0_AILB = '0')
+        else Bin_AILB when (SCin_AILB = '0' and S1_AILB = '0' and S0_AILB = '1')
+        else '1' when (SCin_AILB = '0' and S1_AILB = '1' and S0_AILB = '0')
+        else '0' when (SCin_AILB = '0' and S1_AILB = '1' and S0_AILB = '1')
+        else (not Bin_AILB) when (SCin_AILB = '1' and S1_AILB = '0' and S0_AILB = '0')
+        else Bin_AILB when (SCin_AILB = '1' and S1_AILB = '0' and S0_AILB = '1')
+        else '0' when (SCin_AILB = '1' and S1_AILB = '1' and S0_AILB = '0')
+        else '0' when (SCin_AILB = '1' and S1_AILB = '1' and S0_AILB = '1');
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR FULL ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity FullAdder is
+    Port ( A_Full : in STD_LOGIC;
+           B_Full : in STD_LOGIC;
+           CarryIn_Full : in STD_LOGIC;
+           Sum_Full : out STD_LOGIC;
+           CarryOut_Full : out STD_LOGIC);
+end FullAdder;
+
+architecture Behavioral of FullAdder is
+    
+    -- Component and Output signals needed for between operations.
+    
+    component HalfAdder is
+        Port ( A_Half : in STD_LOGIC;
+               B_Half : in STD_LOGIC;
+               Sum_Half : out STD_LOGIC;
+               CarryOut_Half : out STD_LOGIC);
+    end component HalfAdder;
+    
+    signal sum_half_tmp : STD_LOGIC;
+    signal CarryOut_half0 : STD_LOGIC;
+    signal CarryOut_half1 : STD_LOGIC;
+    
+begin
+
+    -- Logic for a FullAdder.
+    
+    ha1: HalfAdder
+        port map(A_Half => A_Full, B_Half => B_Full, Sum_Half => sum_half_tmp, CarryOut_Half => CarryOut_half0);
+
+    ha2: HalfAdder
+        port map(A_Half => sum_half_tmp, B_Half => CarryIn_Full, Sum_Half => Sum_Full, CarryOut_Half => CarryOut_half1);
+        
+    CarryOut_Full <= CarryOut_half1 OR CarryOut_half0;
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR HALF ADDER:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity HalfAdder is
+    Port ( A_Half : in STD_LOGIC;
+           B_Half : in STD_LOGIC;
+           Sum_Half : out STD_LOGIC;
+           CarryOut_Half : out STD_LOGIC);
+end HalfAdder;
+
+architecture Behavioral of HalfAdder is
+
+begin
+    -- Logic inside a Half Adder.
+    
+    CarryOut_Half <= A_Half AND B_Half;
+    Sum_Half <= A_Half XOR B_Half;
+
+end Behavioral;
+`
       },
       {
         id: "ALU_7Segs",
