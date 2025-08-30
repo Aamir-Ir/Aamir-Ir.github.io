@@ -131,26 +131,6 @@
       .skills-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-
-      /* Show iframe only on devices wider than 768px */
-.pdf-desktop {
-  display: block;
-}
-.pdf-mobile {
-  display: none;
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* On mobile, hide iframe and show button */
-@media (max-width: 768px) {
-  .pdf-desktop {
-    display: none;
-  }
-  .pdf-mobile {
-    display: block;
-  }
-}
     }
 
 
@@ -750,28 +730,23 @@
       <p><b>LinkedIn:</b> <a href="https://www.linkedin.com/in/air-i">https://www.linkedin.com/in/air-i</a></p>
     </section>
 
+    <!-- This will need to be updated if you update the resume -->
     <section id="resume">
       <u><h2>Resume</h2></u>
       <a href="https://drive.google.com/uc?export=download&id=17FoZutLe77lEk91wLdUhJWAMeHXG2sYu" 
         class="download-btn">
         Download Resume PDF
       </a>
+      <!-- This will need to be updated if you update the resume -->
       <div class="pdf-preview">
-  <!-- Desktop view: Inline iframe -->
-  <iframe class="pdf-desktop" 
-          src="downloads/Aamir_Irfan_Resume.pdf" 
-          width="100%" 
-          height="1150px" 
-          style="border:none;">
-  </iframe>
+        <iframe
+          src="https://drive.google.com/file/d/17FoZutLe77lEk91wLdUhJWAMeHXG2sYu/preview"
+          style="width:110%; height:1100px; border:none;"
+          allow="autoplay"
+        ></iframe>
+      </div>
 
-  <!-- Mobile fallback: Open button -->
-  <div class="pdf-mobile">
-    <a href="downloads/Aamir_Irfan_Resume.pdf" target="_blank" class="download-btn">
-      📄 View PDF
-    </a>
-  </div>
-</div>
+
     </section>
   </div>
 
