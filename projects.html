@@ -550,21 +550,687 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
           "Temperature and humidity sensor with cloud upload.",
           "The device logs data locally and pushes to the cloud periodically."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/CO_L1_1.png", "assets/CO_L1_2.png", "assets/CO_L1_3.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/CO_L1.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Advanced/Different%20Memory%20Configurations/Sources"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TESTING DIFFERENT MEMORY CONFIGURATIONS (CO_L1):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity lab2mem is 
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+end lab2mem;
+
+architecture Behavioural of lab2mem is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+signal memory: memType:= ( "0000000000000001",
+                           "0000000000000010",
+                           "0000000000000100",
+                           "0000000000001000",
+                           "0000000000010000",
+                           "0000000000100000",
+                           "0000000001000000",
+                           "0000000010000000",
+                        others=> "0000000000000000" ); 
+
+attribute ram_style: string;
+attribute ram_style of memory : signal is "block";
+                        
+begin
+    process(clk)
+    begin
+        if(clk'event and clk='1') then            
+            if(we='1') then
+                memory(conv_integer(addr)) <= din; 
+                dout <= din; 
+            else
+                dout <= memory(conv_integer(addr)); 
+            end if; 
+        end if; 
+    end process;
+end Behavioural;      
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR MEMORY IMPLEMENTATION:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity memoryimplementation is
+    Port ( address : in STD_LOGIC_VECTOR (7 downto 0);
+            clock : in STD_LOGIC;
+           ssd : out STD_LOGIC_VECTOR (6 downto 0);
+           n1,n2,n3,n4,n5,n6,n7 : out STD_LOGIC
+            );
+end memoryimplementation;
+architecture Behavioral of memoryimplementation is
+
+COMPONENT writefirst
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+END COMPONENT;
+signal input : std_logic_vector (15 downto 0);
+signal output : std_logic_vector (15 downto 0);
+begin
+
+mymem : writefirst
+    generic map(16,8)
+    port map(
+    we => '0',
+    clk => clock,
+    addr => address,
+    din => input,
+    dout => output
+    );
+    
+n1<='1';
+n2<='1';
+n3<='1';
+n4<='1';
+n5<='1';
+n6<='1';
+n7<='1';
+
+
+ssd <= "1000000" when output="0000000000000000" else ---0
+"1111001" when output="0000000000000001" else ---1
+"0100100" when output="0000000000000010" else ---2
+"0011001" when output="0000000000000100" else ---4
+"0000000" when output="0000000000001000" else ---8
+"1111111";
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR REGFILE:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity regfile is
+    generic (
+    Dwidth : integer := 16;
+    Awidth : integer :=4);
+    port (
+    ReadA1, ReadA2, WriteA : in std_logic_vector (Awidth-1 downto 0);
+    Data01, Data02 : out std_logic_vector (Dwidth-1 downto 0);
+    DataIn : in std_logic_vector (Dwidth-1 downto 0);
+    WE,CLK : in std_logic);
+end regfile;
+
+architecture Behavioral of regfile is
+    type registerFile is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+    signal memory: registerFile:= ( "0000000000000001",
+                           "0000000000000010",
+                           "0000000000000100",
+                           "0000000000001000",
+                           "0000000000010000",
+                           "0000000000100000",
+                           "0000000001000000",
+                           "0000000010000000",
+                        others=> "0000000000000000" ); 
+
+attribute ram_style: string;
+attribute ram_style of memory : signal is "block";
+begin
+regFile : process (clk) is
+begin
+
+    if rising_edge(clk) then
+      Data01 <= memory(conv_integer(unsigned(ReadA1)));
+      Data02 <= memory(conv_integer(unsigned(ReadA2)));
+      if WE = '1' then
+        memory(conv_integer(unsigned(WriteA))) <= DataIn; 
+        if ReadA1 = WriteA then
+          Data01 <= DataIn;
+        end if;
+        if ReadA2 = WriteA then
+          Data02 <= DataIn;
+        end if;
+      end if;
+    end if;
+  end process;
+end behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR REGFILE_TB:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity regfile_tb is
+end regfile_tb;
+
+architecture Behavioral of regfile_tb is
+ component regfile
+      generic (
+      Dwidth : integer := 16;
+      Awidth : integer := 4);
+     
+      port (
+      ReadA1, ReadA2, WriteA : in std_logic_vector (Awidth-1 downto 0);
+      Data01, Data02 : out std_logic_vector (Dwidth-1 downto 0);
+      DataIn : in std_logic_vector (Dwidth-1 downto 0);
+      WE,CLK : in std_logic);
+  end component;
+ 
+      signal ReadA1, ReadA2, WriteA : std_logic_vector (3 downto 0);
+      signal Data01, Data02 : std_logic_vector (15 downto 0);
+      signal DataIn : std_logic_vector (15 downto 0);
+      signal WE,CLK : std_logic;
+  
+  
+begin
+
+uut : regfile 
+    generic map(16,4)
+    port map(
+    WE => WE,
+    CLK => CLK,
+    DataIn => DataIn,
+    ReadA1 => ReadA1,
+    ReadA2 => ReadA2,
+    WriteA => WriteA,
+    Data01 => Data01,
+    Data02 => Data02
+    );
+stim_proc : process
+begin
+
+CLK<='0';
+WE <= '0';
+DataIn <="0000000000000000";
+ReadA1 <="0000";
+ReadA2 <="0000";
+WriteA <="0000";
+
+wait for 100 ns;
+
+CLK<='1';
+
+wait for 100 ns;
+
+CLK<='0';
+
+wait for 100 ns;
+
+ReadA1 <= "0001";
+ReadA2 <= "0010";
+CLK<='1';
+
+wait for 100 ns;
+
+CLK<='0';
+
+wait for 100 ns;
+
+WE<='1';
+DataIn <= "0000000000001000";
+WriteA<= "0001";
+CLK <='1';
+
+wait for 100 ns;
+
+CLK<='0';
+
+wait for 100 ns;
+
+WE<='0';
+CLK<='1';
+
+
+
+wait;
+end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR READFIRST:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity readfirst is 
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+end readfirst;
+
+architecture Behavioural of readfirst is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+signal memory: memType:= ( "0000000000000001",
+                           "0000000000000010",
+                           "0000000000000100",
+                           "0000000000001000",
+                           "0000000000010000",
+                           "0000000000100000",
+                           "0000000001000000",
+                           "0000000010000000",
+                        others=> "0000000000000000" ); 
+
+attribute ram_style: string;
+attribute ram_style of memory : signal is "block";
+                        
+begin
+    process(clk)
+    begin
+        if(rising_edge(clk)) then            
+            if(we='1') then
+                memory(conv_integer(addr)) <= din; 
+            end if;
+                dout <= memory(conv_integer(addr)); 
+            end if; 
+    end process;
+end Behavioural;      
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR READFIRST_TB:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity readfirst_tb is
+end readfirst_tb;
+
+architecture Behavioral of readfirst_tb is
+
+COMPONENT readfirst
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+END COMPONENT;
+
+signal we : std_logic := '0';
+signal clk :std_logic := '0';
+signal addr: std_logic_vector(7 downto 0);
+signal din: std_logic_vector(15 downto 0);
+signal dout: std_logic_vector(15 downto 0);
+
+begin
+
+uut : readfirst 
+    generic map(16,8)
+    port map(
+    we => we,
+    clk => clk,
+    addr => addr,
+    din => din,
+    dout => dout
+    );
+stim_proc : process
+begin
+
+clk<='0';
+we <= '0';
+din <="0000000000000000";
+addr <="00000000";
+
+wait for 100 ns;
+
+clk<='1';
+we <= '0';
+din <="0000000000000000";
+addr <="00000001";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '1';
+din <="0000000000000100";
+addr <="00000001";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '1';
+din <="0000000000001000";
+addr <="00000010";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '0';
+din <="0000000000000000";
+addr <="00000001";
+
+
+
+wait;
+
+end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR NOCHANGE:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity nochange is 
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+end nochange;
+
+architecture Behavioural of nochange is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+signal memory: memType:= ( "0000000000000001",
+                           "0000000000000010",
+                           "0000000000000100",
+                           "0000000000001000",
+                           "0000000000010000",
+                           "0000000000100000",
+                           "0000000001000000",
+                           "0000000010000000",
+                        others=> "0000000000000000" ); 
+
+attribute ram_style: string;
+attribute ram_style of memory : signal is "block";
+                        
+begin
+    process(clk)
+    begin
+        if(rising_edge(clk)) then            
+            if(we='1') then
+                memory(conv_integer(addr)) <= din; 
+            else
+                dout <= memory(conv_integer(addr)); 
+            end if; 
+        end if; 
+    end process;
+end Behavioural;      
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR NOCHANGE_TB:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity nochange_tb is
+end nochange_tb;
+
+architecture Behavioral of nochange_tb is
+
+COMPONENT nochange
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+END COMPONENT;
+
+signal we : std_logic := '0';
+signal clk :std_logic := '0';
+signal addr: std_logic_vector(7 downto 0);
+signal din: std_logic_vector(15 downto 0);
+signal dout: std_logic_vector(15 downto 0);
+
+begin
+
+uut : nochange 
+    generic map(16,8)
+    port map(
+    we => we,
+    clk => clk,
+    addr => addr,
+    din => din,
+    dout => dout
+    );
+stim_proc : process
+begin
+
+
+clk<='0';
+we <= '0';
+din <="0000000000000000";
+addr <="00000000";
+
+wait for 100 ns;
+
+clk<='1';
+we <= '0';
+din <="0000000000000000";
+addr <="00000001";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '1';
+din <="0000000000000100";
+addr <="00000001";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '1';
+din <="0000000000001000";
+addr <="00000010";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '0';
+din <="0000000000000000";
+addr <="00000001";
+
+
+
+wait;
+end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR WRITEFIRST:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity writefirst is 
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+end writefirst;
+
+architecture Behavioural of writefirst is
+type memType is array(0 to 2**Awidth-1) of std_logic_vector(Dwidth-1 downto 0);
+
+-- The first 8 locations are initialized, the rest set to 0.
+signal memory: memType:= ( "0000000000000001",
+                           "0000000000000010",
+                           "0000000000000100",
+                           "0000000000001000",
+                           "0000000000010000",
+                           "0000000000100000",
+                           "0000000001000000",
+                           "0000000010000000",
+                        others=> "0000000000000000" ); 
+
+attribute ram_style: string;
+attribute ram_style of memory : signal is "block";
+                        
+begin
+    process(clk)
+    begin
+        if(rising_edge(clk)) then            
+            if(we='1') then
+                memory(conv_integer(addr)) <= din; 
+                dout <= din; 
+            else
+                dout <= memory(conv_integer(addr)); 
+            end if; 
+        end if; 
+    end process;
+end Behavioural;      
+
+----------------------------------------------------------------------------------
+VHDL CODE FOR WRITEFIRST_TB:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity writefirst_tb is
+end writefirst_tb;
+
+architecture Behavioral of writefirst_tb is
+
+COMPONENT writefirst
+    generic ( Dwidth : integer := 16; -- Each location is 16 bits
+              Awidth : integer := 8); -- 8 Address lines (i.e., 64 locations)
+    port ( we,clk: in std_logic;
+           addr: in std_logic_vector(Awidth-1 downto 0);
+           din: in std_logic_vector(Dwidth-1 downto 0);
+           dout: out std_logic_vector(Dwidth-1 downto 0) );
+END COMPONENT;
+
+signal we : std_logic := '0';
+signal clk :std_logic := '0';
+signal addr: std_logic_vector(7 downto 0);
+signal din: std_logic_vector(15 downto 0);
+signal dout: std_logic_vector(15 downto 0);
+
+begin
+
+uut : writefirst 
+    generic map(16,8)
+    port map(
+    we => we,
+    clk => clk,
+    addr => addr,
+    din => din,
+    dout => dout
+    );
+stim_proc : process
+begin
+
+clk<='0';
+we <= '0';
+din <="0000000000000000";
+addr <="00000000";
+
+wait for 100 ns;
+
+clk<='1';
+we <= '0';
+din <="0000000000000000";
+addr <="00000001";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '1';
+din <="0000000000000100";
+addr <="00000001";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '1';
+din <="0000000000001000";
+addr <="00000010";
+
+wait for 100 ns;
+
+clk<='0';
+
+wait for 100 ns;
+
+clk<='1';
+we <= '0';
+din <="0000000000000000";
+addr <="00000001";
+
+
+
+wait;
+
+end process;
+end Behavioral;
+
+`
       },
       {
         id: "SIMD_CPU",
         name: "CPU (SIMD)",
         summary: [
           "<u><b>Building Process</b></u>",
-          "This project involved designing a <b>CPU with SIMD architecture</b> in <b>VHDL</b>, integrating a <b>Control Unit</b>, <b>Register Files</b>, and <b>Arithmetic Units (AUs)</b> for parallel computation. A debouncer module ensured stable input handling, while operands and results were displayed on a multiplexed <b>7-Segment Display</b>. The hierarchical design included <b>One-Bit</b> and <b>Four-Bit Arithmetic Units</b>, controlled by the FSM-based control unit. The entire system was implemented in <b>Xilinx ISE</b>, simulated using <b>test benches</b>, and deployed on an <b>FPGA board</b> with real-time visualization of operands, operations, and results.",
+          "This project focused on designing and testing <b>memory systems</b> and a <b>register file</b> in <b>VHDL</b>. Multiple memory modes were implemented, including <b>Write-First</b>, <b>Read-First</b>, and <b>No-Change</b>, along with a <b>Register File</b> supporting simultaneous read and write operations. The designs were validated through <b>test benches</b> and simulated to ensure correct timing and data consistency. Outputs were connected to a <b>7-Segment Display</b> for visualization, and the system was deployed on an <b>FPGA board</b> using <b>Xilinx ISE</b>.",
           "<u><b>Project Impact</b></u>",
-          "This project provided deep insight into <b>CPU architecture</b> and <b>SIMD processing</b>. It reinforced hierarchical hardware design principles, control-flow implementation through FSMs, and data handling with register files. By integrating parallel arithmetic operations with synchronized control and output multiplexing, the project strengthened skills in <b>VHDL design</b>, <b>hardware verification</b>, and <b>FPGA deployment</b>, while offering practical exposure to scalable processor design concepts.",
-          "<u><b>Key Skills:</b></u> VHDL | SIMD Architecture | Control Unit (FSM) | Register Files | Arithmetic Units | Hierarchical Design | Xilinx ISE | FPGA | Debouncer Circuits | 7-Segment Display Multiplexing | Test Bench Development | Hardware Simulation & Verification"
+          "Unlike the <b>SIMD CPU project</b>, which emphasized computation and instruction execution, this project concentrated on the <b>storage and retrieval aspects</b> of digital systems. It deepened understanding of <b>memory architectures</b>, <b>register file design</b>, and <b>FPGA-based data storage</b>. The project demonstrated how memory modes affect data availability and hardware timing, while also reinforcing skills in <b>hierarchical VHDL design</b>, <b>modular coding</b>, and <b>simulation-driven debugging</b>. These skills are crucial for bridging the gap between <b>processing units</b> and <b>memory subsystems</b> in computer architecture.",
+          "<u><b>Key Skills:</b></u> VHDL | Memory Architectures (Write-First, Read-First, No-Change) | Register File Design | Hierarchical Design | Xilinx ISE | FPGA | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/RCS_L3_1.png", "assets/RCS_L3_2.png", "assets/RCS_L3_3.png", "assets/RCS_L3_4.png", "assets/RCS_L3_5.png"],
         videos: [],
