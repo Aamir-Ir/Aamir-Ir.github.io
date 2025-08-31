@@ -518,37 +518,1409 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
         code: ``
       },
       {
-        id: "Full_CPU_2",
-        name: "Full CPU (Pt 2)",
+        id: "Full_CPU_1",
+        name: "CPU RTL Design (Pt 1): Full Datapath Design",
         summary: [
           "Temperature and humidity sensor with cloud upload.",
           "The device logs data locally and pushes to the cloud periodically."
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: [],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/CO_L3.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Advanced/CPU%20Design%201"}],
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MODULE (CO_L3):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+
+entity CPU_3380 is
+	port(
+		clk	: in std_logic;
+		clear : in std_logic;
+		mem_dump : in std_logic := '0';
+		instruction : in std_logic_vector(15 downto 0)
+ 	);
+end CPU_3380;
+
+architecture Behavioral of CPU_3380 is
+	COMPONENT ALU_16Bit
+		port(
+			A			:	in		std_logic_vector(15 downto 0);
+			B			:	in		std_logic_vector(15 downto 0);
+			S			:	in		std_logic_vector(1 downto 0);
+			Sout		:	out 	std_logic_vector(15 downto 0);
+			Cout		:	out	std_logic
+		);
+	END COMPONENT;
+
+	COMPONENT Registers
+		port(
+			clk			:	in	 std_logic;
+			clear			:	in  std_logic;
+
+			a_addr		:	in	 std_logic_vector( 3 downto 0);
+			a_data		:	in	 std_logic_vector(15 downto 0);
+			load			:	in	 std_logic;
+
+			b_addr		:	in	 std_logic_vector( 3 downto 0);
+			c_addr		:	in	 std_logic_vector( 3 downto 0);
+
+			b_data		:	out std_logic_vector(15 downto 0);
+			c_data		:	out std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
+
+  -- TODO 1: Implement the control component
+Component Control
+	port(
+		op			:	in	std_logic_vector( 3 downto 0);
+		alu_op		:	out	std_logic_vector( 1 downto 0);
+		alu_src		:	out	std_logic;
+		reg_dest	:	out	std_logic;
+		reg_load	:	out	std_logic;
+		reg_src		:	out	std_logic_vector(1 downto 0);
+		mem_read	:	out	std_logic;
+		mem_write	:	out	std_logic
+		);
+		end component;
+  -- TODO 2: Implement the signextend component
+component Signextend
+	port(
+		immIn		:	in	std_logic_vector( 3 downto 0);
+		immOut		:	out	std_logic_vector(15 downto 0)
+		);
+		end component;
+
+	component mux3_1
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input3		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic_vector(1 			downto 0);
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+	end component;
+
+	component mux2_1
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic;
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+	end component;
+
+	-- Signals
+	signal  op						:	std_logic_vector( 3 downto 0)	;
+	signal	rd						:	std_logic_vector( 3 downto 0)	;
+	signal	rs						:	std_logic_vector( 3 downto 0)	;
+	signal	rt						:	std_logic_vector( 3 downto 0)	;
+
+	signal	alu_result			:	std_logic_vector(15 downto 0)	;
+	signal	cout					:	std_logic							;
+	signal	alu_src_mux_out	:	std_logic_vector(15 downto 0)	;
+	signal 	sign_ex_out			:	std_logic_vector(15 downto 0)	;
+	signal	rs_data				:	std_logic_vector(15 downto 0)	;
+	signal	rt_data				:	std_logic_vector(15 downto 0)	;
+	signal	reg_dest_mux_out	:	std_logic_vector( 3 downto 0)	;
+	signal	reg_src_mux_out	:	std_logic_vector(15 downto 0)	;
+
+	signal	ctrl_alu_src		:	std_logic							;
+	signal	ctrl_alu_op			:	std_logic_vector( 1 downto 0)	;
+	signal	ctrl_reg_dest		:	std_logic							;
+	signal	ctrl_reg_src		:	std_logic_vector( 1 downto 0)	;
+	signal	ctrl_reg_load		:	std_logic							;
+	signal	ctrl_mem_read		:	std_logic							;
+	signal	ctrl_mem_write		:	std_logic							;
+
+begin
+	--------------------------------------------------------------------------
+	-- Instruction Fetch
+	--------------------------------------------------------------------------
+	op		<=	instruction(15 downto 12);
+	rd		<= instruction(11 downto  8);
+	rs		<= instruction(7  downto  4);
+	rt		<= instruction(3  downto  0);
+	--------------------------------------------------------------------------
+	-- Instruction Decode
+	--------------------------------------------------------------------------
+	-- TODO 3: Implement the complete port map for the control
+    ControlUnit: Control port map(
+    op,ctrl_alu_op,ctrl_alu_src,ctrl_reg_dest,ctrl_reg_load,
+    ctrl_reg_src, ctrl_mem_read, ctrl_mem_write
+    );
+	-- TODO 4: Finish the port map for the register file
+	CPU_Registers_0:		Registers port map(
+		clk			=>		clk,
+		clear			=>		clear,
+		a_addr		=>		rd,
+		a_data		=>		alu_result,
+		load			=>		ctrl_reg_load,
+		b_addr		=>		rs,
+		c_addr		=>		reg_dest_mux_out,
+		b_data		=>		rs_data,
+		c_data		=>		rt_data
+	);
+
+-- TODO 5: Implement the complete port map for the signextend
+SignExt: Signextend port map(
+rt, sign_ex_out
+);
+
+CPU_reg_dest_mux:		mux2_1 generic map(4) port map(
+	Input1		=>		rt,
+	Input2		=>		rd,
+	S				=>		ctrl_reg_dest,
+	Sout			=>		reg_dest_mux_out
+);
+
+	--------------------------------------------------------------------------
+	-- Execute
+	--------------------------------------------------------------------------
+	CPU_alu_src_mux:		mux2_1 generic map(16) port map(
+		Input1		=>		rt_data,
+		Input2		=>		sign_ex_out,
+		S				=>		ctrl_alu_src,
+		Sout			=>		alu_src_mux_out
+	);
+
+	CPU_ALU_0:				ALU_16Bit port map(
+		A				=>		rs_data,
+		B				=>		alu_src_mux_out,
+		S				=>		ctrl_alu_op,
+		Sout			=>		alu_result,
+		Cout			=>		cout
+	);
+
+	--------------------------------------------------------------------------
+	-- Memory
+	--------------------------------------------------------------------------
+	-- Not in this lab
+
+	--------------------------------------------------------------------------
+	-- Write Back
+	--------------------------------------------------------------------------
+	-- Not in this lab
+
+end Behavioral;
+
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR ALU_16Bit:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity ALU_16Bit is
+port(	
+		A		:	in		std_logic_vector(15 downto 0);
+		B		:	in		std_logic_vector(15 downto 0);
+		S		:	in		std_logic_vector(1 downto 0);
+		Sout	:	out 	std_logic_vector(15 downto 0);
+		Cout	:	out	std_logic
+);
+End;
+
+Architecture behavior of ALU_16Bit is
+	COMPONENT ALU
+	port(	
+		A		:	in		std_logic;
+		B		:	in		std_logic;
+		Cin	:	in		std_logic;
+		S		:	in		std_logic_vector(1 downto 0);
+		Sout	:	out 	std_logic;
+		Cout	:	out	std_logic
+	);
+	END COMPONENT;
+
+	signal Carry		:	std_logic_vector(14 downto 0);
+
+Begin
+	alu00	:	ALU	port map(A(0),		B(0),		S(0),			S,	Sout(0),		Carry(0));
+	alu01	:	ALU	port map(A(1),		B(1),		Carry(0),	S,	Sout(1),		Carry(1));
+	alu02	:	ALU	port map(A(2),		B(2),		Carry(1),	S,	Sout(2),		Carry(2));
+	alu03	:	ALU	port map(A(3),		B(3),		Carry(2),	S,	Sout(3),		Carry(3));
+	
+	alu04	:	ALU	port map(A(4),		B(4),		Carry(3),	S,	Sout(4),		Carry(4));
+	alu05	:	ALU	port map(A(5),		B(5),		Carry(4),	S,	Sout(5),		Carry(5));
+	alu06	:	ALU	port map(A(6),		B(6),		Carry(5),	S,	Sout(6),		Carry(6));
+	alu07	:	ALU	port map(A(7),		B(7),		Carry(6),	S,	Sout(7),		Carry(7));
+
+	alu08	:	ALU	port map(A(8),		B(8),		Carry(7),	S,	Sout(8),		Carry(8));
+	alu09	:	ALU	port map(A(9),		B(9),		Carry(8),	S,	Sout(9),		Carry(9));
+	alu10	:	ALU	port map(A(10),	B(10),	Carry(9),	S,	Sout(10),	Carry(10));
+	alu11	:	ALU	port map(A(11),	B(11),	Carry(10),	S,	Sout(11),	Carry(11));
+
+	alu12	:	ALU	port map(A(12),	B(12),	Carry(11),	S,	Sout(12),	Carry(12));
+	alu13	:	ALU	port map(A(13),	B(13),	Carry(12),	S,	Sout(13),	Carry(13));
+	alu14	:	ALU	port map(A(14),	B(14),	Carry(13),	S,	Sout(14),	Carry(14));
+	alu15	:	ALU	port map(A(15),	B(15),	Carry(14),	S,	Sout(15),	Cout);
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR ALU:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity ALU is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		S	:	in	std_logic_vector(1 downto 0);
+		Sout:	out std_logic;
+		Cout:	out	std_logic
+);
+End;
+
+Architecture behavior of ALU is
+    COMPONENT full_adder
+	port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic
+		);
+    END COMPONENT;
+	
+	component MUX31
+	port(	
+		Input1		:	in	std_logic;
+		Input2		:	in	std_logic;
+		Input3		:	in	std_logic;
+		S			:	in	std_logic_vector(1 downto 0);
+		Sout		:	out	std_logic
+		);
+	end component;
+	
+	component and_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;	
+	
+	component or_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;
+	
+--Signals Defination
+	signal Sout_full_adder	:	std_logic;
+	signal Sout_or_gate		:	std_logic;
+	signal Sout_and_gate		:	std_logic;
+	signal NB					:	std_logic;
+Begin
+
+	NB <= B xor S(0);
+	
+	C1:full_adder	port map(
+		A		=>	A,
+		B		=>	NB,
+		Cin	=>	Cin,
+		Sout	=>	Sout_full_adder,
+		Cout	=>	Cout
+	);
+
+	C2:and_gate	port map(
+		In1	=>	A,
+		In2	=> B,
+		Sout	=> Sout_and_gate
+	);
+	
+	C3:or_gate		port map(
+		In1	=>	A,
+		In2	=>	B,
+		Sout	=>	Sout_or_gate
+	);
+	
+	C4:MUX31		port map(
+		Input1	=>	Sout_full_adder,
+		Input2	=>	Sout_and_gate,
+		Input3	=>	Sout_or_gate,
+		S			=>	S,
+		Sout		=>	Sout
+	);
+	
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR full_adder:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity full_adder is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic
+);
+End;
+
+Architecture behavior of full_adder is
+
+Begin
+-- Cin A  B  S  C
+--  0  0  0  0  0
+--  0  0  1  1  0
+--  0  1  0  1  0
+--  0  1  1  0  1
+--  1  0  0  1  0
+--  1  0  1  0  1
+--  1  1  0  0  1
+--  1  1  1  1  1
+
+-- Full adder Logic find the expression in previous ppt
+
+	Sout <= A xor B xor Cin;
+	Cout <= (A and B) or ((A Xor B) and Cin);
+
+	
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR MUX31:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+entity MUX31 is
+port(	Input1		:	in	std_logic;
+		Input2		:	in	std_logic;
+		Input3		:	in	std_logic;
+		S			:	in	std_logic_vector(1 downto 0);
+		Sout		:	out	std_logic);
+end MUX31;
+
+architecture Behavioral of MUX31 is
+
+Begin
+--MUX31 Logic (using When - ElSE structure)
+	Sout <=	Input1 when S="00" else
+				Input1 when S="01" else
+				Input2 when S="10" else
+				Input3 when S="11";
+
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Registers:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+Entity Registers is
+	port(
+		clk	:	in	 std_logic;
+		clear	:	in  std_logic;
+		
+		a_addr:	in	 std_logic_vector( 3 downto 0);
+		a_data:	in	 std_logic_vector(15 downto 0);
+		load	:	in	 std_logic;
+		
+		b_addr:	in	 std_logic_vector( 3 downto 0);
+		c_addr:	in	 std_logic_vector( 3 downto 0);
+		
+		b_data:	out std_logic_vector(15 downto 0);
+		c_data:	out std_logic_vector(15 downto 0)
+		);
+End Registers;
+
+architecture syn of Registers is
+	type ram_type is array (15 downto 0) of std_logic_vector(15 downto 0);
+	signal REG	:	ram_type;
+begin
+	process(clk, load, clear)
+	begin
+		if (clear = '0') then
+			REG(0)	<= x"0000";
+			REG(1)	<= x"0000";
+			REG(2)	<= x"0000";
+			REG(3)	<= x"0000";
+
+			REG(4)	<= x"0000";
+			REG(5)	<= x"0000";
+			REG(6)	<= x"0000";
+			REG(7)	<= x"0000";
+		
+			REG(8)	<= x"0000";
+			REG(9)	<= x"0000";
+			REG(10)	<= x"0000";
+			REG(11)	<= x"0000";
+
+			REG(12)	<= x"0000";
+			REG(13)	<= x"0000";
+			REG(14)	<= x"0000";
+			REG(15)	<= x"0000";
+		elsif (clk'event and clk='1') then
+			if (load = '1') then
+					REG(conv_integer(a_addr)) <= a_data;
+			end if;
+		end if;
+		REG(0)	<= x"0000";
+		REG(1)	<= x"0001";
+	end process;
+	b_data <= REG(conv_integer(b_addr));
+	c_data <= REG(conv_integer(c_addr));
+end syn;
+
+--		if (clear = '0') then
+--			for i in 15 downto 0 loop
+--				REG(i) <= x"0000";
+--			end loop;
+--		elsif (rising_edge(clk) and load = '1') then
+--			REG(conv_integer(a_addr)) <= a_data;
+--		end if;		
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Control:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+Entity Control is
+	port(
+		op			:	in	std_logic_vector( 3 downto 0);
+		alu_op		:	out	std_logic_vector( 1 downto 0);
+		alu_src		:	out	std_logic;
+		reg_dest	:	out	std_logic;
+		reg_load	:	out	std_logic;
+		reg_src		:	out	std_logic_vector(1 downto 0);
+		mem_read	:	out	std_logic;
+		mem_write	:	out	std_logic
+		);
+End Control;
+
+architecture syn of Control is
+
+begin
+	process (op) is
+	begin
+		case op is
+
+			-- op=0, ADD
+			when x"0" =>
+				alu_op		<=	"00";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+				-- TODO 1: Implement the subtraction
+			-- op=1, SUB
+			when x"1" =>
+				alu_op		<=	"01";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+				-- TODO 2: Implement the AND
+			-- op=2, AND
+			when x"2" =>
+				alu_op		<=	"10";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+				-- TODO 3: Implement the OR
+			-- op=3, OR
+			when x"3" =>
+				alu_op		<=	"11";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+		  	-- TODO 4: Implement the addition immeadiate
+			-- op=4, ADDi
+			when x"4" =>
+				alu_op		<=	"00";
+				alu_src		<=	'1';
+				reg_dest		<=	'X';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+				-- TODO 5: Implement the subtraction immeadiate
+			-- op=5, SUBi
+			when x"5" =>
+				alu_op		<=	"01";
+				alu_src		<=	'1';
+				reg_dest		<=	'X';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=8, LW
+			when x"8" =>
+				alu_op		<=	"00";
+				alu_src		<=	'1';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"00";
+				mem_read		<=	'1';
+				mem_write	<=	'0';
+
+				-- TODO 6: Implement the store word
+			-- op=C, SW
+			when x"C" =>
+				alu_op		<=	"00";
+				alu_src		<=	'1';
+				reg_dest		<=	'1';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=7, SLT
+			when x"7" =>
+				alu_op		<= "11";
+				alu_src		<= '0';
+				reg_dest		<= '0';
+				reg_load		<= '1';
+				reg_src		<= "10";
+				mem_read		<= '0';
+				mem_write	<= '0';
+
+			when others =>
+				alu_op	<=	"00";
+				alu_src	<=	'0';
+				reg_dest	<=	'0';
+				reg_load	<=	'0';
+				reg_src	<=	"01";
+				mem_read	<=	'0';
+				mem_write<=	'0';
+
+		end case;
+	end process;
+end syn;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Signextend:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+Entity Signextend is
+	port(
+		immIn		:	in	std_logic_vector( 3 downto 0);
+		immOut		:	out	std_logic_vector(15 downto 0)
+		);
+End Signextend;
+
+architecture syn of Signextend is
+
+begin
+
+	-- TODO 1: Implement the immOut(5) - immOut(15) (HINT: Look at the signal immOut(3))
+	immOut(3)	<=	immIn(3);
+	immOut(2)	<=	immIn(2);
+	immOut(1)	<=	immIn(1);
+	immOut(0)	<=	immIn(0);
+	process ( immIn)
+	begin 
+	if (immIn(3) = '1') then
+	immOut(15 downto 4) <= "111111111111";
+	else
+	immOut(15 downto 4) <= "000000000000";
+	end if;
+	end process;
+
+end syn;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR mux3_1:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity mux3_1 is
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input3		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic_vector(1 			downto 0);
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+end mux3_1;
+
+architecture Behavioral of mux3_1 is
+
+begin
+	Sout <=	Input1 when S="00" else
+				Input2 when S="01" else
+				Input3 when S="10" else
+				Input3 when S="11";
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR mux2_1:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity mux2_1 is
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic;
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+end mux2_1;
+
+architecture Behavioral of mux2_1 is
+
+begin
+	Sout <=	Input1 when S='0' else
+				Input2 when S='1';
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Control:
+----------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Control:
+----------------------------------------------------------------------------------
+`
       },
       {
-        id: "Full_CPU_1",
-        name: "Full CPU (Pt 1)",
+        id: "16_bit_alu",
+        name: "CPU RTL Design: 16_Bit_ALU",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+            "<u><b>Building Process</b></u>",
+            "This project involved designing a hierarchical <b>16-bit Arithmetic Logic Unit (ALU)</b> in <b>VHDL</b>, built from modular components such as <b>1-bit ALUs</b>, <b>full adders</b>, <b>logic gates</b>, <b>comparators</b>, and an <b>8-to-1 multiplexer</b>. The ALU supported multiple arithmetic and logic operations including addition, subtraction, AND, OR, XOR, set-less-than (SLT), and branch-equal (BEQ), while also generating <b>Zero</b> and <b>Overflow</b> flags. The design was implemented in <b>Xilinx ISE</b>, validated through a comprehensive <b>test bench</b>, and simulated to verify correct operation across all instruction codes before FPGA deployment.",
+            "<u><b>Project Impact</b></u>",
+            "This project strengthened expertise in <b>CPU RTL design</b> and <b>modular VHDL architecture</b>, highlighting how complex arithmetic units are constructed hierarchically from smaller building blocks. It provided hands-on experience in <b>flag generation</b> (Zero, Overflow), <b>control signal decoding</b>, and <b>operation multiplexing</b>, which are foundational to processor datapaths. The project also enhanced skills in test bench development, debugging timing-sensitive hardware, and mapping arithmetic logic onto FPGA fabric — bridging the gap between <b>theoretical ALU design</b> and <b>practical hardware implementation</b>.",
+            "<u><b>Key Skills:</b></u> VHDL | CPU RTL Design | Hierarchical Design | ALU Implementation | Arithmetic & Logic Operations | Multiplexer-Based Control | Flag Generation (Zero, Overflow) | Xilinx ISE | FPGA | Modular Design | Test Bench Development | Hardware Simulation & Verification"
         ],
-        images: ["assets/iot-sensor.jpg"],
+        images: ["assets/CO_L2_1.png"],
         videos: [],
-        downloads: ["assets/iot-sensor-firmware.zip", "assets/schematics.pdf"],
-        links: [],
-        code: ``
+        downloads: ["downloads/CO_L2.zip"],
+        links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Advanced/ALU"}],
+        code: `-- VHDL SOURCE CODE FILE FOR 16-BIT ALU (CO_L2):
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned;
+use IEEE.NUMERIC_STD.ALL;
+
+entity FinalALU is
+generic (Dwidth : integer :=8);
+ Port (
+    IN1, IN2 : in std_logic_vector (Dwidth-1 downto 0);
+    SEL : in std_logic_vector (2 downto 0);
+    Cin : in std_logic;
+    ALU_OUT : out std_logic_vector(Dwidth-1 downto 0);
+    Zero, OVF : out std_logic
+  );
+end FinalALU;
+
+architecture Behavioral of FinalALU is
+component SingleFinalALU is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		S	:	in	std_logic_vector(2 downto 0);
+		alu_out:	out std_logic;
+		Cout:	out	std_logic;
+		OVF : out std_logic;
+		zero : out std_logic
+);
+end component;
+signal equal : std_logic_vector (Dwidth-1 downto 0);
+signal carry : std_logic_vector (Dwidth-1 downto 0);
+signal overflow : std_logic_vector (Dwidth-1 downto 0);
+begin
+alu01	:	SingleFinalALU	port map(IN1(0),		IN2(0),		SEL(0),			    SEL ,	ALU_OUT(0),		carry(0), overflow (0),equal(0));
+alu02	:	SingleFinalALU	port map(IN1(1),		IN2(1),		carry(0),			SEL ,	ALU_OUT(1),		carry(1), overflow (1),equal(1));
+alu03	:	SingleFinalALU	port map(IN1(2),		IN2(2),		carry(1),			SEL ,	ALU_OUT(2),		carry(2), overflow (2),equal(2));
+alu04	:	SingleFinalALU	port map(IN1(3),		IN2(3),		carry(2),			SEL ,	ALU_OUT(3),		carry(3), overflow (3),equal(3));
+alu05	:	SingleFinalALU	port map(IN1(4),		IN2(4),		carry(3),			SEL ,	ALU_OUT(4),		carry(4), overflow (4),equal(4));
+alu06	:	SingleFinalALU	port map(IN1(5),		IN2(5),		carry(4),			SEL ,	ALU_OUT(5),		carry(5), overflow (5),equal(5));
+alu07	:	SingleFinalALU	port map(IN1(6),		IN2(6),		carry(5),			SEL ,	ALU_OUT(6),		carry(6), overflow (6),equal(6));
+alu08	:	SingleFinalALU	port map(IN1(7),		IN2(7),		carry(6),			SEL ,	ALU_OUT(7),		carry(7), overflow (7),equal(7));
+OVF <= overflow(7);
+Zero <= equal(0) and equal(1) and equal(2) and equal(3) and equal(4) and equal(5) and equal(6) AND equal(7);
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR SingleFinalALU:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity SingleFinalALU is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		S	:	in	std_logic_vector(2 downto 0);
+		alu_out:	out std_logic;
+		Cout:	out	std_logic;
+		OVF : out std_logic;
+		zero : out std_logic
+);
+end SingleFinalALU;
+
+architecture Behavioral of SingleFinalALU is
+    COMPONENT full_adder
+	port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic
+		);
+    END COMPONENT;
+	component beq is
+    port(	
+            In1		:	in	std_logic;
+            In2		:	in	std_logic;
+            Sout	:	out	std_logic
+    );
+    End component;
+	component MUX81
+	port(	
+        Input1		:	in	std_logic;
+		Input2		:	in	std_logic;
+		Input3		:	in	std_logic;
+		Input4		:	in	std_logic;
+		Input5		:	in	std_logic;
+		Input7		:	in	std_logic;
+		Input8		:	in	std_logic;
+		S			:	in	std_logic_vector(2 downto 0);
+		Sout		:	out	std_logic
+		);
+	end component;
+	
+	component and_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;
+	component slt	
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+    );
+    end component;
+	component or_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;
+	component xor_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;
+	component unsigned_adder
+	port (
+	   	A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic;
+		OVF : out std_logic
+	);
+	end component;
+	
+--Signals Defination
+	signal Sout_full_adder	:	std_logic;
+	signal Sout_unsigned_adder : std_logic;
+	signal Sout_or_gate		:	std_logic;
+	signal Sout_and_gate		:	std_logic;
+	signal Sout_xor_gate   : std_logic;
+	signal Sout_slt: std_logic;
+	signal Sout_beq : std_logic;
+	signal NB					:	std_logic;
+Begin
+
+	NB <= B xor S(0);
+	
+	C1:full_adder	port map(
+		A		=>	A,
+		B		=>	NB,
+		Cin	=>	Cin,
+		Sout	=>	Sout_full_adder,
+		Cout	=>	Cout
+	);
+
+	C2:and_gate	port map(
+		In1	=>	A,
+		In2	=> B,
+		Sout	=> Sout_and_gate
+	);
+	
+	C3:or_gate		port map(
+		In1	=>	A,
+		In2	=>	B,
+		Sout	=>	Sout_or_gate
+	);
+	
+	C4:MUX81		port map(
+		Input1	=>	Sout_and_gate,
+		Input2	=>	Sout_or_gate,
+		Input3	=>	Sout_unsigned_adder,
+		Input4 =>   Sout_xor_gate,
+		Input5 =>  Sout_full_adder,
+		Input7 =>   Sout_slt,
+		Input8 => Sout_beq,
+		S			=>	S,
+		Sout		=>	alu_out
+	);
+    C5 : xor_gate port map(
+		In1	=>	A,
+		In2	=>	B,
+		Sout	=>	Sout_xor_gate
+	);
+	C6 : slt port map(
+		In1	=>	A,
+		In2	=>	B,
+		Sout	=>	Sout_slt
+	);
+	C7 : beq port map(
+		In1	=>	A,
+		In2	=>	B,
+		Sout	=>	Sout_beq
+	);
+	C8 : unsigned_adder port map
+	(
+		A		=>	A,
+		B		=>	B,
+		Cin	=>	Cin,
+		Sout	=>	Sout_unsigned_adder,
+		Cout	=>	Cout,
+	    OVF => OVF
+	);
+	zero <= Sout_beq;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR and_gate
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity and_gate is
+port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+);
+End;
+
+Architecture behavior of and_gate is
+
+Begin
+-- In1  In2  Sout
+--  0    0    0
+--  0    1    0
+--  1    0    0
+--  1    1    1
+	
+-- and gate logic
+	Sout <= In1 and In2;
+
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR or_gate
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity or_gate is
+port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+);
+End;
+
+Architecture behavior of or_gate is
+
+Begin
+-- In1  In2  Sout
+--  0    0    0
+--  0    1    1
+--  1    0    1
+--  1    1    1
+
+-- or gate logic
+	Sout <= In1 or In2;
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR full_adder
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity full_adder is
+    Port (
+        A     : in  STD_LOGIC;
+        B     : in  STD_LOGIC;
+        Cin   : in  STD_LOGIC;
+        Sout  : out STD_LOGIC;
+        Cout  : out STD_LOGIC
+    );
+end full_adder;
+
+architecture Behavioral of full_adder is
+begin
+    Sout <= A XOR B XOR Cin;
+    Cout <= (A AND B) OR (B AND Cin) OR (A AND Cin);
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR and_gate
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity and_gate is
+    Port (
+        In1   : in  STD_LOGIC;
+        In2   : in  STD_LOGIC;
+        Sout  : out STD_LOGIC
+    );
+end and_gate;
+
+architecture Behavioral of and_gate is
+begin
+    Sout <= In1 AND In2;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR or_gate
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity or_gate is
+    Port (
+        In1   : in  STD_LOGIC;
+        In2   : in  STD_LOGIC;
+        Sout  : out STD_LOGIC
+    );
+end or_gate;
+
+architecture Behavioral of or_gate is
+begin
+    Sout <= In1 OR In2;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR MUX81:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+entity MUX81 is
+port(	
+        Input1		:	in	std_logic;
+		Input2		:	in	std_logic;
+		Input3		:	in	std_logic;
+		Input4		:	in	std_logic;
+		Input5		:	in	std_logic;
+		Input7		:	in	std_logic;
+		Input8		:	in	std_logic;
+		S			:	in	std_logic_vector(2 downto 0);
+		Sout		:	out	std_logic);
+end MUX81;
+
+architecture Behavioral of MUX81 is
+
+Begin
+--MUX81 Logic (using When - ElSE structure)
+	Sout <=	Input1 when S="000" else
+				Input2 when S="001" else
+				Input3 when S="010" else
+				Input4 when S="011" else
+				Input5 when S="100" else
+				Input5 when S = "101" else
+				Input7 when S= "110" else
+				Input8 when s = "111";
+
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR xor_gate:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity xor_gate is
+port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+);
+End;
+
+Architecture behavior of xor_gate is
+
+Begin
+-- In1  In2  Sout
+--  0    0    0
+--  0    1    0
+--  1    0    0
+--  1    1    1
+	
+-- and gate logic
+	Sout <= In1 xor In2;
+
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR slt:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity slt is
+ Port ( 
+ 		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+end slt;
+
+architecture Behavioral of slt is
+
+begin
+--  A  B  S 
+--  0  0  0 
+--  0  1  1 
+--  1  0  0 
+--  1  1  0 
+
+Sout <= (not In1) and In2;
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR beq:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity beq is
+port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+);
+End;
+
+Architecture behavior of beq is
+
+Begin
+-- In1  In2  Sout
+--  0    0    1
+--  0    1    0
+--  1    0    0
+--  1    1    1
+	
+-- and gate logic
+	Sout <=  (In1 and In2) or ((not In1) and (not In2));
+
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR signed_adder:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity unsigned_adder is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic;
+		OVF : out std_logic
+);
+End;
+
+Architecture behavior of unsigned_adder is
+
+Begin
+
+
+	Sout <= A xor B xor Cin;
+	Cout <= (A and B) or ((A Xor B) and Cin);
+	OVF <= Cin xor ((A and B) or ((A Xor B) and Cin));
+
+	
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR alu1bit:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.NUMERIC_STD.all;
+
+entity alu1bit is
+generic (Dwidth : integer :=8);
+ Port (
+    IN1, IN2 : in std_logic_vector (Dwidth-1 downto 0);
+    SEL : in std_logic_vector (2 downto 0);
+    Cin : in std_logic;
+    ALU_OUT : out std_logic_vector(Dwidth-1 downto 0);
+    Zero, OVF : out std_logic
+    );
+end alu1bit;
+
+architecture Behavioral of alu1bit is
+signal result : std_logic_vector(Dwidth-1 downto 0);
+signal overflow :std_logic;
+signal eq : std_logic;
+begin
+process(IN1,IN2,SEL, Cin)
+begin
+overflow <= '0';
+if (IN1 = IN2) then
+eq <= '1';
+else
+eq <= '0';
+end if;
+case (SEL) is 
+when "000" =>
+result <= IN1 and IN2;
+when "001" =>
+result <= IN1 or IN2;
+when "010" =>
+result <= std_logic_vector(unsigned(IN1)+ unsigned(IN2));
+when "011" =>
+result <= IN1 xor IN2;
+when "100" =>
+result <= std_logic_vector(signed(IN1) + signed(IN2));
+if IN1(7) = '0' AND IN2(7) = '0' AND result(7) = '1' then
+    overflow <= '1'; 
+elsif  IN1(7) = '1' AND IN2(7) = '1' AND result(7) = '0' then
+    overflow <='1';
+else
+    overflow <='0';
+end if;
+when "101" =>
+result <= std_logic_vector(signed(IN1) - signed(IN2));
+if IN1(7) = '0' AND IN2(7) = '0' AND result(7) = '1' then
+    overflow <= '1'; 
+elsif  IN1(7) = '1' AND IN2(7) = '1' AND result(7) = '0' then
+    overflow <='1';
+else
+    overflow <='0';
+end if;
+when "110" =>
+if (IN1 < IN2) then
+result <= x"01";
+else 
+result <= x"00";
+end if;
+when "111" =>
+if (IN1 = IN2) then
+result <= x"01";
+else
+result <= x"00";
+end if;
+when others =>
+result <= IN1 + IN2;
+end case;
+end process;
+ALU_OUT <= result;
+OVF <= overflow;
+Zero <= eq;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL TEST BENCH CODE FinalALU_test:
+----------------------------------------------------------------------------------
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.std_logic_unsigned.all;
+USE ieee.numeric_std.ALL;
+
+ENTITY FinalALU_test IS
+END FinalALU_test;
+ 
+ARCHITECTURE behavior OF FinalALU_test IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+
+    COMPONENT alu1bit
+    generic (Dwidth : integer :=8);
+     Port (
+        IN1, IN2 : in std_logic_vector (Dwidth-1 downto 0);
+        SEL : in std_logic_vector (2 downto 0);
+        Cin : in std_logic;
+        ALU_OUT : out std_logic_vector(Dwidth-1 downto 0);
+        Zero, OVF : out std_logic
+      );
+	END COMPONENT;
+
+   --Inputs
+   signal IN1 	: std_logic_vector(7 downto 0) := x"00";
+   signal IN2 	: std_logic_vector(7 downto 0) := x"00";
+   signal Cin 	: std_logic := '0';
+   signal SEL		: std_logic_vector(2 downto 0);
+   signal ALU_OUT :  std_logic_vector(7 downto 0);
+   signal Zero : std_logic;
+   signal OVF : std_logic;
+
+   
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: alu1bit PORT MAP (
+            IN1 => IN1,
+            IN2 => IN2,
+            SEL => SEL,
+            Cin => Cin,
+            ALU_OUT => ALU_OUT,
+            Zero => Zero,
+            OVF => OVF
+        );
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+		IN1		<=	x"04";	-- 
+		IN2		<=	x"FE";	-- 
+		Cin	<=	'0';
+		SEL		<=	"100";		-- Add
+		wait for 10 ns;	
+		IN1		<=	x"FF";	-- 
+		IN2		<=	x"09";	-- 
+		Cin	<=	'0';
+		SEL		<=	"100";		-- Add
+		wait for 10 ns;	
+		IN1		<=	x"04";	-- 6
+		IN2		<=	x"FE";	-- 6
+		Cin	<=	'0';
+		SEL		<=	"010";		-- unsigned add
+		wait for 10 ns;	
+		IN1		<=	x"04";	-- 
+		IN2		<=	x"06";	-- 
+		Cin	<=	'0';
+		SEL		<=	"101";		-- subtract
+		wait for 10 ns;		
+		IN1		<=	x"04";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"000";		-- and
+		wait for 10 ns;
+		IN1		<=	x"06";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"000";		-- and
+		wait for 10 ns;	
+		IN1		<=	x"04";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"001";		-- or
+		wait for 10 ns;
+		IN1		<=	x"06";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"001";		-- or
+		wait for 10 ns;	
+		IN1		<=	x"06";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"011";		-- xor
+		wait for 10 ns;	
+		IN1		<=	x"03";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"110";		-- slt
+		wait for 10 ns;
+		IN1		<=	x"06";	-- 
+		IN2		<=	x"06";	-- 
+		SEL		<=	"111";		-- beq
+		wait for 10 ns;	
+		wait;
+   end process;
+
+END;`
       },
       {
         id: "Reg_Mem",
         name: "Register/Memory",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+            "<u><b>Building Process</b></u>",
+            "This project focused on designing and testing <b>memory systems</b> and a <b>register file</b> in <b>VHDL</b>. Multiple memory modes were implemented, including <b>Write-First</b>, <b>Read-First</b>, and <b>No-Change</b>, along with a <b>Register File</b> supporting simultaneous read and write operations. The designs were validated through <b>test benches</b> and simulated to ensure correct timing and data consistency. Outputs were connected to a <b>7-Segment Display</b> for visualization, and the system was deployed on an <b>FPGA board</b> using <b>Xilinx ISE</b>.",
+            "<u><b>Project Impact</b></u>",
+            "Unlike the <b>SIMD CPU project</b>, which emphasized computation and instruction execution, this project concentrated on the <b>storage and retrieval aspects</b> of digital systems. It deepened understanding of <b>memory architectures</b>, <b>register file design</b>, and <b>FPGA-based data storage</b>. The project demonstrated how memory modes affect data availability and hardware timing, while also reinforcing skills in <b>hierarchical VHDL design</b>, <b>modular coding</b>, and <b>simulation-driven debugging</b>. These skills are crucial for bridging the gap between <b>processing units</b> and <b>memory subsystems</b> in computer architecture.",
+            "<u><b>Key Skills:</b></u> VHDL | Memory Architectures (Write-First, Read-First, No-Change) | Register File Design | Hierarchical Design | Xilinx ISE | FPGA | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/CO_L1_1.png", "assets/CO_L1_2.png", "assets/CO_L1_3.png"],
         videos: [],
@@ -601,7 +1973,8 @@ begin
 end Behavioural;      
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR MEMORY IMPLEMENTATION:
+-- VHDL CODE FOR MEMORY IMPLEMENTATION:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -656,7 +2029,8 @@ ssd <= "1000000" when output="0000000000000000" else ---0
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR REGFILE:
+-- VHDL CODE FOR REGFILE:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -709,7 +2083,8 @@ begin
 end behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR REGFILE_TB:
+-- VHDL CODE FOR REGFILE_TB:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -801,7 +2176,8 @@ end process;
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR READFIRST:
+-- VHDL CODE FOR READFIRST:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -847,7 +2223,8 @@ begin
 end Behavioural;      
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR READFIRST_TB:
+-- VHDL CODE FOR READFIRST_TB:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -940,7 +2317,8 @@ end process;
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR NOCHANGE:
+-- VHDL CODE FOR NOCHANGE:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -987,7 +2365,8 @@ begin
 end Behavioural;      
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR NOCHANGE_TB:
+-- VHDL CODE FOR NOCHANGE_TB:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1080,7 +2459,8 @@ end process;
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR WRITEFIRST:
+-- VHDL CODE FOR WRITEFIRST:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1128,7 +2508,8 @@ begin
 end Behavioural;      
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR WRITEFIRST_TB:
+-- VHDL CODE FOR WRITEFIRST_TB:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1226,11 +2607,11 @@ end Behavioral;
         id: "SIMD_CPU",
         name: "CPU (SIMD)",
         summary: [
-          "<u><b>Building Process</b></u>",
-          "This project focused on designing and testing <b>memory systems</b> and a <b>register file</b> in <b>VHDL</b>. Multiple memory modes were implemented, including <b>Write-First</b>, <b>Read-First</b>, and <b>No-Change</b>, along with a <b>Register File</b> supporting simultaneous read and write operations. The designs were validated through <b>test benches</b> and simulated to ensure correct timing and data consistency. Outputs were connected to a <b>7-Segment Display</b> for visualization, and the system was deployed on an <b>FPGA board</b> using <b>Xilinx ISE</b>.",
-          "<u><b>Project Impact</b></u>",
-          "Unlike the <b>SIMD CPU project</b>, which emphasized computation and instruction execution, this project concentrated on the <b>storage and retrieval aspects</b> of digital systems. It deepened understanding of <b>memory architectures</b>, <b>register file design</b>, and <b>FPGA-based data storage</b>. The project demonstrated how memory modes affect data availability and hardware timing, while also reinforcing skills in <b>hierarchical VHDL design</b>, <b>modular coding</b>, and <b>simulation-driven debugging</b>. These skills are crucial for bridging the gap between <b>processing units</b> and <b>memory subsystems</b> in computer architecture.",
-          "<u><b>Key Skills:</b></u> VHDL | Memory Architectures (Write-First, Read-First, No-Change) | Register File Design | Hierarchical Design | Xilinx ISE | FPGA | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification"
+        "<u><b>Building Process</b></u>",
+        "This project involved designing a <b>CPU with SIMD architecture</b> in <b>VHDL</b>, integrating a <b>Control Unit</b>, <b>Register Files</b>, and <b>Arithmetic Units (AUs)</b> for parallel computation. A debouncer module ensured stable input handling, while operands and results were displayed on a multiplexed <b>7-Segment Display</b>. The hierarchical design included <b>One-Bit</b> and <b>Four-Bit Arithmetic Units</b>, controlled by the FSM-based control unit. The entire system was implemented in <b>Xilinx ISE</b>, simulated using <b>test benches</b>, and deployed on an <b>FPGA board</b> with real-time visualization of operands, operations, and results.",
+        "<u><b>Project Impact</b></u>",
+        "This project provided deep insight into <b>CPU architecture</b> and <b>SIMD processing</b>. It reinforced hierarchical hardware design principles, control-flow implementation through FSMs, and data handling with register files. By integrating parallel arithmetic operations with synchronized control and output multiplexing, the project strengthened skills in <b>VHDL design</b>, <b>hardware verification</b>, and <b>FPGA deployment</b>, while offering practical exposure to scalable processor design concepts.",
+        "<u><b>Key Skills:</b></u> VHDL | SIMD Architecture | Control Unit (FSM) | Register Files | Arithmetic Units | Hierarchical Design | Xilinx ISE | FPGA | Debouncer Circuits | 7-Segment Display Multiplexing | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/RCS_L3_1.png", "assets/RCS_L3_2.png", "assets/RCS_L3_3.png", "assets/RCS_L3_4.png", "assets/RCS_L3_5.png"],
         videos: [],
@@ -1469,7 +2850,8 @@ end process;
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR DeBounce Circuit:
+-- VHDL CODE FOR DeBounce Circuit:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1524,7 +2906,8 @@ cout <= count(20);
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR RegFile1:
+-- VHDL CODE FOR RegFile1:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1586,7 +2969,8 @@ end Behavioral;
 
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR RegFile2:
+-- VHDL CODE FOR RegFile2:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1647,7 +3031,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR RegFile3:
+-- VHDL CODE FOR RegFile3:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1708,7 +3093,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR RegFile4:
+-- VHDL CODE FOR RegFile4:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1771,7 +3157,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR Control Unit:
+-- VHDL CODE FOR Control Unit:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1911,7 +3298,8 @@ end process output_process;
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR Four Bit Arithmetic Unit (FBAU):
+-- VHDL CODE FOR Four Bit Arithmetic Unit (FBAU):
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1979,7 +3367,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR SEVEN SEGMENT DECODER:
+-- VHDL CODE FOR SEVEN SEGMENT DECODER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2025,7 +3414,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ONE Bit Arithmetic Unit:
+-- VHDL CODE FOR ONE Bit Arithmetic Unit:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2088,7 +3478,8 @@ FA1:FullAdder PORT MAP(A_Full => Apostlogic, B_Full => Bpostlogic, CarryIn_Full 
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ArithmeticInputLogicA:
+-- VHDL CODE FOR ArithmeticInputLogicA:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2120,7 +3511,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ArithmeticInputLogicB:
+-- VHDL CODE FOR ArithmeticInputLogicB:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2160,7 +3552,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR FULL ADDER:
+--VHDL CODE FOR FULL ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2212,7 +3605,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR HALF ADDER:
+-- VHDL CODE FOR HALF ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2244,7 +3638,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL TEST BENCH CODE FOR TOP MODULE:
+-- VHDL TEST BENCH CODE FOR TOP MODULE:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2465,7 +3860,8 @@ end process;
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR 7-SEGMENT DECODER:
+-- VHDL CODE FOR 7-SEGMENT DECODER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2511,7 +3907,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR FOUR BIT AU:
+-- VHDL CODE FOR FOUR BIT AU:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2579,7 +3976,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ONE BIT AU:
+--VHDL CODE FOR ONE BIT AU:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2642,7 +4040,8 @@ FA1:FullAdder PORT MAP(A_Full => Apostlogic, B_Full => Bpostlogic, CarryIn_Full 
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ARITHMETIC_LOGIC_A:
+-- VHDL CODE FOR ARITHMETIC_LOGIC_A:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2674,7 +4073,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ARITHMETIC_LOGIC_B:
+-- VHDL CODE FOR ARITHMETIC_LOGIC_B:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2714,7 +4114,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR FULL ADDER:
+-- VHDL CODE FOR FULL ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2766,7 +4167,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR HALF ADDER:
+-- VHDL CODE FOR HALF ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2798,7 +4200,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL TEST BENCH CODE FOR FOUR BIT AU:
+-- VHDL TEST BENCH CODE FOR FOUR BIT AU:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -2940,7 +4343,8 @@ end Behavioral;`
         links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Intermediate/6%20-%20Bit%20Adder"}],
         code: `-- VHDL SOURCE CODE FILE FOR TOP MOST MODULE (HIERARCHICAL DESIGN) SEVEN SEGMENT DECODER FOR 6-BIT ADDER (RCS_L1):
 ----------------------------------------------------------------------------------
-VHDL CODE FOR TOP MODULE:
+-- VHDL CODE FOR TOP MODULE:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3026,7 +4430,8 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR 7-SEGMENT DECODER:
+-- VHDL CODE FOR 7-SEGMENT DECODER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3073,7 +4478,8 @@ end Behavioral;
 
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR 6-BIT ADDER:
+-- VHDL CODE FOR 6-BIT ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3129,7 +4535,9 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR FULL ADDER:
+-- VHDL CODE FOR FULL ADDER:
+----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -3175,7 +4583,8 @@ begin
 end Behavioral;
         
 ----------------------------------------------------------------------------------
-VHDL CODE FOR HALF ADDER:
+-- VHDL CODE FOR HALF ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3205,7 +4614,8 @@ begin
 
 end Behavioral;
 ----------------------------------------------------------------------------------
-VHDL CODE FOR TEST BENCH FOR THE TOP MODULE:
+-- VHDL CODE FOR TEST BENCH FOR THE TOP MODULE:
+----------------------------------------------------------------------------------
 
 
 library IEEE;
@@ -3378,8 +4788,10 @@ Output_SSD <=
     "0111000" WHEN (G_SSD = "1111");
 
 end Structural;
+
 ----------------------------------------------------------------------------------
-VHDL CODE FOR FOUR BIT ALU:
+-- VHDL CODE FOR FOUR BIT ALU:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3445,7 +4857,8 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR LOGIC MULTIPLEXER:
+-- VHDL CODE FOR LOGIC MULTIPLEXER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3479,7 +4892,9 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR LOGIC CIRCUIT:
+-- VHDL CODE FOR LOGIC CIRCUIT:
+----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -3520,7 +4935,9 @@ MUX4:LogicMultiplexer PORT MAP(A_LM=>A_LC(3), B_LM=>B_LC(3),S0_LM=>S0_LC,S1_LM=>
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ARITHMETIC CIRCUIT:
+-- VHDL CODE FOR ARITHMETIC CIRCUIT:
+----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -3576,7 +4993,8 @@ FA4:FullAdder PORT MAP(A_FA => Ain_AC(3),B_FA => Bpostlogic(3), Cin_FA => C3, Su
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR LOGIC MULTIPLEXER:
+-- VHDL CODE FOR LOGIC MULTIPLEXER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3610,7 +5028,8 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ONE BIT ALU:
+-- VHDL CODE FOR ONE BIT ALU:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3661,7 +5080,8 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR ArithmeticLogicB:
+-- VHDL CODE FOR ArithmeticLogicB:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3694,7 +5114,8 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR FULL ADDER:
+-- VHDL CODE FOR FULL ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3734,7 +5155,8 @@ Cout_FA<=S2 or S1;
 end Structural;
 
 ----------------------------------------------------------------------------------
-VHDL CODE FOR HALF ADDER:
+-- VHDL CODE FOR HALF ADDER:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -3764,7 +5186,8 @@ begin
 end Structural;
 
 --------------------------------------------------------------------------------
-VHDL TEST BENCH CODE FOR 4-BIT ALU:
+-- VHDL TEST BENCH CODE FOR 4-BIT ALU:
+----------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -4049,6 +5472,7 @@ cout <= count(20);
 end Behavioral;
 ----------------------------------------------------------------------------------
 -- SEQUENCE RECOGNIZER VHDL CODE:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -4134,6 +5558,7 @@ end process output_process;
 end Structural;
 ----------------------------------------------------------------------------------
 -- SEQUENCE RECOGNIZER TESTBENCH CODE:
+----------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -4284,6 +5709,7 @@ begin
 end Structural;       
 ----------------------------------------------------------------------------------
 -- VHDL SOURCE CODE FILE FOR FOUR BIT ADDER SUBTRACTOR:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -4334,6 +5760,7 @@ begin
 end Structural;
 ----------------------------------------------------------------------------------
 -- VHDL SOURCE CODE FILE FOR FULL ADDERS:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -4375,6 +5802,7 @@ begin
 end Structural;
 ----------------------------------------------------------------------------------
 -- VHDL SOURCE CODE FILE FOR HALF ADDERS:
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -4405,6 +5833,7 @@ begin
 end Dataflow;
 ----------------------------------------------------------------------------------
 -- VHDL TEST BENCH CODE FOR FOUR BIT ADDER SUBTRACTOR:
+----------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -4479,6 +5908,7 @@ BEGIN
 END;
 ----------------------------------------------------------------------------------
 -- VHDL TEST BENCH CODE FOR 7 SEGMENT DISPLAY TESTING 4-BIT ADDER:
+----------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -4648,6 +6078,7 @@ OUTPUT <=
 end Behavioral;
 ----------------------------------------------------------------------------------
 -- VHDL TEST BENCH CODE FOR SEVEN SEGMENT DECODER:
+----------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -4801,6 +6232,7 @@ LT<=((B1 and not A1) or (B0 and not A1 and not A0) or (B1 and B0 and not A0));
 end Behavioral;
 ----------------------------------------------------------------------------------
 -- VHDL TEST BENCH CODE:
+----------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
