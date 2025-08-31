@@ -506,26 +506,1109 @@ class_interpreter.execute_program(program_code)       # Actually Execute the cod
       },
       {
         id: "Full_CPU",
-        name: "Full CPU Final",
+        name: "CPU RTL Design (Final): Full CPU",
         summary: [
-          "Temperature and humidity sensor with cloud upload.",
-          "The device logs data locally and pushes to the cloud periodically."
+        "<u><b>Building Process</b></u>",
+        "This project involved designing and implementing a complete <b>16-bit CPU</b> in <b>VHDL</b>, integrating all core components of the processor datapath including the <b>ALU</b>, <b>register file</b>, <b>control unit</b>, <b>sign extender</b>, <b>program counter</b>, <b>instruction memory</b>, <b>data memory</b>, and multiplexers. The CPU supported arithmetic, logical, immediate, load/store, and comparison instructions. The design was developed in <b>Xilinx Vivado</b>, validated using detailed <b>test benches</b>, and simulated to confirm correct instruction execution across the full datapath before being mapped to an <b>FPGA</b>.",
+        "<u><b>Project Impact</b></u>",
+        "This project provided a comprehensive understanding of <b>processor architecture</b> and <b>RTL design</b>. It strengthened skills in building hierarchical hardware systems, integrating datapath and control logic, and handling instruction execution through memory and registers. The end-to-end implementation reinforced debugging, simulation, and verification practices crucial for <b>digital systems engineering</b> and laid a strong foundation for advanced CPU and system-on-chip design.",
+        "<u><b>Key Skills:</b></u> VHDL | Full CPU Design | RTL Implementation | Datapath & Control Integration | ALU Design | Register File | Instruction & Data Memory | Program Counter | Sign Extension | Multiplexers | Xilinx Vivado | FPGA | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/CO_L4_1.png"],
         videos: [],
         downloads: ["downloads/CO_L4.zip"],
         links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Advanced/CPU%20Design%202"}],
-        code: ``
+        code: `-- VHDL SOURCE CODE FILE FOR TOP MODULE (CO_L4):
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+
+entity CPU_3380 is
+	port(
+		clk	: in std_logic;
+		clear : in std_logic;
+		mem_dump : in std_logic := '0'
+ 	);
+end CPU_3380;
+
+architecture Behavioral of CPU_3380 is
+	COMPONENT ALU_16Bit
+		port(
+			A			:	in		std_logic_vector(15 downto 0);
+			B			:	in		std_logic_vector(15 downto 0);
+			S			:	in		std_logic_vector(1 downto 0);
+			Sout		:	out 	std_logic_vector(15 downto 0);
+			Cout		:	out	std_logic
+		);
+	END COMPONENT;
+
+	COMPONENT Registers
+		port(
+			clk			:	in	 std_logic;
+			clear		:	in  std_logic;
+
+			a_addr		:	in	 std_logic_vector( 3 downto 0);
+			a_data		:	in	 std_logic_vector(15 downto 0);
+			load		:	in	 std_logic;
+
+			b_addr		:	in	 std_logic_vector( 3 downto 0);
+			c_addr		:	in	 std_logic_vector( 3 downto 0);
+
+			b_data		:	out std_logic_vector(15 downto 0);
+			c_data		:	out std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
+
+	COMPONENT Control
+		port(
+			op			:	in	std_logic_vector( 3 downto 0);
+			alu_op		:	out	std_logic_vector( 1 downto 0);
+			alu_src		:	out	std_logic;
+			reg_dest	:	out	std_logic;
+			reg_load	:	out	std_logic;
+			reg_src		:	out	std_logic_vector( 1 downto 0);
+			mem_read	:	out	std_logic;
+			mem_write	:	out	std_logic
+		);
+	end component;
+
+	component Signextend
+		port(
+			immIn		:	in	std_logic_vector( 3 downto 0);
+			immOut		:	out	std_logic_vector(15 downto 0)
+		);
+	end component;
+
+	component mux3_1
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input3		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic_vector(1 			downto 0);
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+	end component;
+
+	component mux2_1
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic;
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+	end component;
+
+
+	component Memory
+   generic (
+       INPUT : string := "in.txt";
+       OUTPUT : string := "out.txt"
+   );
+    port (
+  	-- TODO 1: Finish implementing the memory component
+        clk : in std_logic;  
+        read_en : in std_logic;
+        write_en : in std_logic;
+        addr : in std_logic_vector(15 downto 0);
+        data_in : in std_logic_vector(15 downto 0);
+        data_out : out std_logic_vector(15 downto 0);
+        mem_dump : in std_logic := '0'
+    );
+	end component;
+
+	-- TODO 2: Finish implementing the program counter component
+	component PC_REG
+	port(
+		clk : in std_logic;
+		reset : in std_logic;
+		Input : in std_logic_vector(15 downto 0);
+		Output : out std_logic_vector(15 downto 0)
+	);
+	end component;
+
+	-- Signals
+	signal	instruction			:	std_logic_vector(15 downto 0);
+	signal   op						:	std_logic_vector( 3 downto 0);
+	signal	rd						:	std_logic_vector( 3 downto 0);
+	signal	rs						:	std_logic_vector( 3 downto 0);
+	signal	rt						:	std_logic_vector( 3 downto 0);
+
+	signal	alu_result			:	std_logic_vector(15 downto 0);
+	signal	alu_src_mux_out	:	std_logic_vector(15 downto 0);
+	signal 	sign_ex_out			:	std_logic_vector(15 downto 0);
+	signal	rs_data				:	std_logic_vector(15 downto 0);
+	signal	rt_data				:	std_logic_vector(15 downto 0);
+	signal	cout					:	std_logic						  ;
+	signal	reg_dest_mux_out	:	std_logic_vector( 3 downto 0);
+	signal	reg_src_mux_out	:	std_logic_vector(15 downto 0);
+	signal	mem_dataout			:	std_logic_vector(15 downto 0);
+
+	signal	ctrl_alu_src		:	std_logic;
+	signal	ctrl_alu_op			:	std_logic_vector( 1 downto 0);
+	signal	ctrl_reg_dest		:	std_logic;
+	signal	ctrl_reg_src		:	std_logic_vector( 1 downto 0);
+	signal	ctrl_reg_load		:	std_logic;
+	signal	ctrl_mem_read		:	std_logic;
+	signal	ctrl_mem_write		:	std_logic;
+
+	signal	slt_input			:	std_logic_vector(15 downto 0);
+
+	signal	reg_src_mux_input3:	std_logic_vector(15 downto 0);
+	signal	pc_plus_2			:	std_logic_vector(15 downto 0) ;
+	signal	pc_reg_output		:	std_logic_vector(15 downto 0);
+begin
+	--------------------------------------------------------------------------
+	-- Instruction Fetch
+	--------------------------------------------------------------------------
+
+  -- TODO 3: Finish implementing the program counter port map
+	CPU_PC:					PC_REG port map(
+		clk 			=>		clk,
+		reset			=>		clear,
+		input			=>		pc_plus_2,
+		output		=>    pc_reg_output
+	);
+	pc_plus_2		<= pc_reg_output + 2;
+
+  -- TODO 4: Finish implementing the instruction memory
+	CPU_Instr_MEM:			Memory generic map(INPUT => "Instr.txt") port map(
+		clk			=>		clk,
+		read_en		=>		'1',
+		write_en		=>		'0',
+		addr			=>		pc_reg_output,
+		data_in		=>		x"0000",
+		data_out		=>		instruction,
+		mem_dump 	=>		'0'
+	);
+
+	op		<=	instruction(15 downto 12);
+	rd		<= instruction(11 downto  8);
+	rs		<= instruction(7  downto  4);
+	rt		<= instruction(3  downto  0);
+	--------------------------------------------------------------------------
+	-- Instruction Decode
+	--------------------------------------------------------------------------
+
+  -- TODO 5: Finish implementing the control port map
+	CPU_Control_0:			Control port map(
+		op				=>		op,
+		alu_op		=>		ctrl_alu_op,
+		alu_src		=>		ctrl_alu_src,
+		reg_dest		=>		ctrl_reg_dest,
+		reg_load		=>		ctrl_reg_load,
+		reg_src		=>		ctrl_reg_src,
+		mem_read		=>		ctrl_mem_read,
+		mem_write	=>  ctrl_mem_write
+	);
+
+	CPU_Registers_0:		Registers port map(
+		clk			=>		clk,
+		clear			=>		clear,
+		a_addr		=>		rd,
+		a_data		=>		reg_src_mux_out,
+		load			=>		ctrl_reg_load,
+		b_addr		=>		rs,
+		c_addr		=>		reg_dest_mux_out,
+		b_data		=>		rs_data,
+		c_data		=>		rt_data
+	);
+
+	CPU_signextend_0:		Signextend port map(
+		immIn			=>		rt,
+		immOut		=>		sign_ex_out
+	);
+
+	CPU_reg_dest_mux:		mux2_1 generic map(4) port map(
+		Input1		=>		rt,
+		Input2		=>		rd,
+		S				=>		ctrl_reg_dest,
+		Sout			=>		reg_dest_mux_out
+	);
+
+	--------------------------------------------------------------------------
+	-- Execute
+	--------------------------------------------------------------------------
+	CPU_alu_src_mux:		mux2_1 generic map(16) port map(
+		Input1		=>		rt_data,
+		Input2		=>		sign_ex_out,
+		S				=>		ctrl_alu_src,
+		Sout			=>		alu_src_mux_out
+	);
+
+	CPU_ALU_0:				ALU_16Bit port map(
+		A				=>		rs_data,
+		B				=>		alu_src_mux_out,
+		S				=>		ctrl_alu_op,
+		Sout			=>		alu_result,
+		Cout			=>		cout
+	);
+
+	--------------------------------------------------------------------------
+	-- Memory
+	--------------------------------------------------------------------------
+
+	-- TODO 6: Finish implementing the data memory
+	CPU_MEM_0:Memory port map(
+		clk			=>		clk,
+		read_en		=>		ctrl_mem_read,
+		write_en		=>		ctrl_mem_write,
+		addr			=>		alu_result,
+		data_in		=>		rt_data,
+		data_out		=>		mem_dataout,
+		mem_dump 	=>		'0'
+	);
+
+	--------------------------------------------------------------------------
+	-- Write Back
+	--------------------------------------------------------------------------
+
+	-- TODO 7: Finish implementing the 3-1 MUX
+	slt_input	<=	"000000000000000"&alu_result(15);
+	CPU_reg_src_mux:		mux3_1 generic map(16) port map(
+		Input1		=>		mem_dataout,
+		Input2		=>		alu_result,
+		Input3		=>		slt_input,
+		S				=>		ctrl_reg_src,
+		Sout			=> reg_src_mux_out
+	);
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR ALU_16Bit:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity ALU_16Bit is
+port(	
+		A		:	in		std_logic_vector(15 downto 0);
+		B		:	in		std_logic_vector(15 downto 0);
+		S		:	in		std_logic_vector(1 downto 0);
+		Sout	:	out 	std_logic_vector(15 downto 0);
+		Cout	:	out	std_logic
+);
+End;
+
+Architecture behavior of ALU_16Bit is
+	COMPONENT ALU
+	port(	
+		A		:	in		std_logic;
+		B		:	in		std_logic;
+		Cin	:	in		std_logic;
+		S		:	in		std_logic_vector(1 downto 0);
+		Sout	:	out 	std_logic;
+		Cout	:	out	std_logic
+	);
+	END COMPONENT;
+
+	signal Carry		:	std_logic_vector(14 downto 0);
+
+Begin
+	alu00	:	ALU	port map(A(0),		B(0),		S(0),			S,	Sout(0),		Carry(0));
+	alu01	:	ALU	port map(A(1),		B(1),		Carry(0),	S,	Sout(1),		Carry(1));
+	alu02	:	ALU	port map(A(2),		B(2),		Carry(1),	S,	Sout(2),		Carry(2));
+	alu03	:	ALU	port map(A(3),		B(3),		Carry(2),	S,	Sout(3),		Carry(3));
+	
+	alu04	:	ALU	port map(A(4),		B(4),		Carry(3),	S,	Sout(4),		Carry(4));
+	alu05	:	ALU	port map(A(5),		B(5),		Carry(4),	S,	Sout(5),		Carry(5));
+	alu06	:	ALU	port map(A(6),		B(6),		Carry(5),	S,	Sout(6),		Carry(6));
+	alu07	:	ALU	port map(A(7),		B(7),		Carry(6),	S,	Sout(7),		Carry(7));
+
+	alu08	:	ALU	port map(A(8),		B(8),		Carry(7),	S,	Sout(8),		Carry(8));
+	alu09	:	ALU	port map(A(9),		B(9),		Carry(8),	S,	Sout(9),		Carry(9));
+	alu10	:	ALU	port map(A(10),	B(10),	Carry(9),	S,	Sout(10),	Carry(10));
+	alu11	:	ALU	port map(A(11),	B(11),	Carry(10),	S,	Sout(11),	Carry(11));
+
+	alu12	:	ALU	port map(A(12),	B(12),	Carry(11),	S,	Sout(12),	Carry(12));
+	alu13	:	ALU	port map(A(13),	B(13),	Carry(12),	S,	Sout(13),	Carry(13));
+	alu14	:	ALU	port map(A(14),	B(14),	Carry(13),	S,	Sout(14),	Carry(14));
+	alu15	:	ALU	port map(A(15),	B(15),	Carry(14),	S,	Sout(15),	Cout);
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR ALU:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity ALU is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		S	:	in	std_logic_vector(1 downto 0);
+		Sout:	out std_logic;
+		Cout:	out	std_logic
+);
+End;
+
+Architecture behavior of ALU is
+    COMPONENT full_adder
+	port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic
+		);
+    END COMPONENT;
+	
+	component MUX31
+	port(	
+		Input1		:	in	std_logic;
+		Input2		:	in	std_logic;
+		Input3		:	in	std_logic;
+		S			:	in	std_logic_vector(1 downto 0);
+		Sout		:	out	std_logic
+		);
+	end component;
+	
+	component and_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;	
+	
+	component or_gate
+	port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+		);
+	end component;
+	
+--Signals Defination
+	signal Sout_full_adder	:	std_logic;
+	signal Sout_or_gate		:	std_logic;
+	signal Sout_and_gate		:	std_logic;
+	signal NB					:	std_logic;
+Begin
+
+	NB <= B xor S(0);
+	
+	C1:full_adder	port map(
+		A		=>	A,
+		B		=>	NB,
+		Cin	=>	Cin,
+		Sout	=>	Sout_full_adder,
+		Cout	=>	Cout
+	);
+
+	C2:and_gate	port map(
+		In1	=>	A,
+		In2	=> B,
+		Sout	=> Sout_and_gate
+	);
+	
+	C3:or_gate		port map(
+		In1	=>	A,
+		In2	=>	B,
+		Sout	=>	Sout_or_gate
+	);
+	
+	C4:MUX31		port map(
+		Input1	=>	Sout_full_adder,
+		Input2	=>	Sout_and_gate,
+		Input3	=>	Sout_or_gate,
+		S			=>	S,
+		Sout		=>	Sout
+	);
+	
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR full_adder:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity full_adder is
+port(	
+		A	:	in	std_logic;
+		B	:	in	std_logic;
+		Cin	:	in	std_logic;
+		Sout	:	out std_logic;
+		Cout:	out	std_logic
+);
+End;
+
+Architecture behavior of full_adder is
+
+Begin
+-- Cin A  B  S  C
+--  0  0  0  0  0
+--  0  0  1  1  0
+--  0  1  0  1  0
+--  0  1  1  0  1
+--  1  0  0  1  0
+--  1  0  1  0  1
+--  1  1  0  0  1
+--  1  1  1  1  1
+
+-- Full adder Logic find the expression in previous ppt
+
+	Sout <= A xor B xor Cin;
+	Cout <= (A and B) or ((A Xor B) and Cin);
+
+	
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR MUX31:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+entity MUX31 is
+port(	Input1		:	in	std_logic;
+		Input2		:	in	std_logic;
+		Input3		:	in	std_logic;
+		S			:	in	std_logic_vector(1 downto 0);
+		Sout		:	out	std_logic);
+end MUX31;
+
+architecture Behavioral of MUX31 is
+
+Begin
+--MUX31 Logic (using When - ElSE structure)
+	Sout <=	Input1 when S="00" else
+				Input1 when S="01" else
+				Input2 when S="10" else
+				Input3 when S="11";
+
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR and_gate:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity and_gate is
+port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+);
+End;
+
+Architecture behavior of and_gate is
+
+Begin
+-- In1  In2  Sout
+--  0    0    0
+--  0    1    0
+--  1    0    0
+--  1    1    1
+	
+-- and gate logic
+	Sout <= In1 and In2;
+
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR or_gate:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+Entity or_gate is
+port(	
+		In1		:	in	std_logic;
+		In2		:	in	std_logic;
+		Sout	:	out	std_logic
+);
+End;
+
+Architecture behavior of or_gate is
+
+Begin
+-- In1  In2  Sout
+--  0    0    0
+--  0    1    1
+--  1    0    1
+--  1    1    1
+
+-- or gate logic
+	Sout <= In1 or In2;
+End;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Registers:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+Entity Registers is
+	port(
+		clk	:	in	 std_logic;
+		clear	:	in  std_logic;
+		
+		a_addr:	in	 std_logic_vector( 3 downto 0);
+		a_data:	in	 std_logic_vector(15 downto 0);
+		load	:	in	 std_logic;
+		
+		b_addr:	in	 std_logic_vector( 3 downto 0);
+		c_addr:	in	 std_logic_vector( 3 downto 0);
+		
+		b_data:	out std_logic_vector(15 downto 0);
+		c_data:	out std_logic_vector(15 downto 0)
+		);
+End Registers;
+
+architecture syn of Registers is
+	type ram_type is array (15 downto 0) of std_logic_vector(15 downto 0);
+	signal REG	:	ram_type;
+begin
+	process(clk, load, clear)
+	begin
+		if (clear = '0') then
+			REG(0)	<= x"0000";
+			REG(1)	<= x"0000";
+			REG(2)	<= x"0000";
+			REG(3)	<= x"0000";
+
+			REG(4)	<= x"0000";
+			REG(5)	<= x"0000";
+			REG(6)	<= x"0000";
+			REG(7)	<= x"0000";
+		
+			REG(8)	<= x"0000";
+			REG(9)	<= x"0000";
+			REG(10)	<= x"0000";
+			REG(11)	<= x"0000";
+
+			REG(12)	<= x"0000";
+			REG(13)	<= x"0000";
+			REG(14)	<= x"0000";
+			REG(15)	<= x"0000";
+		elsif (clk'event and clk='1') then
+			if (load = '1') then
+					REG(conv_integer(a_addr)) <= a_data;
+			end if;
+		end if;
+		REG(0)	<= x"0000";
+		REG(1)	<= x"0001";
+	end process;
+	b_data <= REG(conv_integer(b_addr));
+	c_data <= REG(conv_integer(c_addr));
+end syn;
+
+--		if (clear = '0') then
+--			for i in 15 downto 0 loop
+--				REG(i) <= x"0000";
+--			end loop;
+--		elsif (rising_edge(clk) and load = '1') then
+--			REG(conv_integer(a_addr)) <= a_data;
+--		end if;		
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Control:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+Entity Control is
+	port(
+		op		:	in	std_logic_vector( 3 downto 0);
+		alu_op		:	out	std_logic_vector( 1 downto 0);
+		alu_src		:	out	std_logic;
+		reg_dest		:	out	std_logic;
+		reg_load		:	out	std_logic;
+		reg_src		:	out	std_logic_vector(1 downto 0);
+		mem_read		:	out	std_logic;
+		mem_write	:	out	std_logic
+		);
+End Control;
+
+architecture syn of Control is
+
+begin
+	process (op) is
+	begin
+		case op is
+
+			-- op=0, ADD
+			when x"0" =>
+				alu_op		<=	"00";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=1, SUB
+			when x"1" =>
+				alu_op		<=	"01";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=2, AND
+			when x"2" =>
+				alu_op		<=	"10";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=3, OR
+			when x"3" =>
+				alu_op		<=	"11";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=4, ADDi
+			when x"4" =>
+				alu_op		<=	"00";
+				alu_src		<=	'1';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=5, SUBi
+			when x"5" =>
+				alu_op		<=	"01";
+				alu_src		<=	'1';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			-- op=8, LW
+			when x"8" =>
+				alu_op		<=	"00";
+				alu_src		<=	'1';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"00";
+				mem_read		<=	'1';
+				mem_write	<=	'0';
+
+			-- op=C, SW
+			when x"C" =>
+				alu_op		<=	"00";
+				alu_src		<=	'1';
+				reg_dest		<=	'1';
+				reg_load		<=	'0';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'1';
+	
+			-- op=7, SLT
+			when x"7" =>
+				alu_op		<=	"01";
+				alu_src		<=	'0';
+				reg_dest		<=	'0';
+				reg_load		<=	'1';
+				reg_src		<=	"10";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+			when others =>
+				alu_op		<=	"00";
+				alu_src		<=	'0';				
+				reg_dest		<=	'0';
+				reg_load		<=	'0';
+				reg_src		<=	"01";
+				mem_read		<=	'0';
+				mem_write	<=	'0';
+
+		end case;
+	end process;
+end syn;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Signextend:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+Entity Signextend is
+	port(
+		immIn		:	in	std_logic_vector( 3 downto 0);
+		immOut		:	out	std_logic_vector(15 downto 0)
+		);
+End Signextend;
+
+architecture syn of Signextend is
+
+begin
+
+	-- TODO 1: Implement the immOut(5) - immOut(15) (HINT: Look at the signal immOut(3))
+	immOut(3)	<=	immIn(3);
+	immOut(2)	<=	immIn(2);
+	immOut(1)	<=	immIn(1);
+	immOut(0)	<=	immIn(0);
+	process ( immIn)
+	begin 
+	if (immIn(3) = '1') then
+	immOut(15 downto 4) <= "111111111111";
+	else
+	immOut(15 downto 4) <= "000000000000";
+	end if;
+	end process;
+
+end syn;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR mux3_1:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity mux3_1 is
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input3		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic_vector(1 			downto 0);
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+end mux3_1;
+
+architecture Behavioral of mux3_1 is
+
+begin
+	Sout <=	Input1 when S="00" else
+				Input2 when S="01" else
+				Input3 when S="10" else
+				Input3 when S="11";
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR mux2_1:
+----------------------------------------------------------------------------------
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity mux2_1 is
+   generic (WIDTH : positive:=16);
+	port(
+		Input1		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		Input2		:	in		std_logic_vector(WIDTH-1 	downto 0);
+		S				:	in		std_logic;
+		Sout			:	out	std_logic_vector(WIDTH-1 	downto 0));
+end mux2_1;
+
+architecture Behavioral of mux2_1 is
+
+begin
+	Sout <=	Input1 when S='0' else
+				Input2 when S='1';
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR Memory:
+----------------------------------------------------------------------------------
+
+-- This file contains the description of a simple, single-port memory.
+-- 
+-- * The data_out port updates asynchronously when read_en is high.
+-- * The memory is updated synchronously (on a rising clock edge) from
+--   data_in when write_en is high.
+-- 
+-- This memory can be initialized from an input file, and can dump its
+-- contents to an output file.  To use this, you must assign the INPUT and
+-- OUTPUT generics when instantiating a memory component, e.g.:
+--
+--     data_mem : entity work.memory
+--         generic map (
+--             INPUT => "in_data.txt",
+--             OUTPUT => "out_data.txt")
+--         port map ( ... );
+--
+-- The input file must have 33 lines, 8 bits per line.  The output file is
+-- written in the same format, whenever the mem_dump input goes high.
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+use std.textio.all;
+
+
+entity Memory is
+   generic (
+       INPUT : string := "in.txt";
+       OUTPUT : string := "out.txt"
+   );
+    port (
+        clk : in std_logic;  
+        read_en : in std_logic;
+        write_en : in std_logic;
+        addr : in std_logic_vector(15 downto 0);
+        data_in : in std_logic_vector(15 downto 0);
+        data_out : out std_logic_vector(15 downto 0);
+        mem_dump : in std_logic := '0'
+    );
+end entity Memory;
+
+
+architecture beh of Memory is
+    type mem_type is array (0  to  33) of std_logic_vector(7  downto 0);
+
+    impure function init_mem return mem_type is
+        file in_file : text; 
+        variable in_line : line;
+        variable byte : bit_vector(7  downto 0);
+        variable mem : mem_type;
+    begin
+        if INPUT'length = 0 then
+            return mem;
+        end if;
+        
+        file_open(in_file, INPUT, READ_MODE);
+        for row in mem_type'range loop
+            readline(in_file, in_line);
+            read(in_line, byte);
+            mem(row) := to_stdlogicvector(byte);
+        end loop;
+
+        return mem;
+    end function init_mem;
+
+    signal mem : mem_type := init_mem;
+
+--    procedure dump_mem is
+--        file out_file : text;
+--        variable out_line : line;
+--        variable byte : bit_vector(7  downto 0);
+--
+--    begin
+--        if OUTPUT'length = 0 then
+--            report "The mem_dump port was triggered, but no file name was";
+--            report "given.  Specify a file name for the generic OUTPUT in";
+--            report "the entity declaration to enable memory dump.";
+--            return;
+--        end if;
+--        
+--        file_open(out_file, OUTPUT, WRITE_MODE);
+--        for row in mem_type'range loop
+--            byte := to_bitvector(mem(row));
+--            write(out_line, byte);
+--            writeline(out_file, out_line);
+--        end loop;
+--    end procedure dump_mem;
+	 
+	 
+begin
+    read_p : process (read_en, mem, addr) is
+    begin
+        if read_en = '1' then
+            data_out(7  downto 0) <= mem(conv_integer(addr(7 downto 0)));
+            data_out(15 downto 8) <= mem(conv_integer(addr(7 downto 0))+1);
+        end if;
+    end process read_p;
+
+    write_p : process (clk) is
+    begin
+        if rising_edge(clk) and write_en = '1' then
+            mem(conv_integer(addr(7 downto 0))) <= data_in(7  downto 0);
+            mem(conv_integer(addr(7 downto 0))+1) <= data_in(15 downto 8);
+        end if;
+    end process write_p;
+
+--    mem_dump_p : process(mem_dump) is
+--    begin
+--        if rising_edge(mem_dump) then
+--            dump_mem;
+--        end if;
+--    end process mem_dump_p;
+end architecture beh;   
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR PC_REG:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity PC_REG is
+	port(
+		clk : in std_logic;
+		reset : in std_logic;
+		Input : in std_logic_vector(15 downto 0);
+		Output : out std_logic_vector(15 downto 0)
+	);
+end PC_REG;
+
+architecture Behavioral of PC_REG is
+begin
+	process(reset, clk)
+	begin
+		if (reset = '0') then
+			output <= x"0000";
+		elsif (clk'event and clk='1') then
+			Output <= Input;
+		end if; 
+	end process;
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR MUX21_16Bit:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+entity MUX21_16Bit is
+port(	Input1		:	in	std_logic_vector(15 downto 0);
+		Input2		:	in	std_logic_vector(15 downto 0);
+		S			:	in	std_logic;
+		Sout		:	out	std_logic_vector(15 downto 0));
+end MUX21_16Bit;
+
+architecture Behavioral of MUX21_16Bit is
+
+Begin
+
+	Sout <=	Input1 when S='0' else
+			Input2 when S='1';
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR MUX21_4Bit:
+----------------------------------------------------------------------------------
+
+Library ieee;
+Use ieee.std_logic_1164.all;
+Use ieee.std_logic_unsigned.all;
+
+entity MUX21_4Bit is
+port(	Input1		:	in	std_logic_vector(3 downto 0);
+		Input2		:	in	std_logic_vector(3 downto 0);
+		S			:	in	std_logic;
+		Sout		:	out	std_logic_vector(3 downto 0));
+end MUX21_4Bit;
+
+architecture Behavioral of MUX21_4Bit is
+
+Begin
+
+	Sout <=	Input1 when S='0' else
+			Input2 when S='1';
+
+end Behavioral;
+
+----------------------------------------------------------------------------------
+-- VHDL CODE FOR TESTBENCH FOR CPU_3380_Test:
+----------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+
+entity CPU_3380_Test is
+end entity CPU_3380_Test;
+
+
+architecture mixed of CPU_3380_Test is
+    constant tick : time := 100 ns;
+	 constant RUN_TIME : integer := 18;
+    signal reset, clock : std_logic;
+	 signal mem_dump : std_logic := '0';
+    --signal instruction : std_logic_vector(0 to 15);
+begin
+    uut : entity work.CPU_3380
+        port map(
+            clk		=> clock,
+            clear	=> reset,
+				mem_dump    => mem_dump
+        );
+
+    driver : process is
+    begin
+        -- reset the system
+        reset <= '0'; 
+		  wait for 50 ns;
+        reset <= '1';
+
+			for i in  1 to RUN_TIME loop
+				wait for tick;
+			end loop;
+--			addi r3, r0, 5
+--			addi r4, r0, 2
+--			slt r11, r3, r4
+--			sw r3, 0(r0)
+--			sw r4, 4(r0)
+--			addi r6, r0, 4
+--			lw r7, 0(r6)
+--			lw r8, 0(r0)
+--			add r9, r7, r8
+--			slt r10, r0, r1
+--			slt r10, r1, r0
+--			or r5, r10, r9
+--			subi r10, r5, 7
+--			sub r11, r10, r7
+--			sw r11, 5(r8)
+        wait;
+    end process driver;
+
+    clock_p : process is
+    begin
+        for i in 0 to 50 loop
+            clock <= '1'; wait for tick/2;
+            clock <= '0'; wait for tick/2;
+        end loop;
+        wait;
+    end process clock_p;
+end architecture mixed;`
       },
       {
         id: "Full_CPU_1",
         name: "CPU RTL Design (Pt 1): Full Datapath Design",
         summary: [
         "<u><b>Building Process</b></u>",
-        "This project involved designing a hierarchical <b>CPU datapath</b> in <b>VHDL</b>, composed of modular components including a <b>16-bit ALU</b>, <b>register file</b>, <b>control unit</b>, <b>sign extender</b>, and <b>multiplexers</b>. The CPU supported arithmetic, logic, immediate, load/store, and comparison instructions. The design was implemented in <b>Xilinx ISE</b>, validated through a comprehensive <b>test bench</b>, and simulated to verify instruction execution and correct datapath control signal generation.",
+        "This project involved designing a hierarchical <b>CPU datapath</b> in <b>VHDL</b>, composed of modular components including a <b>16-bit ALU</b>, <b>register file</b>, <b>control unit</b>, <b>sign extender</b>, and <b>multiplexers</b>. The CPU supported arithmetic, logic, immediate, load/store, and comparison instructions. The design was implemented in <b>Xilinx Vivado</b>, validated through a comprehensive <b>test bench</b>, and simulated to verify instruction execution and correct datapath control signal generation.",
         "<u><b>Project Impact</b></u>",
         "This project reinforced a strong understanding of <b>CPU RTL design</b>, <b>datapath architecture</b>, and <b>control signal generation</b> in VHDL. It provided practical experience in integrating arithmetic, logic, and memory-related components into a cohesive processor datapath. The project also strengthened debugging, verification, and modular hardware design skills essential for advanced digital systems engineering.",
-        "<u><b>Key Skills:</b></u> VHDL | CPU RTL Design | Datapath Architecture | ALU Implementation | Control Unit Design | Register File | Sign Extension | Multiplexers | Xilinx ISE | Modular Design | Test Bench Development | Hardware Simulation & Verification"
+        "<u><b>Key Skills:</b></u> VHDL | CPU RTL Design | Datapath Architecture | ALU Implementation | Control Unit Design | Register File | Sign Extension | Multiplexers | Xilinx Vivado | Modular Design | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/CO_L3_1.png"],
         videos: [],
@@ -1378,10 +2461,10 @@ END ARCHITECTURE mixed;
         name: "CPU RTL Design: 16_Bit_ALU",
         summary: [
             "<u><b>Building Process</b></u>",
-            "This project involved designing a hierarchical <b>16-bit Arithmetic Logic Unit (ALU)</b> in <b>VHDL</b>, built from modular components such as <b>1-bit ALUs</b>, <b>full adders</b>, <b>logic gates</b>, <b>comparators</b>, and an <b>8-to-1 multiplexer</b>. The ALU supported multiple arithmetic and logic operations including addition, subtraction, AND, OR, XOR, set-less-than (SLT), and branch-equal (BEQ), while also generating <b>Zero</b> and <b>Overflow</b> flags. The design was implemented in <b>Xilinx ISE</b>, validated through a comprehensive <b>test bench</b>, and simulated to verify correct operation across all instruction codes before FPGA deployment.",
+            "This project involved designing a hierarchical <b>16-bit Arithmetic Logic Unit (ALU)</b> in <b>VHDL</b>, built from modular components such as <b>1-bit ALUs</b>, <b>full adders</b>, <b>logic gates</b>, <b>comparators</b>, and an <b>8-to-1 multiplexer</b>. The ALU supported multiple arithmetic and logic operations including addition, subtraction, AND, OR, XOR, set-less-than (SLT), and branch-equal (BEQ), while also generating <b>Zero</b> and <b>Overflow</b> flags. The design was implemented in <b>Xilinx Vivado</b>, validated through a comprehensive <b>test bench</b>, and simulated to verify correct operation across all instruction codes before FPGA deployment.",
             "<u><b>Project Impact</b></u>",
             "This project strengthened expertise in <b>CPU RTL design</b> and <b>modular VHDL architecture</b>, highlighting how complex arithmetic units are constructed hierarchically from smaller building blocks. It provided hands-on experience in <b>flag generation</b> (Zero, Overflow), <b>control signal decoding</b>, and <b>operation multiplexing</b>, which are foundational to processor datapaths. The project also enhanced skills in test bench development, debugging timing-sensitive hardware, and mapping arithmetic logic onto FPGA fabric — bridging the gap between <b>theoretical ALU design</b> and <b>practical hardware implementation</b>.",
-            "<u><b>Key Skills:</b></u> VHDL | CPU RTL Design | Hierarchical Design | ALU Implementation | Arithmetic & Logic Operations | Multiplexer-Based Control | Flag Generation (Zero, Overflow) | Xilinx ISE | FPGA | Modular Design | Test Bench Development | Hardware Simulation & Verification"
+            "<u><b>Key Skills:</b></u> VHDL | CPU RTL Design | Hierarchical Design | ALU Implementation | Arithmetic & Logic Operations | Multiplexer-Based Control | Flag Generation (Zero, Overflow) | Xilinx Vivado | FPGA | Modular Design | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/CO_L2_1.png"],
         videos: [],
@@ -2064,10 +3147,10 @@ END;`
         name: "Register/Memory",
         summary: [
             "<u><b>Building Process</b></u>",
-            "This project focused on designing and testing <b>memory systems</b> and a <b>register file</b> in <b>VHDL</b>. Multiple memory modes were implemented, including <b>Write-First</b>, <b>Read-First</b>, and <b>No-Change</b>, along with a <b>Register File</b> supporting simultaneous read and write operations. The designs were validated through <b>test benches</b> and simulated to ensure correct timing and data consistency. Outputs were connected to a <b>7-Segment Display</b> for visualization, and the system was deployed on an <b>FPGA board</b> using <b>Xilinx ISE</b>.",
+            "This project focused on designing and testing <b>memory systems</b> and a <b>register file</b> in <b>VHDL</b>. Multiple memory modes were implemented, including <b>Write-First</b>, <b>Read-First</b>, and <b>No-Change</b>, along with a <b>Register File</b> supporting simultaneous read and write operations. The designs were validated through <b>test benches</b> and simulated to ensure correct timing and data consistency. Outputs were connected to a <b>7-Segment Display</b> for visualization, and the system was deployed on an <b>FPGA board</b> using <b>Xilinx Vivado</b>.",
             "<u><b>Project Impact</b></u>",
             "Unlike the <b>SIMD CPU project</b>, which emphasized computation and instruction execution, this project concentrated on the <b>storage and retrieval aspects</b> of digital systems. It deepened understanding of <b>memory architectures</b>, <b>register file design</b>, and <b>FPGA-based data storage</b>. The project demonstrated how memory modes affect data availability and hardware timing, while also reinforcing skills in <b>hierarchical VHDL design</b>, <b>modular coding</b>, and <b>simulation-driven debugging</b>. These skills are crucial for bridging the gap between <b>processing units</b> and <b>memory subsystems</b> in computer architecture.",
-            "<u><b>Key Skills:</b></u> VHDL | Memory Architectures (Write-First, Read-First, No-Change) | Register File Design | Hierarchical Design | Xilinx ISE | FPGA | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification"
+            "<u><b>Key Skills:</b></u> VHDL | Memory Architectures (Write-First, Read-First, No-Change) | Register File Design | Hierarchical Design | Xilinx Vivado | FPGA | 7-Segment Display | Modular Design | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/CO_L1_1.png", "assets/CO_L1_2.png", "assets/CO_L1_3.png"],
         videos: [],
@@ -2755,10 +3838,10 @@ end Behavioral;
         name: "CPU (SIMD)",
         summary: [
         "<u><b>Building Process</b></u>",
-        "This project involved designing a <b>CPU with SIMD architecture</b> in <b>VHDL</b>, integrating a <b>Control Unit</b>, <b>Register Files</b>, and <b>Arithmetic Units (AUs)</b> for parallel computation. A debouncer module ensured stable input handling, while operands and results were displayed on a multiplexed <b>7-Segment Display</b>. The hierarchical design included <b>One-Bit</b> and <b>Four-Bit Arithmetic Units</b>, controlled by the FSM-based control unit. The entire system was implemented in <b>Xilinx ISE</b>, simulated using <b>test benches</b>, and deployed on an <b>FPGA board</b> with real-time visualization of operands, operations, and results.",
+        "This project involved designing a <b>CPU with SIMD architecture</b> in <b>VHDL</b>, integrating a <b>Control Unit</b>, <b>Register Files</b>, and <b>Arithmetic Units (AUs)</b> for parallel computation. A debouncer module ensured stable input handling, while operands and results were displayed on a multiplexed <b>7-Segment Display</b>. The hierarchical design included <b>One-Bit</b> and <b>Four-Bit Arithmetic Units</b>, controlled by the FSM-based control unit. The entire system was implemented in <b>Xilinx Vivado</b>, simulated using <b>test benches</b>, and deployed on an <b>FPGA board</b> with real-time visualization of operands, operations, and results.",
         "<u><b>Project Impact</b></u>",
         "This project provided deep insight into <b>CPU architecture</b> and <b>SIMD processing</b>. It reinforced hierarchical hardware design principles, control-flow implementation through FSMs, and data handling with register files. By integrating parallel arithmetic operations with synchronized control and output multiplexing, the project strengthened skills in <b>VHDL design</b>, <b>hardware verification</b>, and <b>FPGA deployment</b>, while offering practical exposure to scalable processor design concepts.",
-        "<u><b>Key Skills:</b></u> VHDL | SIMD Architecture | Control Unit (FSM) | Register Files | Arithmetic Units | Hierarchical Design | Xilinx ISE | FPGA | Debouncer Circuits | 7-Segment Display Multiplexing | Test Bench Development | Hardware Simulation & Verification"
+        "<u><b>Key Skills:</b></u> VHDL | SIMD Architecture | Control Unit (FSM) | Register Files | Arithmetic Units | Hierarchical Design | Xilinx Vivado | FPGA | Debouncer Circuits | 7-Segment Display Multiplexing | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/RCS_L3_1.png", "assets/RCS_L3_2.png", "assets/RCS_L3_3.png", "assets/RCS_L3_4.png", "assets/RCS_L3_5.png"],
         videos: [],
@@ -3881,10 +4964,10 @@ end Behavioral;
         name: "ALU",
         summary: [
           "<u><b>Building Process</b></u>",
-          "This project involved designing a hierarchical <b>4-bit Arithmetic Unit (AU)</b> in <b>VHDL</b>, built from <b>Half Adders</b>, <b>Full Adders</b>, and <b>Arithmetic Input Logic modules</b> to form <b>One-Bit</b> and <b>Four-Bit AUs</b>. The AU supported multiple arithmetic and logic operations controlled by selection inputs. Results, along with operands, were displayed on a multiplexed <b>7-Segment Display Decoder</b> for real-time visualization. A <b>top-level module</b> integrated switches, LEDs, carry indicators, and display control logic. The design was implemented in <b>Xilinx ISE</b>, thoroughly verified using <b>test benches</b>, and simulated before being deployed on an <b>FPGA board</b>.",
+          "This project involved designing a hierarchical <b>4-bit Arithmetic Unit (AU)</b> in <b>VHDL</b>, built from <b>Half Adders</b>, <b>Full Adders</b>, and <b>Arithmetic Input Logic modules</b> to form <b>One-Bit</b> and <b>Four-Bit AUs</b>. The AU supported multiple arithmetic and logic operations controlled by selection inputs. Results, along with operands, were displayed on a multiplexed <b>7-Segment Display Decoder</b> for real-time visualization. A <b>top-level module</b> integrated switches, LEDs, carry indicators, and display control logic. The design was implemented in <b>Xilinx Vivado</b>, thoroughly verified using <b>test benches</b>, and simulated before being deployed on an <b>FPGA board</b>.",
           "<u><b>Project Impact</b></u>",
           "This project reinforced understanding of <b>ALU architecture</b> and <b>hierarchical modular design</b> in VHDL. It provided hands-on experience in implementing arithmetic/logic selection control, real-time <b>7-segment multiplexing</b>, and structured hardware verification. The work strengthened skills in <b>debugging</b>, <b>simulation</b>, and <b>hardware deployment</b>, essential for scalable and efficient digital system design.",
-          "<u><b>Key Skills:</b></u> VHDL | ALU & Arithmetic Circuits | Hierarchical Design | Xilinx ISE | FPGA | Half & Full Adders | Arithmetic Input Logic Modules | 7-Segment Display Multiplexing | Modular Architecture | Test Bench Development | Hardware Simulation & Verification"
+          "<u><b>Key Skills:</b></u> VHDL | ALU & Arithmetic Circuits | Hierarchical Design | Xilinx Vivado | FPGA | Half & Full Adders | Arithmetic Input Logic Modules | 7-Segment Display Multiplexing | Modular Architecture | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/RCS_L2_1.png", "assets/RCS_L2_2.png", "assets/RCS_L2_3.png", "assets/RCS_L2_4.png", "assets/RCS_L2_5.png", "assets/RCS_L2_6.png", "assets/RCS_L2_7.png", "assets/RCS_L2_8.png", "assets/RCS_L2_9.png"],
         videos: [],
@@ -4479,10 +5562,10 @@ end Behavioral;`
         name: "6-Bit Adder",
         summary: [
           "<u><b>Building Process</b></u>",
-          "This project involved designing a hierarchical <b>6-bit Ripple Carry Adder</b> in <b>VHDL</b>, composed of <b>Half Adders</b>, <b>Full Adders</b>, and a <b>Six-Bit Adder</b> module. The design incorporated a <b>Carry-In</b> and <b>Carry-Out</b> feature, with results displayed using a <b>7-Segment Display Decoder</b>. A <b>top-level module</b> integrated input switches, LED indicators, and real-time display multiplexing logic. The design was implemented in <b>Xilinx ISE</b>, verified with <b>test benches</b>, and simulated before being deployed on an <b>FPGA board</b>.",
+          "This project involved designing a hierarchical <b>6-bit Ripple Carry Adder</b> in <b>VHDL</b>, composed of <b>Half Adders</b>, <b>Full Adders</b>, and a <b>Six-Bit Adder</b> module. The design incorporated a <b>Carry-In</b> and <b>Carry-Out</b> feature, with results displayed using a <b>7-Segment Display Decoder</b>. A <b>top-level module</b> integrated input switches, LED indicators, and real-time display multiplexing logic. The design was implemented in <b>Xilinx Vivado</b>, verified with <b>test benches</b>, and simulated before being deployed on an <b>FPGA board</b>.",
           "<u><b>Project Impact</b></u>",
           "This project strengthened knowledge of <b>ripple carry adders</b> and <b>hierarchical hardware design</b>. It provided hands-on experience with <b>multi-bit arithmetic circuits</b>, <b>carry propagation</b>, and <b>real-time output interfacing</b> using a 7-segment display. The modular approach improved debugging, simulation, and hardware validation skills essential for building scalable digital systems.",
-          "<u><b>Key Skills:</b></u> VHDL | Ripple Carry Adder Design | Hierarchical Design | Xilinx ISE | FPGA | Half & Full Adders | 7-Segment Display Multiplexing | Modular Architecture | Test Bench Development | Hardware Simulation & Verification"
+          "<u><b>Key Skills:</b></u> VHDL | Ripple Carry Adder Design | Hierarchical Design | Xilinx Vivado | FPGA | Half & Full Adders | 7-Segment Display Multiplexing | Modular Architecture | Test Bench Development | Hardware Simulation & Verification"
         ],
         images: ["assets/RCS_L1_1.png", "assets/RCS_L1_2.png", "assets/RCS_L1_3.png", "assets/RCS_L1_4.png", "assets/RCS_L1_5.png", "assets/RCS_L1_6.png", "assets/RCS_L1_7.png", "assets/RCS_L1_8.png", "assets/RCS_L1_9.png", "assets/RCS_L1_10.png"],
         videos: [],
