@@ -157,6 +157,25 @@
       object-fit: cover;   /* Crop to fill circle */
     }
 
+        /* Animate the dots */
+    .loading .dots {
+      display: inline-block;
+    }
+
+    @keyframes dotPulse {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+      100% { content: ""; }
+    }
+
+    /* Use a pseudo-element for animation */
+    .loading .dots::after {
+      content: "";
+      animation: dotPulse 1s infinite steps(4);
+    }
+
     .download-btn {
       display: inline-block;
       padding: 8px 14px;
@@ -181,7 +200,7 @@
   <div id="splash-screen">
     <img src="assets/Aamir_Pic.jpg" alt="Your Photo" />
     <h1>Aamir Irfan</h1>
-    <h2>Loading ...</h2>
+    <h2 class="loading">Loading<span class="dots">...</span></h2>
   </div>
 
   <!-- Header Including Introduction + Navigation Bar. -->
