@@ -124,6 +124,28 @@
       border-radius: 6px;
     }
 
+    .video-row iframe,
+    .video-row video {
+    width: 100%;
+    height: 400px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: none;
+    }
+
+    .image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+    }
+
+    .image-grid img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+    }
+
   </style>
 </head>
 <body>
@@ -7889,10 +7911,12 @@ END;
           "The building process of the Simple Circuit consisted of understanding the circuit presented and based on that creating a truth table, boolean function, and a circuit. Once that was done the circuit was designed using the <b>Schematic Capture</b> tool in <b>Xilinx ISE</b> after this a <b>test bench</b> was created to simulate the design and showcase a <b>waveform</b>. Finally the program was run on a <b>FPGA</b> and the switches were mapped to the input and the LEDs to the output.",
           "<u><b>Project Impact</b></u>",
           "This project strengthened practical understanding of digital logic design and FPGA implementation. It enabled hands-on experience with translating boolean functions into working hardware, validating designs through simulation, and deploying circuits on an FPGA. The project also enhanced problem-solving, debugging, and verification skills crucial for hardware design.",
-          "<u><b>Key Skills:</b></u> Xilinx ISE | FPGA | Truth Tables | Boolean Functions | Schematic Captur | Test Bench Code | Waveform Simulation."
+          "<u><b>Key Skills:</b></u> Xilinx ISE | FPGA | Truth Tables | Boolean Functions | Schematic Capture | Test Bench Code | Waveform Simulation."
         ],
         images: ["assets/DS_L1_1.png", "assets/DS_L1_2.png", "assets/DS_L1_3.png", "assets/DS_L1_4.png"],
-        videos: [],
+        videos: [
+            "https://drive.google.com/file/d/10fQrreGfq8vSOQ1t0LaUX7TbRRAL9A7N/preview"
+        ],
         downloads: ["downloads/DS_L1.zip"],
         links: [{ label: "GitHub Repository", url: "https://github.com/Aamir-Ir/VHDL_Achievements/tree/main/VHDL%20-%20Beginner/Simple%20AND%20Gate"}],
         code: `-- VHDL TEST BENCH CODE (DS_L1)
@@ -8073,22 +8097,48 @@ END;`
     activeProjectBtn = btn;
 
     projectDetail.innerHTML = `
-      <h2>${project.name}</h2>
-      ${project.summary.map(p => `<p>${p}</p>`).join("")}
-      <div class="project-media">
-        ${project.videos.map(video => {
-          if (video.includes("drive.google.com")) {
-            return `<div class="responsive-video"><iframe src="${video}" allow="autoplay" allowfullscreen></iframe></div>`;
-          } else {
-            return `<video controls src="${video}"></video>`;
-          }
-        }).join("")}
-        ${project.images.map(img => `<img src="${img}" alt="${project.name} Image">`).join("")}
-      </div>
-      ${project.links.length > 0 ? `<div class="links">${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>` : ''}
-      ${project.downloads.length > 0 ? project.downloads.map(file => `<a href="${file}" class="download" download>Download</a>`).join('') : ''}
-      ${project.code ? `<pre class="language-javascript"><code>${escapeHtml(project.code)}</code></pre>` : ''}
-    `;
+        <h2>${project.name}</h2>
+        ${project.summary.map(p => `<p>${p}</p>`).join("")}
+
+        <div class="project-media" style="display:block;">
+
+            <!-- VIDEO ROW (single row) -->
+            ${project.videos.length > 0 ? `
+            <div class="video-row">
+                ${project.videos.map(video => {
+                if (video.includes("drive.google.com")) {
+                    return `<iframe src="${video}" allow="autoplay" allowfullscreen></iframe>`;
+                } else {
+                    return `<video controls src="${video}"></video>`;
+                }
+                }).join("")}
+            </div>
+            ` : ""}
+
+            <!-- IMAGE GRID -->
+            ${project.images.length > 0 ? `
+            <div class="image-grid">
+                ${project.images.map(img => `<img src="${img}" alt="${project.name} Image">`).join("")}
+            </div>
+            ` : ""}
+
+        </div>
+
+        ${project.links.length > 0 ? `
+            <div class="links">
+            ${project.links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.label}</a>`).join('')}
+            </div>
+        ` : ''}
+
+        ${project.downloads.length > 0 ? project.downloads.map(file => `
+            <a href="${file}" class="download" download>Download</a>
+        `).join('') : ''}
+
+        ${project.code ? `
+            <pre class="language-javascript"><code>${escapeHtml(project.code)}</code></pre>
+        ` : ''}
+        `;
+
 
     if (project.code) Prism.highlightAll();
   }
